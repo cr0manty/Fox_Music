@@ -4,20 +4,26 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'colors.dart';
 
-class HomePage extends StatefulWidget {
+class MusicList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return HomePageState();
+    return MusicListState();
   }
 }
 
-class HomePageState extends State<HomePage> {
+class MusicListState extends State<MusicList> {
   List<Song> data = [];
+  final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _menuKey,
+      drawer: new Drawer(),
       appBar: AppBar(
+        leading: new IconButton(
+            icon: new Icon(Icons.menu),
+            onPressed: () => _menuKey.currentState.openDrawer()),
         title: Text('VK Music'),
       ),
       backgroundColor: lightGrey,
@@ -43,22 +49,22 @@ class HomePageState extends State<HomePage> {
   _loadSongs() async {
     final response = await http.get('http://10.0.2.2:8000/api/songs/list/');
     if (response.statusCode == 200) {
-      var songs_data =
+      var songsData =
           (json.decode(response.body) as Map)['songs'] as List<dynamic>;
 
-      var song_list = List<Song>();
-      songs_data.forEach((dynamic value) {
+      var songList = List<Song>();
+      songsData.forEach((dynamic value) {
         var song = Song(
             name: value['name'],
             artist: value['artist'],
             duration: formatTime(value['duration']),
-            song_id: value['song_id'],
-            posted_at: DateTime.parse(value['posted_at']),
+            songId: value['song_id'],
+            postedAt: DateTime.parse(value['posted_at']),
             download: value['download']);
-        song_list.add(song);
+        songList.add(song);
       });
       setState(() {
-        data = song_list;
+        data = songList.reversed.toList();
       });
     }
   }

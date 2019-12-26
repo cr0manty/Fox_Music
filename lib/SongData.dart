@@ -3,14 +3,14 @@ class Song {
   String artist;
   String duration;
   String download;
-  int song_id;
-  DateTime posted_at;
+  int songId;
+  DateTime postedAt;
 
   Song(
-      {this.song_id,
+      {this.songId,
       this.artist,
       this.name,
       this.duration,
       this.download,
-      this.posted_at});
+      this.postedAt});
 }
