@@ -32,8 +32,5 @@ Future<User> requestLogin(BuildContext context, String username, String password
   }
   catch (e) {
     print(e);
-    showTextDialog(context, "Unable to Login",
-          "You may have supplied an invalid 'Username' / 'Password' combination.",
-          "OK");
   }
 }
