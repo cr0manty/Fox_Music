@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
+import '../api/requestLogin.dart';
+import '../api/requestRegistration.dart';
+
+class Login extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new _LoginPageState();
+  State<StatefulWidget> createState() => new _LoginState();
 }
 
 enum FormType { login, register }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginState extends State<Login> {
   final TextEditingController _loginFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   final TextEditingController _userIDFilter = new TextEditingController();
-  String _login = "";
+  String _username = "";
   String _password = "";
   String _userID = "";
   FormType _form = FormType
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
 
-  _LoginPageState() {
-    _loginFilter.addListener(_emailListen);
+  _LoginState() {
+    _loginFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
     _userIDFilter.addListener(_userIDListen);
   }
 
-  void _emailListen() {
+  void _usernameListen() {
     if (_loginFilter.text.isEmpty) {
-      _login = "";
+      _username = "";
     } else {
-      _login = _loginFilter.text;
+      _username = _loginFilter.text;
     }
   }
 
@@ -59,15 +63,25 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: _buildBar(context),
-      body: new Container(
-        padding: EdgeInsets.all(16.0),
-        child: new Column(
-          children: <Widget>[
-            _buildTextFields(),
-            _buildButtons(),
-          ],
+    return new WillPopScope(
+      onWillPop: () {
+        if (Navigator.canPop(context)) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/HomeScreen', (Route<dynamic> route) => false);
+        } else {
+          Navigator.of(context).pushReplacementNamed('/HomeScreen');
+        }
+      },
+      child: new Scaffold(
+        appBar: _buildBar(context),
+        body: new Container(
+          padding: EdgeInsets.all(16.0),
+          child: new Column(
+            children: <Widget>[
+              _buildTextFields(),
+              _buildButtons(),
+            ],
+          ),
         ),
       ),
     );
@@ -102,15 +116,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  String numberValidator(String value) {
-    if (value == null) {
-      return null;
-    }
-    final n = num.tryParse(value);
-    if (n == null) {
-      return '"$value" is not a valid number';
-    }
-    return null;
+  @override
+  void initState() {
+    super.initState();
+    _saveCurrentRoute("/LoginScreen");
+  }
+
+  _saveCurrentRoute(String lastRoute) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString('LastScreenRoute', lastRoute);
   }
 
   Widget _buildButtons() {
@@ -138,9 +152,6 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _userIDFilter,
                 decoration: new InputDecoration(labelText: 'User ID'),
                 keyboardType: TextInputType.number,
-//                inputFormatters: <TextInputFormatter>[
-//                  WhitelistingTextInputFormatter.digitsOnly
-//                ],
               ),
             ),
             new RaisedButton(
@@ -157,12 +168,14 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _loginPressed() {
-    print('The user wants to login with $_login and $_password');
+  void _loginPressed() async {
+    print('Login - $_username, $_password');
+    requestLogin(context, _username, _password);
   }
 
   void _createAccountPressed() {
-    print(
-        'The user wants to create an accoutn with $_login and $_password and $_userID');
+    print('Registration - $_username, $_password, $_userID');
+    // TODO: check userID for num only
+    requestRegistration(context, _username, _password, _userID);
   }
 }

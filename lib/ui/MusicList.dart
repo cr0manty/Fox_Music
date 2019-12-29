@@ -1,8 +1,10 @@
-import 'package:vk_parse/SongData.dart';
+import 'package:vk_parse/models/Song.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'colors.dart';
+import '../utils/colors.dart';
+import '../utils/urls.dart';
+import '../utils/formatTime.dart';
 
 class MusicList extends StatefulWidget {
   @override
@@ -35,19 +37,12 @@ class MusicListState extends State<MusicList> {
         onPressed: () => _loadSongs(),
         tooltip: 'Refresh',
         child: Icon(Icons.refresh),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 
-  String formatTime(int time) {
-    Duration duration = Duration(seconds: time.round());
-    return [duration.inMinutes, duration.inSeconds]
-        .map((seg) => seg.remainder(60).toString().padLeft(2, '0'))
-        .join(':');
-  }
-
   _loadSongs() async {
-    final response = await http.get('http://10.0.2.2:8000/api/songs/list/');
+    final response = await http.get(SONG_LIST_URL);
     if (response.statusCode == 200) {
       var songsData =
           (json.decode(response.body) as Map)['songs'] as List<dynamic>;
