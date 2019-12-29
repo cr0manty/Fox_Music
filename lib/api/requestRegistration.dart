@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../functions/infoDialog.dart';
-import '../utils/urls.dart';
+import 'package:vk_parse/functions/infoDialog.dart';
+import 'package:vk_parse/utils/urls.dart';
 
 requestRegistration(BuildContext context, String username, String password,
     String userId) async {

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
+import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/ui/MusicList.dart';
 import 'package:vk_parse/ui/Login.dart';
-import 'utils/colors.dart';
+import 'package:vk_parse/ui/Intro.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
         "/home": (BuildContext context) => MusicList(),
         "/login": (BuildContext context) => Login(),
       },
-      home: Login(),
+      home: Intro(),
     );
   }
 }

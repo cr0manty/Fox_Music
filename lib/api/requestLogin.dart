@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../models/User.dart';
-import '../functions/infoDialog.dart';
-import '../api/requestProfile.dart';
-import '../utils/urls.dart';
+import 'package:vk_parse/functions/infoDialog.dart';
+import 'package:vk_parse/api/requestProfile.dart';
+import 'package:vk_parse/utils/urls.dart';
 
 
-Future<User> requestLogin(BuildContext context, String username, String password) async {
+requestLogin(BuildContext context, String username, String password) async {
 
   Map<String, String> body = {
     'username': username,

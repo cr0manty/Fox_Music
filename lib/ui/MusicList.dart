@@ -1,10 +1,8 @@
 import 'package:vk_parse/models/Song.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../utils/colors.dart';
-import '../utils/urls.dart';
-import '../utils/formatTime.dart';
+
+import 'package:vk_parse/utils/colors.dart';
+import 'package:vk_parse/api/requestMusicList.dart';
 
 class MusicList extends StatefulWidget {
   @override
@@ -42,26 +40,10 @@ class MusicListState extends State<MusicList> {
   }
 
   _loadSongs() async {
-    final response = await http.get(SONG_LIST_URL);
-    if (response.statusCode == 200) {
-      var songsData =
-          (json.decode(response.body) as Map)['songs'] as List<dynamic>;
-
-      var songList = List<Song>();
-      songsData.forEach((dynamic value) {
-        var song = Song(
-            name: value['name'],
-            artist: value['artist'],
-            duration: formatTime(value['duration']),
-            songId: value['song_id'],
-            postedAt: DateTime.parse(value['posted_at']),
-            download: value['download']);
-        songList.add(song);
-      });
-      setState(() {
-        data = songList.reversed.toList();
-      });
-    }
+    final listSong = await requestMusicList(context);
+    setState(() {
+      data = listSong;
+    });
   }
 
   List<Widget> _buildList() {

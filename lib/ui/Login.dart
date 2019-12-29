@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../api/requestLogin.dart';
-import '../api/requestRegistration.dart';
+import 'package:vk_parse/api/requestLogin.dart';
+import 'package:vk_parse/api/requestRegistration.dart';
 
 class Login extends StatefulWidget {
   @override

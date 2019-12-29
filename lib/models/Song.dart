@@ -1,4 +1,4 @@
-import '../utils/formatTime.dart';
+import 'package:vk_parse/functions/formatTime.dart';
 
 class Song {
   String name;

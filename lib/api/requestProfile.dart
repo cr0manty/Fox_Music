@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../models/User.dart';
-import '../functions/saveLogin.dart';
-import '../utils/urls.dart';
-import '../functions/infoDialog.dart';
+import 'package:vk_parse/models/User.dart';
+import 'package:vk_parse/functions/saveLogin.dart';
+import 'package:vk_parse/utils/urls.dart';
+import 'package:vk_parse/functions/infoDialog.dart';
+import 'package:vk_parse/functions/formatToken.dart';
 
 Future<User> requestProfile(BuildContext context, String token) async {
-  Map<String, String> headers = {
-    'Authorization': "Token $token",
-  };
-
   final response = await http.get(
     PROFILE_URL,
-    headers: headers,
+    headers: formatToken(token),
   );
   try {
     if (response.statusCode == 200) {
