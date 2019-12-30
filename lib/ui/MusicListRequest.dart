@@ -14,19 +14,22 @@ class MusicListRequest extends StatefulWidget {
 }
 
 class MusicListRequestState extends State<MusicListRequest> {
-  List<Song> data = [];
+  GlobalKey<RefreshIndicatorState> _refreshKey = new GlobalKey<RefreshIndicatorState>();
+  List<Song> _data = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: menuKey,
       drawer: new Drawer(),
-      appBar: customAppBat,
+      appBar: makeAppBar('Web Music List'),
       backgroundColor: lightGrey,
-      body: Container(
+      body: RefreshIndicator(
+        key: _refreshKey,
+          onRefresh: () async => await _loadSongs(),
           child: ListView(
-        children: _buildList(),
-      )),
+            children: _buildList(),
+          )),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _loadNewSongs(),
         tooltip: 'Refresh',
@@ -49,10 +52,9 @@ class MusicListRequestState extends State<MusicListRequest> {
       showTextDialog(
           context, "New songs", "$newSongsAmount new songs found.", "OK");
       setState(() {
-        data += listNewSong;
+        _data += listNewSong;
       });
-    }
-    catch (e) {
+    } catch (e) {
       print(e);
     }
   }
@@ -60,17 +62,40 @@ class MusicListRequestState extends State<MusicListRequest> {
   _loadSongs() async {
     final listSong = await requestMusicListGet(context);
     setState(() {
-      data = listSong;
+      _data = listSong;
     });
   }
 
   List<Widget> _buildList() {
-    return data
+    return _data
         .map((Song song) => ListTile(
             title: Text(song.name),
             subtitle:
                 Text(song.artist, style: TextStyle(color: Colors.black54)),
-            trailing: Text(song.duration.toString())))
+            trailing: new Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  child: new Text(song.duration.toString()),
+                ),
+                Container(
+                  child: new IconButton(
+                    onPressed: () {
+                      print('download');
+                    },
+                    icon: Icon(Icons.file_download, size: 35),
+                  ),
+                )
+              ],
+            ),
+            leading: IconButton(
+                onPressed: () {
+                  print('play started');
+                },
+                icon: Icon(
+                  Icons.play_circle_filled,
+                  size: 35,
+                ))))
         .toList();
   }
 }

@@ -56,7 +56,7 @@ class _IntroState extends State<Intro> {
                 Container(
                   margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 30.0),
                   child: Text(
-                    "© Copyright Cr0manty 2019",
+                    "© Cr0manty 2019",
                     style: TextStyle(
                       fontSize: 16.0,
                       color: Colors.white,
