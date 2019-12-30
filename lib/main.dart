@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:vk_parse/utils/colors.dart';
-import 'package:vk_parse/ui/MusicList.dart';
+import 'package:vk_parse/ui/MusicListRequest.dart';
 import 'package:vk_parse/ui/Login.dart';
 import 'package:vk_parse/ui/Intro.dart';
 
@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
         )
       ),
       routes: <String,WidgetBuilder>{
-        "/home": (BuildContext context) => MusicList(),
-        "/login": (BuildContext context) => Login(),
+        "/MusicListRequest": (BuildContext context) => MusicListRequest(),
+        "/Login": (BuildContext context) => Login(),
       },
       home: Intro(),
     );

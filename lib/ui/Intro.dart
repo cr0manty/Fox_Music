@@ -20,9 +20,9 @@ class _IntroState extends State<Intro> {
     return Timer(Duration(seconds: splashDuration), () {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       if (isToken) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushReplacementNamed('/MusicListRequest');
       } else {
-        Navigator.of(context).pushReplacementNamed('/login');
+        Navigator.of(context).pushReplacementNamed('/Login');
       }
     });
   }
@@ -40,7 +40,7 @@ class _IntroState extends State<Intro> {
     return Scaffold(
         drawer: drawer,
         body: Container(
-            decoration: BoxDecoration(color: Colors.black),
+            decoration: BoxDecoration(color: Colors.blue),
             child: Column(
               children: <Widget>[
                 Expanded(

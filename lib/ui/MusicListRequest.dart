@@ -1,46 +1,64 @@
-import 'package:vk_parse/models/Song.dart';
 import 'package:flutter/material.dart';
 
+import 'package:vk_parse/ui/AppBar.dart';
+import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
+import 'package:vk_parse/functions/infoDialog.dart';
 
-class MusicList extends StatefulWidget {
+class MusicListRequest extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return MusicListState();
+    return MusicListRequestState();
   }
 }
 
-class MusicListState extends State<MusicList> {
+class MusicListRequestState extends State<MusicListRequest> {
   List<Song> data = [];
-  final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _menuKey,
+      key: menuKey,
       drawer: new Drawer(),
-      appBar: AppBar(
-        leading: new IconButton(
-            icon: new Icon(Icons.menu),
-            onPressed: () => _menuKey.currentState.openDrawer()),
-        title: Text('VK Music'),
-      ),
+      appBar: customAppBat,
       backgroundColor: lightGrey,
       body: Container(
           child: ListView(
         children: _buildList(),
       )),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _loadSongs(),
+        onPressed: () => _loadNewSongs(),
         tooltip: 'Refresh',
         child: Icon(Icons.refresh),
       ),
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSongs();
+  }
+
+  _loadNewSongs() async {
+    try {
+      final listNewSong = await requestMusicListPost(context);
+      int newSongsAmount = listNewSong.length;
+
+      showTextDialog(
+          context, "New songs", "$newSongsAmount new songs found.", "OK");
+      setState(() {
+        data += listNewSong;
+      });
+    }
+    catch (e) {
+      print(e);
+    }
+  }
+
   _loadSongs() async {
-    final listSong = await requestMusicList(context);
+    final listSong = await requestMusicListGet(context);
     setState(() {
       data = listSong;
     });

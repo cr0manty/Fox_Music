@@ -67,9 +67,9 @@ class _LoginState extends State<Login> {
       onWillPop: () {
         if (Navigator.canPop(context)) {
           Navigator.of(context).pushNamedAndRemoveUntil(
-              '/HomeScreen', (Route<dynamic> route) => false);
+              '/MusicListRequest', (Route<dynamic> route) => false);
         } else {
-          Navigator.of(context).pushReplacementNamed('/HomeScreen');
+          Navigator.of(context).pushReplacementNamed('/MusicListRequest');
         }
       },
       child: new Scaffold(
@@ -169,12 +169,12 @@ class _LoginState extends State<Login> {
   }
 
   void _loginPressed() async {
-    print('Login - $_username, $_password');
+    print('Login - $_username');
     requestLogin(context, _username, _password);
   }
 
   void _createAccountPressed() {
-    print('Registration - $_username, $_password, $_userID');
+    print('Registration - $_username, $_userID');
     // TODO: check userID for num only
     requestRegistration(context, _username, _password, _userID);
   }
