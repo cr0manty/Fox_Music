@@ -72,7 +72,7 @@ requestMusicListPost(BuildContext context) async {
     }
   } on TimeoutException catch (_) {
     showTextDialog(
-        context, "Unable to get Music List", "Server Error, try to turn on VPN or use proxy", "OK");
+        context, "Unable to get Music List", "Server Error. Try to turn on VPN or use proxy.", "OK");
     return null;
   }
   catch (e) {
