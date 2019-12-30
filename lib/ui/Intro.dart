@@ -12,14 +12,10 @@ class _IntroState extends State<Intro> {
   final int splashDuration = 2;
 
   startTime() async {
-    bool isToken;
-    Future<dynamic> token = getToken();
-    token.then((value) {
-      isToken = value.length > 0;
-    }).catchError((error) => print(error));
+    final token = await getToken();
     return Timer(Duration(seconds: splashDuration), () {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      if (isToken) {
+      if (token.length > 0) {
         Navigator.of(context).pushReplacementNamed('/MusicListRequest');
       } else {
         Navigator.of(context).pushReplacementNamed('/Login');

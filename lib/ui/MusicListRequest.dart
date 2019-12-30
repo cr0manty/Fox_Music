@@ -14,7 +14,8 @@ class MusicListRequest extends StatefulWidget {
 }
 
 class MusicListRequestState extends State<MusicListRequest> {
-  GlobalKey<RefreshIndicatorState> _refreshKey = new GlobalKey<RefreshIndicatorState>();
+  GlobalKey<RefreshIndicatorState> _refreshKey =
+      new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
 
   @override
@@ -25,7 +26,7 @@ class MusicListRequestState extends State<MusicListRequest> {
       appBar: makeAppBar('Web Music List'),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
-        key: _refreshKey,
+          key: _refreshKey,
           onRefresh: () async => await _loadSongs(),
           child: ListView(
             children: _buildList(),
@@ -61,12 +62,17 @@ class MusicListRequestState extends State<MusicListRequest> {
 
   _loadSongs() async {
     final listSong = await requestMusicListGet(context);
-    setState(() {
-      _data = listSong;
-    });
+    if (listSong != null) {
+      setState(() {
+        _data = listSong;
+      });
+    }
   }
 
   List<Widget> _buildList() {
+    if (_data == null) {
+      return null;
+    }
     return _data
         .map((Song song) => ListTile(
             title: Text(song.name),

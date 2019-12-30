@@ -1,4 +1,6 @@
-const BASE_URL = 'http://10.0.2.2:8000';
+const DEBUG_BASE_URL = 'http://10.0.2.2:8000';
+const BASE_URL = 'http://3.17.149.189:8000';
+
 
 const AUTH_URL = '$BASE_URL/api/auth/';
 const REGISTRATION_URL = '$BASE_URL/api/reg/';
