@@ -22,7 +22,7 @@ class MusicListRequestState extends State<MusicListRequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: menuKey,
-      drawer: new Drawer(),
+      drawer: makeDrawer(context),
       appBar: makeAppBar('Web Music List'),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
@@ -31,11 +31,6 @@ class MusicListRequestState extends State<MusicListRequest> {
           child: ListView(
             children: _buildList(),
           )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _loadNewSongs(),
-        tooltip: 'Refresh',
-        child: Icon(Icons.refresh),
-      ),
     );
   }
 
@@ -43,21 +38,6 @@ class MusicListRequestState extends State<MusicListRequest> {
   void initState() {
     super.initState();
     _loadSongs();
-  }
-
-  _loadNewSongs() async {
-    try {
-      final listNewSong = await requestMusicListPost(context);
-      int newSongsAmount = listNewSong.length;
-
-      showTextDialog(
-          context, "New songs", "$newSongsAmount new songs found.", "OK");
-      setState(() {
-        _data += listNewSong;
-      });
-    } catch (e) {
-      print(e);
-    }
   }
 
   _loadSongs() async {

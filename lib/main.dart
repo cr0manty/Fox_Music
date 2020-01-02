@@ -5,7 +5,6 @@ import 'package:vk_parse/ui/MusicListRequest.dart';
 import 'package:vk_parse/ui/Login.dart';
 import 'package:vk_parse/ui/Intro.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -14,17 +13,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'VK Music',
       theme: ThemeData(
-        primarySwatch: primaryBlack,
-        primaryTextTheme: TextTheme(
-          title: TextStyle(color:Colors.white)
-        )
-      ),
-      routes: <String,WidgetBuilder>{
-        "/MusicListRequest": (BuildContext context) => MusicListRequest(),
+          primarySwatch: primaryBlack,
+          primaryTextTheme: TextTheme(title: TextStyle(color: Colors.white))),
+      routes: <String, WidgetBuilder>{
         "/Login": (BuildContext context) => Login(),
+        "/MusicListRequest": (BuildContext context) => MusicListRequest(),
       },
       home: Intro(),
     );
   }
 }
-

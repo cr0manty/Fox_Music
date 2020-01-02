@@ -65,12 +65,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return new WillPopScope(
       onWillPop: () {
-        if (Navigator.canPop(context)) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-              '/MusicListRequest', (Route<dynamic> route) => false);
-        } else {
-          Navigator.of(context).pushReplacementNamed('/MusicListRequest');
-        }
+        Navigator.of(context).pushReplacementNamed('/MusicListRequest');
       },
       child: new Scaffold(
         appBar: _buildBar(context),
@@ -170,12 +165,18 @@ class _LoginState extends State<Login> {
 
   void _loginPressed() async {
     print('Login - $_username');
-    requestLogin(context, _username, _password);
+    final login = await requestLogin(context, _username, _password);
+    if (login != null) {
+      Navigator.of(context).pushNamed('/MusicListRequest');
+    }
   }
 
   void _createAccountPressed() {
     print('Registration - $_username, $_userID');
     // TODO: check userID for num only
-    requestRegistration(context, _username, _password, _userID);
+    final reg = requestRegistration(context, _username, _password, _userID);
+    if (reg != null) {
+      Navigator.of(context).pushNamed('/Login');
+    }
   }
 }

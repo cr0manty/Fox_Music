@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 import 'package:vk_parse/functions/getToken.dart';
 
 class Intro extends StatefulWidget {
@@ -15,7 +17,7 @@ class _IntroState extends State<Intro> {
     final token = await getToken();
     return Timer(Duration(seconds: splashDuration), () {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      if (token.length > 0) {
+      if (token != null || token.length > 0) {
         Navigator.of(context).pushReplacementNamed('/MusicListRequest');
       } else {
         Navigator.of(context).pushReplacementNamed('/Login');
@@ -48,6 +50,12 @@ class _IntroState extends State<Intro> {
                       style: TextStyle(fontSize: 40.0, color: Colors.white),
                     ),
                   ),
+                ),
+                Center(
+                  child: SpinKitCircle(
+                    color: Colors.white,
+                    size: 80,
+                  )
                 ),
                 Container(
                   margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 30.0),

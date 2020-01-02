@@ -1,5 +1,5 @@
 const DEBUG_BASE_URL = 'http://10.0.2.2:8000';
-const BASE_URL = 'http://3.17.149.189:8000';
+const BASE_URL = 'http://ec2-3-17-149-189.us-east-2.compute.amazonaws.com';
 
 
 const AUTH_URL = '$BASE_URL/api/auth/';

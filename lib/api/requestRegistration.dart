@@ -12,16 +12,17 @@ requestRegistration(BuildContext context, String username, String password,
     'password': password,
     'user_id': userId,
   };
-
-  final response = await http.post(
-    REGISTRATION_URL,
-    body: body,
-  ).timeout(Duration(seconds: 30));
   try {
+    final response = await http
+        .post(
+          REGISTRATION_URL,
+          body: body,
+        )
+        .timeout(Duration(seconds: 30));
     if (response.statusCode == 200) {
       showTextDialog(context, "You have successfully registered!",
           "Now you need to log in.", "OK");
-      Navigator.of(context).pushReplacementNamed('/Login');
+      return true;
     } else {
       showTextDialog(context, "Unable to register",
           "You may have supplied an duplicate 'Username' or 'User Id'.", "OK");
@@ -29,10 +30,11 @@ requestRegistration(BuildContext context, String username, String password,
     }
   } on TimeoutException catch (_) {
     showTextDialog(context, "Server Error", "Can't connect to server", "OK");
-    return null;
+    return false;
   } catch (e) {
     print(e);
     showTextDialog(context, "Unable to register",
         "You may have supplied an duplicate 'Username' or 'User Id'.", "OK");
+    return false;
   }
 }
