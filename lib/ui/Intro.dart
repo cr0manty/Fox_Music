@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:vk_parse/functions/getToken.dart';
+import 'package:vk_parse/functions/getLastRoute.dart';
 
 class Intro extends StatefulWidget {
   @override
@@ -15,13 +16,16 @@ class _IntroState extends State<Intro> {
 
   startTime() async {
     final token = await getToken();
+    final lastPage = await getLastRoute();
     return Timer(Duration(seconds: splashDuration), () {
+      bool needToken = true;
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      if (token != null || token.length > 0) {
-        Navigator.of(context).pushReplacementNamed('/MusicListRequest');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/Login');
+      if (lastPage != 'Login') {
+        if (token == null || token.length == 0) {
+          needToken = false;
+        }
       }
+      Navigator.of(context).pushReplacementNamed(needToken ? lastPage : '/Login');
     });
   }
 
@@ -52,11 +56,10 @@ class _IntroState extends State<Intro> {
                   ),
                 ),
                 Center(
-                  child: SpinKitCircle(
-                    color: Colors.white,
-                    size: 80,
-                  )
-                ),
+                    child: SpinKitCircle(
+                  color: Colors.white,
+                  size: 80,
+                )),
                 Container(
                   margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 30.0),
                   child: Text(

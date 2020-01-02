@@ -6,8 +6,8 @@ import 'package:vk_parse/functions/infoDialog.dart';
 import 'package:vk_parse/utils/urls.dart';
 
 requestRegistration(BuildContext context, String username, String password,
-    String userId) async {
-  Map<String, String> body = {
+    int userId) async {
+  Map<String, dynamic> body = {
     'username': username,
     'password': password,
     'user_id': userId,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
+import 'package:vk_parse/functions/saveCurrentRoute.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -17,7 +17,7 @@ class _LoginState extends State<Login> {
   final TextEditingController _userIDFilter = new TextEditingController();
   String _username = "";
   String _password = "";
-  String _userID = "";
+  int _userID = 0;
   FormType _form = FormType
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
 
@@ -35,11 +35,21 @@ class _LoginState extends State<Login> {
     }
   }
 
+  int isNumeric(String str) {
+    int value;
+    try {
+      value = int.parse(str);
+    } on FormatException {
+      return null;
+    }
+    return value;
+  }
+
   void _userIDListen() {
     if (_userIDFilter.text.isEmpty) {
-      _userID = "";
+      _userID = 0;
     } else {
-      _userID = _userIDFilter.text;
+      _userID = isNumeric(_userIDFilter.text);
     }
   }
 
@@ -114,12 +124,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    _saveCurrentRoute("/LoginScreen");
-  }
-
-  _saveCurrentRoute(String lastRoute) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString('LastScreenRoute', lastRoute);
+    saveCurrentRoute("/Login");
   }
 
   Widget _buildButtons() {
@@ -167,7 +172,19 @@ class _LoginState extends State<Login> {
     print('Login - $_username');
     final login = await requestLogin(context, _username, _password);
     if (login != null) {
-      Navigator.of(context).pushNamed('/MusicListRequest');
+      final newRouteName = "/MusicListRequest";
+      bool isNewRouteSameAsCurrent = false;
+
+      Navigator.popUntil(context, (route) {
+        if (route.settings.name == newRouteName) {
+          isNewRouteSameAsCurrent = true;
+        }
+        return true;
+      });
+
+      if (!isNewRouteSameAsCurrent) {
+        Navigator.pushNamed(context, newRouteName);
+      }
     }
   }
 
@@ -176,7 +193,19 @@ class _LoginState extends State<Login> {
     // TODO: check userID for num only
     final reg = requestRegistration(context, _username, _password, _userID);
     if (reg != null) {
-      Navigator.of(context).pushNamed('/Login');
+      final newRouteName = "/Login";
+      bool isNewRouteSameAsCurrent = false;
+
+      Navigator.popUntil(context, (route) {
+        if (route.settings.name == newRouteName) {
+          isNewRouteSameAsCurrent = true;
+        }
+        return true;
+      });
+
+      if (!isNewRouteSameAsCurrent) {
+        Navigator.pushNamed(context, newRouteName);
+      }
     }
   }
 }

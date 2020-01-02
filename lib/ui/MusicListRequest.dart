@@ -4,7 +4,7 @@ import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
-import 'package:vk_parse/functions/infoDialog.dart';
+import 'package:vk_parse/functions/saveCurrentRoute.dart';
 
 class MusicListRequest extends StatefulWidget {
   @override
@@ -16,6 +16,7 @@ class MusicListRequest extends StatefulWidget {
 class MusicListRequestState extends State<MusicListRequest> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
   List<Song> _data = [];
 
   @override
@@ -23,7 +24,7 @@ class MusicListRequestState extends State<MusicListRequest> {
     return Scaffold(
       key: menuKey,
       drawer: makeDrawer(context),
-      appBar: makeAppBar('Web Music List'),
+      appBar: makeAppBar('Web Music List', menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,
@@ -38,6 +39,7 @@ class MusicListRequestState extends State<MusicListRequest> {
   void initState() {
     super.initState();
     _loadSongs();
+    saveCurrentRoute('/MusicListRequest');
   }
 
   _loadSongs() async {

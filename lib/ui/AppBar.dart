@@ -4,7 +4,6 @@ import 'package:vk_parse/functions/logout.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/infoDialog.dart';
 
-final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
 
 makeDrawer(context) {
   return new Drawer(
@@ -48,7 +47,21 @@ makeDrawer(context) {
       new ListTile(
         title: new Text('Saved music list'),
         leading: new Icon(Icons.save),
-        onTap: () {},
+        onTap: () {
+          final newRouteName = "/MusicListSaved";
+          bool isNewRouteSameAsCurrent = false;
+
+          Navigator.popUntil(context, (route) {
+            if (route.settings.name == newRouteName) {
+              isNewRouteSameAsCurrent = true;
+            }
+            return true;
+          });
+
+          if (!isNewRouteSameAsCurrent) {
+            Navigator.pushNamed(context, newRouteName);
+          }
+        },
       ),
       new Divider(),
       new ListTile(
@@ -56,14 +69,26 @@ makeDrawer(context) {
         leading: new Icon(Icons.exit_to_app),
         onTap: () {
           logout();
-          Navigator.of(context).popAndPushNamed('/Login');
+          final newRouteName = "/Login";
+          bool isNewRouteSameAsCurrent = false;
+
+          Navigator.popUntil(context, (route) {
+            if (route.settings.name == newRouteName) {
+              isNewRouteSameAsCurrent = true;
+            }
+            return true;
+          });
+
+          if (!isNewRouteSameAsCurrent) {
+            Navigator.pushNamed(context, newRouteName);
+          }
         },
       ),
     ],
   ));
 }
 
-makeAppBar(String text) {
+makeAppBar(String text, dynamic menuKey) {
   return AppBar(
     leading: new IconButton(
         icon: new Icon(Icons.menu),
