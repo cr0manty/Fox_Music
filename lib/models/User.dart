@@ -2,6 +2,8 @@ class User {
   String firstName;
   String lastName;
   String image;
+  String email;
+  DateTime joined;
   final String password;
   final String username;
   final int userId;

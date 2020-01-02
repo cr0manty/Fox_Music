@@ -25,7 +25,8 @@ class _IntroState extends State<Intro> {
           needToken = false;
         }
       }
-      Navigator.of(context).pushReplacementNamed(needToken ? lastPage : '/Login');
+      Navigator.of(context)
+          .pushReplacementNamed(needToken ? lastPage : '/Login');
     });
   }
 
@@ -56,10 +57,12 @@ class _IntroState extends State<Intro> {
                   ),
                 ),
                 Center(
-                    child: SpinKitCircle(
-                  color: Colors.white,
-                  size: 80,
-                )),
+                    child: new Padding(
+                        padding: const EdgeInsets.only(bottom: 100),
+                        child: SpinKitCircle(
+                          color: Colors.white,
+                          size: 80,
+                        ))),
                 Container(
                   margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 30.0),
                   child: Text(
