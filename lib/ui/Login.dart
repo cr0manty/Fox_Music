@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
-import 'package:vk_parse/functions/saveCurrentRoute.dart';
+import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 
 class Login extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new _LoginState();
+  State<StatefulWidget> createState() => new LoginState();
 }
 
 enum FormType { login, register }
 
-class _LoginState extends State<Login> {
+class LoginState extends State<Login> {
   final TextEditingController _loginFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   final TextEditingController _userIDFilter = new TextEditingController();
@@ -21,7 +21,7 @@ class _LoginState extends State<Login> {
   FormType _form = FormType
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
 
-  _LoginState() {
+  LoginState() {
     _loginFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
     _userIDFilter.addListener(_userIDListen);
@@ -73,20 +73,15 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
-      onWillPop: () {
-        Navigator.of(context).pushReplacementNamed('/MusicListRequest');
-      },
-      child: new Scaffold(
-        appBar: _buildBar(context),
-        body: new Container(
-          padding: EdgeInsets.all(16.0),
-          child: new Column(
-            children: <Widget>[
-              _buildTextFields(),
-              _buildButtons(),
-            ],
-          ),
+    return new Scaffold(
+      appBar: _buildBar(context),
+      body: new Container(
+        padding: EdgeInsets.all(16.0),
+        child: new Column(
+          children: <Widget>[
+            _buildTextFields(),
+            _buildButtons(),
+          ],
         ),
       ),
     );
@@ -183,7 +178,8 @@ class _LoginState extends State<Login> {
       });
 
       if (!isNewRouteSameAsCurrent) {
-        Navigator.pushNamed(context, newRouteName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            newRouteName, (Route<dynamic> route) => false);
       }
     }
   }
@@ -204,7 +200,8 @@ class _LoginState extends State<Login> {
       });
 
       if (!isNewRouteSameAsCurrent) {
-        Navigator.pushNamed(context, newRouteName);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            newRouteName, (Route<dynamic> route) => false);
       }
     }
   }

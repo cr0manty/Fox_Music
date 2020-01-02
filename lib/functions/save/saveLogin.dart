@@ -13,14 +13,9 @@ saveCurrentLogin(Map responseJson) async {
   var token = (responseJson != null && !responseJson.isEmpty)
       ? User.fromJson(responseJson).token
       : "";
-  var userId = (responseJson != null && !responseJson.isEmpty)
-      ? User.fromJson(responseJson).userId
-      : 0;
 
   await preferences.setString(
       'LastUser', (user != null && user.length > 0) ? user : "");
   await preferences.setString(
       'LastToken', (token != null && token.length > 0) ? token : "");
-  await preferences.setInt(
-      'LastUserId', (userId != null && userId > 0) ? userId : 0);
 }

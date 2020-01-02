@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:vk_parse/functions/saveLogin.dart';
+import 'package:vk_parse/functions/save/saveLogin.dart';
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/functions/infoDialog.dart';
-import 'package:vk_parse/functions/headersToken.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/functions/format/headersToken.dart';
 
 requestProfile(BuildContext context, String token) async {
   try {
@@ -26,12 +26,12 @@ requestProfile(BuildContext context, String token) async {
       return false;
     }
   } on TimeoutException catch (_) {
-    showTextDialog(context, "Server Error", "Can't connect to server", "OK");
+    infoDialog(context, "Server Error", "Can't connect to server");
     return false;
   } catch (e) {
     print(e);
-    showTextDialog(
-        context, "Unable to Login", "Cant get user profile info.", "OK");
+    infoDialog(
+        context, "Unable to Login", "Cant get user profile info.");
     return false;
   }
 }

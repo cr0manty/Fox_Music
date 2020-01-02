@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:vk_parse/functions/logout.dart';
+import 'package:vk_parse/functions/save/logout.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
-import 'package:vk_parse/functions/infoDialog.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 makeDrawer(context) {
   return new Drawer(
@@ -23,7 +23,8 @@ makeDrawer(context) {
               });
 
               if (!isNewRouteSameAsCurrent) {
-                Navigator.pushNamed(context, newRouteName);
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    newRouteName, (Route<dynamic> route) => false);
               }
             },
             shape: new CircleBorder(),
@@ -63,8 +64,8 @@ makeDrawer(context) {
         onTap: () async {
           try {
             final listNewSong = await requestMusicListPost(context);
-            showTextDialog(
-                context, "New songs", "$listNewSong new songs found.", "OK");
+            infoDialog(context, "New songs",
+                "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
           } catch (e) {
             print(e);
           }
@@ -85,7 +86,8 @@ makeDrawer(context) {
           });
 
           if (!isNewRouteSameAsCurrent) {
-            Navigator.pushNamed(context, newRouteName);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                newRouteName, (Route<dynamic> route) => false);
           }
         },
       ),
@@ -104,7 +106,28 @@ makeDrawer(context) {
           });
 
           if (!isNewRouteSameAsCurrent) {
-            Navigator.pushNamed(context, newRouteName);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                newRouteName, (Route<dynamic> route) => false);
+          }
+        },
+      ),
+      new ListTile(
+        title: new Text('Friends'),
+        leading: new Icon(Icons.people),
+        onTap: () {
+          final newRouteName = "/FriendList";
+          bool isNewRouteSameAsCurrent = false;
+
+          Navigator.popUntil(context, (route) {
+            if (route.settings.name == newRouteName) {
+              isNewRouteSameAsCurrent = true;
+            }
+            return true;
+          });
+
+          if (!isNewRouteSameAsCurrent) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                newRouteName, (Route<dynamic> route) => false);
           }
         },
       ),
@@ -125,7 +148,8 @@ makeDrawer(context) {
           });
 
           if (!isNewRouteSameAsCurrent) {
-            Navigator.pushNamed(context, newRouteName);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                newRouteName, (Route<dynamic> route) => false);
           }
         },
       ),

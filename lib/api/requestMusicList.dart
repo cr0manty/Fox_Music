@@ -3,12 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:vk_parse/functions/infoDialog.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/functions/headersToken.dart';
-import 'package:vk_parse/functions/formatTime.dart';
-import 'package:vk_parse/functions/getToken.dart';
+import 'package:vk_parse/functions/format/headersToken.dart';
+import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/functions/get/getToken.dart';
 
 requestMusicListGet(BuildContext context) async {
   try {
@@ -32,14 +32,12 @@ requestMusicListGet(BuildContext context) async {
       });
       return songList.reversed.toList();
     } else {
-      showTextDialog(
-          context, "Unable to get Music List", "Something went wrong.", "OK");
+      infoDialog(context, "Unable to get Music List", "Something went wrong.");
       return null;
     }
   } catch (e) {
     print(e);
-    showTextDialog(
-        context, "Unable to get Music List", "Something went wrong.", "OK");
+    infoDialog(context, "Unable to get Music List", "Something went wrong.");
     return null;
   }
 }
@@ -47,26 +45,25 @@ requestMusicListGet(BuildContext context) async {
 requestMusicListPost(BuildContext context) async {
   try {
     final token = await getToken();
-    final response = await http.post(SONG_LIST_URL, headers: formatToken(token)).timeout(Duration(minutes: 2));
+    final response = await http
+        .post(SONG_LIST_URL, headers: formatToken(token))
+        .timeout(Duration(minutes: 2));
 
     if (response.statusCode == 201) {
-      var songsData =
-          (json.decode(response.body) as Map)['amount'] as int;
-      return songsData;
+      var songsData = (json.decode(response.body) as Map) as Map<String, dynamic>;
+      songsData.remove('songs');
+      return songsData != null ? songsData : {'added': 0, 'updated': 0};
     } else {
-      showTextDialog(
-          context, "Unable to get Music List", "Something went wrong.", "OK");
+      infoDialog(context, "Something went wrong", "Unable to get Music List.");
       return null;
     }
   } on TimeoutException catch (_) {
-    showTextDialog(
-        context, "Unable to get Music List", "Server Error. Try to turn on VPN or use proxy.", "OK");
+    infoDialog(context, "Unable to get Music List",
+        "Server Error. Try to turn on VPN or use proxy.");
     return null;
-  }
-  catch (e) {
+  } catch (e) {
     print(e);
-    showTextDialog(
-        context, "Unable to get Music List", "Something went wrong.", "OK");
+    infoDialog(context, "Something went wrong", "Unable to get Music List.");
     return null;
   }
 }

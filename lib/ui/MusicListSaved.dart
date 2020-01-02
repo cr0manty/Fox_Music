@@ -4,7 +4,7 @@ import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
-import 'package:vk_parse/functions/saveCurrentRoute.dart';
+import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 
 class MusicListSaved extends StatefulWidget {
   @override
@@ -25,7 +25,7 @@ class MusicListSavedState extends State<MusicListSaved> {
     return Scaffold(
       key: menuKey,
       drawer: makeDrawer(context),
-      appBar: makeAppBar('Saved Music List', menuKey),
+      appBar: makeAppBar('Saved Music', menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,

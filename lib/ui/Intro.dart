@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import 'package:vk_parse/functions/getToken.dart';
-import 'package:vk_parse/functions/getLastRoute.dart';
+import 'package:vk_parse/functions/get/getToken.dart';
+import 'package:vk_parse/functions/get/getLastRoute.dart';
+import 'package:vk_parse/api/requestAuthCheck.dart';
 
 class Intro extends StatefulWidget {
   @override
@@ -14,15 +15,18 @@ class Intro extends StatefulWidget {
 class _IntroState extends State<Intro> {
   final int splashDuration = 2;
 
-  startTime() async {
-    final token = await getToken();
-    final lastPage = await getLastRoute();
-    return Timer(Duration(seconds: splashDuration), () {
-      bool needToken = true;
+  startTime() {
+    return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      if (lastPage != 'Login') {
-        if (token == null || token.length == 0) {
-          needToken = false;
+      bool needToken = false;
+      final lastPage = await getLastRoute();
+      if (await requestAuthCheck()) {
+        needToken = true;
+        if (lastPage != 'Login') {
+          final token = await getToken();
+          if (token == null || token.length == 0) {
+            needToken = false;
+          }
         }
       }
       Navigator.of(context)

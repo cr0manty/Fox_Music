@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-void showTextDialog(BuildContext context, String title, String message,
-    String buttonLabel) {
+void infoDialog(BuildContext context, String title, String message) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -10,7 +9,7 @@ void showTextDialog(BuildContext context, String title, String message,
         content: new Text(message),
         actions: <Widget>[
           new FlatButton(
-            child: new Text(buttonLabel),
+            child: new Text('OK'),
             onPressed: () {
               Navigator.of(context).pop();
             },
