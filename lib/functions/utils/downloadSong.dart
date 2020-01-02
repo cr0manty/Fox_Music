@@ -11,7 +11,7 @@ downloadSong(BuildContext context, Song song) async {
     String dir = (await getApplicationDocumentsDirectory()).path;
     String filename =
         '${song.artist.split(' ').join('_')}-${song.name.split(' ').join('_')}';
-    File file = new File('$dir/$filename');
+    File file = new File('$dir/${filename}.mp3');
     var request = await http.get(
       song.download,
     );
