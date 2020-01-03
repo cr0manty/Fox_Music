@@ -69,8 +69,9 @@ class MusicListSavedState extends State<MusicListSaved> {
                   print('play started');
                 },
                 icon: Icon(
-                  Icons.play_circle_filled,
+                  Icons.play_arrow,
                   size: 35,
+                  color: Color.fromRGBO(100, 100, 100, 1),
                 ))))
         .toList();
   }

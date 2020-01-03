@@ -6,6 +6,7 @@ import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
+import 'package:vk_parse/functions/utils/playSong.dart';
 
 class MusicListRequest extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class MusicListRequestState extends State<MusicListRequest> {
     return Scaffold(
       key: menuKey,
       drawer: makeDrawer(context),
-      appBar: makeAppBar('Web Music', menuKey),
+      appBar: makeAppBar('Music', menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,
@@ -73,7 +74,8 @@ class MusicListRequestState extends State<MusicListRequest> {
                       // TODO: mark downloaded
                       downloadSong(context, song);
                     },
-                    icon: Icon(Icons.file_download, size: 35),
+                    icon: Icon(Icons.file_download,
+                        size: 35, color: Color.fromRGBO(100, 100, 100, 1)),
                   ),
                 )
               ],
@@ -81,11 +83,10 @@ class MusicListRequestState extends State<MusicListRequest> {
             leading: IconButton(
                 onPressed: () {
                   print('play started');
+                  playSong(song.download);
                 },
-                icon: Icon(
-                  Icons.play_circle_filled,
-                  size: 35,
-                ))))
+                icon: Icon(Icons.play_arrow,
+                    size: 35, color: Color.fromRGBO(100, 100, 100, 1)))))
         .toList();
   }
 }

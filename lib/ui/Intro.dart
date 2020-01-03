@@ -47,12 +47,16 @@ class _IntroState extends State<Intro> {
     return Scaffold(
         drawer: drawer,
         body: Container(
-            decoration: BoxDecoration(color: Colors.blue),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/intro-background.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
             child: Column(
               children: <Widget>[
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(color: Colors.blue),
                     alignment: FractionalOffset(0.5, 0.3),
                     child: Text(
                       "VK Music",
@@ -72,7 +76,7 @@ class _IntroState extends State<Intro> {
                   child: Text(
                     "© Cr0manty 2019",
                     style: TextStyle(
-                      fontSize: 16.0,
+                      fontSize: 17.0,
                       color: Colors.white,
                     ),
                   ),
