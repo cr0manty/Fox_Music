@@ -5,15 +5,17 @@ class Song {
   String artist;
   String duration;
   String download;
+  String localUrl;
   int songId;
   DateTime postedAt;
 
-  Song({this.songId,
-    this.artist,
-    this.name,
-    this.duration,
-    this.download,
-    this.postedAt});
+  Song(
+      {this.songId,
+      this.artist,
+      this.name,
+      this.duration,
+      this.download,
+      this.postedAt});
 
   Song.fromJson(Map<String, dynamic> jsonData)
       : name = jsonData['name'],
@@ -23,13 +25,13 @@ class Song {
         postedAt = DateTime.parse(jsonData['posted_at']),
         download = jsonData['download'];
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'name': name,
         'artist': artist,
         'duration': duration,
         'download': download,
         'songId': songId,
         'postedAt': postedAt,
+        'localUrl': localUrl,
       };
 }
