@@ -7,6 +7,7 @@ import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/functions/utils/playSong.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class MusicListRequest extends StatefulWidget {
   @override
@@ -45,11 +46,13 @@ class MusicListRequestState extends State<MusicListRequest> {
   }
 
   _loadSongs() async {
-    final listSong = await requestMusicListGet(context);
+    final listSong = await requestMusicListGet();
     if (listSong != null) {
       setState(() {
         _data = listSong;
       });
+    } else {
+      infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
   }
 
@@ -72,7 +75,7 @@ class MusicListRequestState extends State<MusicListRequest> {
                   child: new IconButton(
                     onPressed: () {
                       // TODO: mark downloaded
-                      downloadSong(context, song);
+                      downloadSong(song, context: context);
                     },
                     icon: Icon(Icons.file_download,
                         size: 35, color: Color.fromRGBO(100, 100, 100, 1)),

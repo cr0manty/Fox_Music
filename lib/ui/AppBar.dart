@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vk_parse/functions/save/logout.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/functions/utils/downloadAll.dart';
 
 makeDrawer(context) {
   return new Theme(
@@ -60,22 +61,28 @@ makeDrawer(context) {
               ],
             ))
           ])),
+          new Divider(),
           new ListTile(
-            title: new Text('Update music list',
+            title: new Text('Update Music',
                 style: TextStyle(fontSize: 15.0, color: Colors.white)),
             leading: new Icon(Icons.update, color: Colors.white),
             onTap: () async {
               try {
-                final listNewSong = await requestMusicListPost(context);
-                infoDialog(context, "New songs",
-                    "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                final listNewSong = await requestMusicListPost();
+                if (listNewSong != null) {
+                  infoDialog(context, "New songs",
+                      "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                } else {
+                  infoDialog(context, "Something went wrong",
+                      "Unable to get Music List.");
+                }
               } catch (e) {
                 print(e);
               }
             },
           ),
           new ListTile(
-            title: new Text('Music List',
+            title: new Text('Music',
                 style: TextStyle(fontSize: 15.0, color: Colors.white)),
             leading: new Icon(Icons.wifi, color: Colors.white),
             onTap: () {
@@ -96,24 +103,30 @@ makeDrawer(context) {
             },
           ),
           new ListTile(
-            title: new Text('Saved music list',
+            title: new Text('Saved Music',
                 style: TextStyle(fontSize: 15.0, color: Colors.white)),
-            leading: new Icon(Icons.save, color: Colors.white),
+            leading: new Icon(Icons.cloud_download, color: Colors.white),
             onTap: () {
               final newRouteName = "/MusicListSaved";
               bool isNewRouteSameAsCurrent = false;
-
               Navigator.popUntil(context, (route) {
                 if (route.settings.name == newRouteName) {
                   isNewRouteSameAsCurrent = true;
                 }
                 return true;
               });
-
               if (!isNewRouteSameAsCurrent) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
                     newRouteName, (Route<dynamic> route) => false);
               }
+            },
+          ),
+          new ListTile(
+            title: new Text('Download all',
+                style: TextStyle(fontSize: 15.0, color: Colors.white)),
+            leading: new Icon(Icons.arrow_downward, color: Colors.white),
+            onTap: () async {
+              downloadAll(context);
             },
           ),
           new ListTile(

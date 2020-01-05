@@ -7,7 +7,7 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatFileName.dart';
 
-downloadSong(BuildContext context, Song song) async {
+downloadSong(Song song, {BuildContext context}) async {
   try {
     String dir = (await getApplicationDocumentsDirectory()).path;
     final Directory _appDocDirFolder = Directory('$dir/songs/');
@@ -16,8 +16,9 @@ downloadSong(BuildContext context, Song song) async {
     }
 
     String filename = formatFileName(song);
-    if (File('$dir/songs/$filename').existsSync()) {
-      infoDialog(context, 'Error', 'Song with name: \n$filename aredy downloaded!');
+    if (context != null && File('$dir/songs/$filename').existsSync()) {
+      infoDialog(
+          context, 'Error', 'Song with name: \n$filename aredy downloaded!');
       return null;
     }
 
@@ -28,10 +29,14 @@ downloadSong(BuildContext context, Song song) async {
     var bytes = await request.bodyBytes;
     await file.writeAsBytes(bytes);
     print(file.path);
-    infoDialog(context, 'Success', 'Song $filename successfully downloaded!');
+    if (context != null) {
+      infoDialog(context, 'Success', 'Song $filename successfully downloaded!');
+    }
   } catch (e) {
-    infoDialog(context, 'Error',
-        'Something went wrong while downloading. Try to refresh song list');
+    if (context != null) {
+      infoDialog(context, 'Error',
+          'Something went wrong while downloading. Try to refresh song list');
+    }
     print(e);
   }
 }

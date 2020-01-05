@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-User clientFromJson(String str) {
-  final jsonData = json.decode(str);
-  return User.fromJson(jsonData);
+User userFromJson(String str) {
+  final data = json.decode(str);
+  return User.fromJson(data);
 }
 
-String clientToJson(User data) {
-  final dyn = data.toJson();
-  return json.encode(dyn);
+String userToJson(User data) {
+  final str = data.toJson();
+  return json.encode(str);
 }
 
 class User {
@@ -15,30 +15,41 @@ class User {
   String lastName;
   String image;
   String email;
-  DateTime joined;
+  String joined;
+  String lastLogin;
+  bool vkAuth;
+  bool isStaff;
+  int id;
   final String username;
-  final int userId;
   final String token;
+  final int userId;
 
   User(
-      {this.username,
+      {this.id,
+      this.username,
       this.token,
       this.userId,
       this.image,
       this.email,
       this.firstName,
       this.joined,
-      this.lastName});
+      this.lastName,
+      this.vkAuth,
+      this.isStaff,
+      this.lastLogin});
 
   factory User.fromJson(Map<String, dynamic> json) => new User(
       username: json['username'],
       token: json['token'],
-      userId: json['userId'],
+      userId: json['user_id'],
+      id: json['id'],
       image: json['image'],
       email: json['email'],
-      firstName: json['firstName'],
-      joined: json['joined'],
-      lastName: json['lastName']);
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      lastLogin: json['last_login'],
+      joined: json['date_joined'],
+      vkAuth: json['vk_auth']);
 
   Map<String, dynamic> toJson() => {
         'username': username,
@@ -46,10 +57,12 @@ class User {
         'userId': userId,
         'firstName': firstName,
         'lastName': lastName,
-        'email': lastName,
-        'joined': lastName,
+        'email': email,
+        'joined': joined,
         'image': image,
+        'vkAuth': vkAuth,
+        'isStaff': isStaff,
+        'lastLogin': lastLogin,
+        'id': id
       };
 }
-
-

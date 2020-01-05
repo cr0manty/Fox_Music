@@ -5,6 +5,7 @@ import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class MusicListSaved extends StatefulWidget {
   @override
@@ -44,11 +45,13 @@ class MusicListSavedState extends State<MusicListSaved> {
   }
 
   _loadSongs() async {
-    final listSong = await requestMusicListGet(context);
+    final listSong = await requestMusicListGet();
     if (listSong != null) {
       setState(() {
         _data = listSong;
       });
+    } else {
+      infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
   }
 

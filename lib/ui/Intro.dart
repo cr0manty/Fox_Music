@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 import 'package:vk_parse/functions/get/getLastRoute.dart';
 import 'package:vk_parse/api/requestAuthCheck.dart';
+import 'package:vk_parse/functions/save/logout.dart';
 
 class Intro extends StatefulWidget {
   @override
@@ -20,17 +21,17 @@ class _IntroState extends State<Intro> {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       bool needToken = false;
       final lastPage = await getLastRoute();
-      if (await requestAuthCheck()) {
-        needToken = true;
-        if (lastPage != 'Login') {
-          final token = await getToken();
-          if (token == null || token.length == 0) {
-            needToken = false;
-          }
+      if (lastPage != '/Login' && lastPage != '/MusicListSaved') {
+        if (!await requestAuthCheck()) {
+          logout();
+        }
+        final token = await getToken();
+        if (token == null || token.length == 0) {
+          needToken = true;
         }
       }
       Navigator.of(context)
-          .pushReplacementNamed(needToken ? lastPage : '/Login');
+          .pushReplacementNamed(needToken ? '/Login' : lastPage);
     });
   }
 

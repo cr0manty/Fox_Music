@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/utils/urls.dart';
+import 'package:vk_parse/models/Database.dart';
+import 'package:vk_parse/models/User.dart';
 
-requestRegistration(
-    BuildContext context, String username, String password, int userId) async {
+requestRegistration(String username, String password) async {
   Map<String, dynamic> body = {
     'username': username,
     'password': password,
-    'user_id': userId,
   };
   try {
     final response = await http
@@ -18,23 +17,15 @@ requestRegistration(
           REGISTRATION_URL,
           body: body,
         )
-        .timeout(Duration(seconds: 30));
+        .timeout(Duration(seconds: 60));
     if (response.statusCode == 200) {
-      infoDialog(context, "You have successfully registered!",
-          "Now you need to log in.");
-      return true;
-    } else {
-      infoDialog(context, "Unable to register",
-          "You may have supplied an duplicate 'Username' or 'User Id'.");
-      return false;
+      final responseJson = json.decode(response.body);
+      if (await DBProvider.db.newUser(new User.fromJson(responseJson)) !=
+          null) {
+        return true;
+      }
     }
-  } on TimeoutException catch (_) {
-    infoDialog(context, "Server Error", "Can't connect to server");
-    return false;
-  } catch (e) {
+  } on TimeoutException catch (_) {} catch (e) {
     print(e);
-    infoDialog(context, "Unable to register",
-        "You may have supplied an duplicate 'Username' or 'User Id'.");
-    return false;
   }
 }

@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:vk_parse/functions/save/saveLogin.dart';
+import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/headersToken.dart';
+import 'package:vk_parse/models/Database.dart';
+import 'package:vk_parse/models/User.dart';
 
-requestProfile(BuildContext context, String token) async {
+requestProfile(String token, {bool update}) async {
   try {
     final response = await http
         .get(
@@ -20,18 +20,17 @@ requestProfile(BuildContext context, String token) async {
       final responseJson = json.decode(response.body);
       responseJson['token'] = token;
 
-      saveCurrentLogin(responseJson);
+      var user = await DBProvider.db.getUser(responseJson['id']);
+      if (user == null) {
+        DBProvider.db.newUser(new User.fromJson(responseJson));
+      }
+      if (update != null && update) {
+        DBProvider.db.updateUser(new User.fromJson(responseJson));
+      }
+      saveCurrentUser(responseJson['id'], token);
       return true;
-    } else {
-      return false;
     }
-  } on TimeoutException catch (_) {
-    infoDialog(context, "Server Error", "Can't connect to server");
-    return false;
-  } catch (e) {
+  } on TimeoutException catch (_) {} catch (e) {
     print(e);
-    infoDialog(
-        context, "Unable to Login", "Cant get user profile info.");
-    return false;
   }
 }

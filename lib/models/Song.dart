@@ -1,24 +1,24 @@
-import 'package:vk_parse/functions/format/formatTime.dart';
 import 'dart:convert';
 
-Song clientFromJson(String str) {
-  final jsonData = json.decode(str);
-  return Song.fromJson(jsonData);
+Song songFromJson(String str) {
+  final data = json.decode(str);
+  return Song.fromJson(data);
 }
 
-String clientToJson(Song data) {
-  final dyn = data.toJson();
-  return json.encode(dyn);
+String songToJson(Song data) {
+  final str = data.toJson();
+  return json.encode(str);
 }
 
 class Song {
   String name;
   String artist;
-  String duration;
   String download;
   String localUrl;
+  String postedAt;
+  int duration;
+  int userId;
   int songId;
-  DateTime postedAt;
 
   Song(
       {this.songId,
@@ -27,15 +27,17 @@ class Song {
       this.duration,
       this.download,
       this.postedAt,
-      this.localUrl});
+      this.localUrl,
+      this.userId});
 
   factory Song.fromJson(Map<String, dynamic> json) => new Song(
       name: json['name'],
       artist: json['artist'],
-      duration: formatTime(json['duration']),
+      duration: json['duration'],
       songId: json['song_id'],
+      userId: json['user'],
       localUrl: json['localUrl'],
-      postedAt: DateTime.parse(json['posted_at']),
+      postedAt: json['posted_at'],
       download: json['download']);
 
   Map<String, dynamic> toJson() => {
@@ -46,5 +48,6 @@ class Song {
         'songId': songId,
         'postedAt': postedAt,
         'localUrl': localUrl,
+        'userId': userId,
       };
 }

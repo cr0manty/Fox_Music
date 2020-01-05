@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -14,17 +15,14 @@ enum FormType { login, register }
 class LoginState extends State<Login> {
   final TextEditingController _loginFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
-  final TextEditingController _userIDFilter = new TextEditingController();
   String _username = "";
   String _password = "";
-  int _userID = 0;
   FormType _form = FormType
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
 
   LoginState() {
     _loginFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
-    _userIDFilter.addListener(_userIDListen);
   }
 
   void _usernameListen() {
@@ -43,14 +41,6 @@ class LoginState extends State<Login> {
       return null;
     }
     return value;
-  }
-
-  void _userIDListen() {
-    if (_userIDFilter.text.isEmpty) {
-      _userID = 0;
-    } else {
-      _userID = isNumeric(_userIDFilter.text);
-    }
   }
 
   void _passwordListen() {
@@ -142,13 +132,6 @@ class LoginState extends State<Login> {
       return new Container(
         child: new Column(
           children: <Widget>[
-            new Container(
-              child: new TextField(
-                controller: _userIDFilter,
-                decoration: new InputDecoration(labelText: 'User ID'),
-                keyboardType: TextInputType.number,
-              ),
-            ),
             new RaisedButton(
               child: new Text('Create an Account'),
               onPressed: _createAccountPressed,
@@ -165,7 +148,7 @@ class LoginState extends State<Login> {
 
   void _loginPressed() async {
     print('Login - $_username');
-    final login = await requestLogin(context, _username, _password);
+    final login = await requestLogin(_username, _password);
     if (login != null) {
       final newRouteName = "/MusicListRequest";
       bool isNewRouteSameAsCurrent = false;
@@ -181,13 +164,16 @@ class LoginState extends State<Login> {
         Navigator.of(context).pushNamedAndRemoveUntil(
             newRouteName, (Route<dynamic> route) => false);
       }
+    } else {
+      infoDialog(context, "Unable to Login",
+          "You may have supplied an invalid 'Username' / 'Password' combination.");
     }
   }
 
   void _createAccountPressed() {
-    print('Registration - $_username, $_userID');
+    print('Registration - $_username');
     // TODO: check userID for num only
-    final reg = requestRegistration(context, _username, _password, _userID);
+    final reg = requestRegistration(_username, _password);
     if (reg != null) {
       final newRouteName = "/Login";
       bool isNewRouteSameAsCurrent = false;
@@ -198,11 +184,15 @@ class LoginState extends State<Login> {
         }
         return true;
       });
-
+      infoDialog(context, "You have successfully registered!",
+          "Now you need to log in.");
       if (!isNewRouteSameAsCurrent) {
         Navigator.of(context).pushNamedAndRemoveUntil(
             newRouteName, (Route<dynamic> route) => false);
       }
+    } else {
+      infoDialog(context, "Unable to register",
+          "You may have supplied an duplicate 'Username'");
     }
   }
 }

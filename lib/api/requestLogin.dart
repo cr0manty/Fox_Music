@@ -3,11 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/api/requestProfile.dart';
 import 'package:vk_parse/utils/urls.dart';
 
-requestLogin(BuildContext context, String username, String password) async {
+requestLogin(String username, String password) async {
   Map<String, String> body = {
     'username': username,
     'password': password,
@@ -21,18 +20,12 @@ requestLogin(BuildContext context, String username, String password) async {
         .timeout(Duration(seconds: 30));
     if (response.statusCode == 200) {
       final responseJson = json.decode(response.body);
-      return requestProfile(context, responseJson['token']);
-    } else {
-      infoDialog(
-          context,
-          "Unable to Login",
-          "You may have supplied an invalid 'Username' / 'Password' combination.");
-      return null;
+      return await requestProfile(responseJson['token']);
     }
   } on TimeoutException catch (_) {
-    infoDialog(context, "Server Error", "Can't connect to server");
     return null;
   } catch (e) {
     print(e);
+    return null;
   }
 }
