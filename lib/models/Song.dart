@@ -19,6 +19,7 @@ class Song {
   int duration;
   int userId;
   int songId;
+  int isDownloaded;
 
   Song(
       {this.songId,
@@ -28,7 +29,8 @@ class Song {
       this.download,
       this.postedAt,
       this.localUrl,
-      this.userId});
+      this.userId,
+      this.isDownloaded});
 
   factory Song.fromJson(Map<String, dynamic> json) => new Song(
       name: json['name'],
@@ -37,17 +39,15 @@ class Song {
       songId: json['song_id'],
       userId: json['user'],
       localUrl: json['localUrl'],
-      postedAt: json['posted_at'],
-      download: json['download']);
+      postedAt: json['posted_at']);
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'artist': artist,
         'duration': duration,
-        'download': download,
         'songId': songId,
         'postedAt': postedAt,
-        'localUrl': localUrl,
-        'userId': userId,
+        'localUrl': localUrl != null ? localUrl : "",
+        'userId': userId != null ? userId : -1,
       };
 }

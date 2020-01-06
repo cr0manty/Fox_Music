@@ -8,7 +8,7 @@ import 'package:vk_parse/models/Song.dart';
 downloadAll(BuildContext context) async {
   List<Song> songList = await requestMusicListGet();
   int downloadAmount = 0;
-  await songList.forEach((Song song) async {
+  songList.forEach((Song song) async {
     try {
       await downloadSong(song);
       downloadAmount++;
@@ -16,5 +16,5 @@ downloadAll(BuildContext context) async {
       print(e);
     }
   });
-  infoDialog(context, "Downloader", "$downloadAmount songs downloaded");
+  await infoDialog(context, "Downloader", "$downloadAmount songs downloaded");
 }

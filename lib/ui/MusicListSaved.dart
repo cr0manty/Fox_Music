@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/utils/colors.dart';
-import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/models/Database.dart';
+import 'package:vk_parse/functions/get/getUserId.dart';
+import 'package:vk_parse/api/requestMusicList.dart';
+import 'package:vk_parse/functions/utils/playSong.dart';
 
 class MusicListSaved extends StatefulWidget {
   @override
@@ -16,7 +20,7 @@ class MusicListSaved extends StatefulWidget {
 
 class MusicListSavedState extends State<MusicListSaved> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
+  new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
 
   List<Song> _data = [];
@@ -30,7 +34,7 @@ class MusicListSavedState extends State<MusicListSaved> {
       backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,
-          onRefresh: () async => await _loadSongs(),
+          onRefresh: () async => await _refreshSongList(),
           child: ListView(
             children: _buildList(),
           )),
@@ -44,8 +48,15 @@ class MusicListSavedState extends State<MusicListSaved> {
     saveCurrentRoute('/MusicListSaved');
   }
 
+  _refreshSongList() {
+    requestMusicListGet();
+    _loadSongs();
+  }
+
+
   _loadSongs() async {
-    final listSong = await requestMusicListGet();
+    final userId = await getUserId();
+    final listSong = await DBProvider.db.getAllUserSongs(userId);
     if (listSong != null) {
       setState(() {
         _data = listSong;
@@ -60,16 +71,18 @@ class MusicListSavedState extends State<MusicListSaved> {
       return null;
     }
     return _data
-        .map((Song song) => ListTile(
+        .map((Song song) =>
+        ListTile(
             title: Text(song.name),
             subtitle:
-                Text(song.artist, style: TextStyle(color: Colors.black54)),
+            Text(song.artist, style: TextStyle(color: Colors.black54)),
             trailing: Container(
-              child: new Text(song.duration.toString()),
+              child: new Text(formatTime(song.duration)),
             ),
             leading: IconButton(
                 onPressed: () {
                   print('play started');
+                  playSong(song.localUrl);
                 },
                 icon: Icon(
                   Icons.play_arrow,

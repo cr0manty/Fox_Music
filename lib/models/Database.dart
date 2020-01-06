@@ -7,9 +7,9 @@ import 'package:sqflite/sqflite.dart';
 import 'User.dart';
 import 'Song.dart';
 
-
 class DBProvider {
-  static const dbName = 'vk_music.db';
+  static const dbName = 'vk_music7.db';
+
   DBProvider._();
 
   static final DBProvider db = DBProvider._();
@@ -48,16 +48,6 @@ class DBProvider {
           "artist TEXT,"
           "name TEXT,"
           "postedAt TEXT,"
-          "download TEXT,"
-          "localUrl TEXT"
-          ")");
-      await db.execute("CREATE TABLE LocalSong ("
-          "songId INTEGER PRIMARY KEY,"
-          "duration INTEGER,"
-          "userId INTEGER,"
-          "artist TEXT,"
-          "name TEXT,"
-          "postedAt TEXT,"
           "localUrl TEXT"
           ")");
     });
@@ -73,6 +63,14 @@ class DBProvider {
     final db = await database;
     var res = await db.query("User", where: "id = ?", whereArgs: [id]);
     return res.isNotEmpty ? User.fromJson(res.first) : null;
+  }
+
+  getAllUsers() async {
+    final db = await database;
+    var res = await db.query("User");
+    List<User> list =
+        res.isNotEmpty ? res.map((c) => User.fromJson(c)).toList() : [];
+    return list;
   }
 
   updateUser(User user) async {
@@ -114,5 +112,17 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Song", where: "songId = ?", whereArgs: [id]);
     return res.isNotEmpty ? Song.fromJson(res.first) : null;
+  }
+
+  getAllUserSongs(int id) async {
+    if (id == -1) {
+      return null;
+    }
+
+    final db = await database;
+    var res = await db.query("Song", where: "userId = ?", whereArgs: [id]);
+    List<Song> list =
+        res.isNotEmpty ? res.map((c) => Song.fromJson(c)).toList() : [];
+    return list;
   }
 }

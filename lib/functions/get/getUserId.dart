@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-getToken() async {
+getUserId() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
 
-  String token = await preferences.getString("CurrentToken");
-  return token;
+  int userId = await preferences.getInt("CurrentUserId");
+  return userId;
 }

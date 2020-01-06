@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatFileName.dart';
+import 'package:vk_parse/models/Database.dart';
 
 downloadSong(Song song, {BuildContext context}) async {
   try {
@@ -23,15 +25,26 @@ downloadSong(Song song, {BuildContext context}) async {
     }
 
     File file = new File('$dir/songs/$filename');
-    var request = await http.get(
-      song.download,
-    );
+    var request = await http
+        .get(
+          song.download,
+        )
+        .timeout(Duration(minutes: 2));
     var bytes = await request.bodyBytes;
     await file.writeAsBytes(bytes);
-    print(file.path);
+
+    song.localUrl = file.path;
+    await DBProvider.db.newSong(song);
+
     if (context != null) {
       infoDialog(context, 'Success', 'Song $filename successfully downloaded!');
     }
+  } on TimeoutException catch (e) {
+    if (context != null) {
+      infoDialog(context, 'Error',
+          'Something went wrong while downloading. Try to refresh song list');
+    }
+    print(e);
   } catch (e) {
     if (context != null) {
       infoDialog(context, 'Error',

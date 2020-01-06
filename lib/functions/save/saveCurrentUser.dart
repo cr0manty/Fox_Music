@@ -1,11 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vk_parse/models/User.dart';
 
 saveCurrentUser(int userId, String token) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
 
   await preferences.setInt(
-      'LastUserId', (userId != null && userId > 0) ? userId : "");
+      'CurrentUserId', (userId != null && userId > 0) ? userId : -1);
   await preferences.setString(
-      'LastToken', (token != null && token.length > 0) ? token : "");
+      'CurrentToken', (token != null && token.length > 0) ? token : "");
 }

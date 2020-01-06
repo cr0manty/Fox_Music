@@ -8,6 +8,9 @@ import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/functions/utils/playSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/models/Database.dart';
+import 'package:vk_parse/functions/get/getUserId.dart';
 
 class MusicListRequest extends StatefulWidget {
   @override
@@ -18,9 +21,10 @@ class MusicListRequest extends StatefulWidget {
 
 class MusicListRequestState extends State<MusicListRequest> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
+  new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
   List<Song> _data = [];
+  List<String> _localData = [];
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +46,9 @@ class MusicListRequestState extends State<MusicListRequest> {
   void initState() {
     super.initState();
     _loadSongs();
+    _getUserSongList().then((value) {
+      _localData = value;
+    });
     saveCurrentRoute('/MusicListRequest');
   }
 
@@ -56,25 +63,33 @@ class MusicListRequestState extends State<MusicListRequest> {
     }
   }
 
+  _getUserSongList() async {
+    final userId = await getUserId();
+    return await DBProvider.db.getAllUserSongs(userId);
+  }
+
   List<Widget> _buildList() {
     if (_data == null) {
       return null;
     }
+
     return _data
-        .map((Song song) => ListTile(
+        .map((Song song) =>
+        ListTile(
             title: Text(song.name),
             subtitle:
-                Text(song.artist, style: TextStyle(color: Colors.black54)),
+            Text(song.artist, style: TextStyle(color: Colors.black54)),
             trailing: new Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  child: new Text(song.duration.toString()),
+                  child: new Text(formatTime(song.duration)),
                 ),
                 Container(
                   child: new IconButton(
-                    onPressed: () {
-                      // TODO: mark downloaded
+                    onPressed: _localData.contains(song)
+                        ? null
+                        : () {
                       downloadSong(song, context: context);
                     },
                     icon: Icon(Icons.file_download,
