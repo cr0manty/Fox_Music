@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
+import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
@@ -20,17 +21,18 @@ class MusicListSaved extends StatefulWidget {
 
 class MusicListSavedState extends State<MusicListSaved> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
-  new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
+      new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
 
   List<Song> _data = [];
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: menuKey,
+      key: _menuKey,
       drawer: makeDrawer(context),
-      appBar: makeAppBar('Saved Music', menuKey),
+      appBar: makeAppBar('Saved Music', _menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,
@@ -53,7 +55,6 @@ class MusicListSavedState extends State<MusicListSaved> {
     _loadSongs();
   }
 
-
   _loadSongs() async {
     final userId = await getUserId();
     final listSong = await DBProvider.db.getAllUserSongs(userId);
@@ -71,11 +72,10 @@ class MusicListSavedState extends State<MusicListSaved> {
       return null;
     }
     return _data
-        .map((Song song) =>
-        ListTile(
+        .map((Song song) => ListTile(
             title: Text(song.name),
             subtitle:
-            Text(song.artist, style: TextStyle(color: Colors.black54)),
+                Text(song.artist, style: TextStyle(color: Colors.black54)),
             trailing: Container(
               child: new Text(formatTime(song.duration)),
             ),

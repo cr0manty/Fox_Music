@@ -17,10 +17,10 @@ class User {
   String email;
   String date_joined;
   String last_login;
-  bool vk_auth;
-  bool is_staff;
+  int vk_auth;
+  int is_staff;
   int id;
-  bool can_use_vk;
+  int can_use_vk;
   final String username;
   final String token;
   final int user_id;

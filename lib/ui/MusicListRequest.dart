@@ -23,17 +23,16 @@ class MusicListRequest extends StatefulWidget {
 class MusicListRequestState extends State<MusicListRequest> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
   List<Song> _data = [];
   List<Song> _localData = [];
-  User user;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: menuKey,
+      key: _menuKey,
       drawer: makeDrawer(context),
-      appBar: makeAppBar('Music', menuKey),
+      appBar: makeAppBar('Music', _menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,

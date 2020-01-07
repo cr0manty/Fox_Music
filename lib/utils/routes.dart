@@ -5,8 +5,10 @@ import 'package:vk_parse/ui/MusicListSaved.dart';
 import 'package:vk_parse/ui/Account.dart';
 import 'package:vk_parse/ui/FriendList.dart';
 import 'package:vk_parse/ui/Login.dart';
+import 'package:vk_parse/models/User.dart';
 
-var routes = <String, WidgetBuilder>{
+
+routes() => <String, WidgetBuilder>{
   "/Login": (BuildContext context) => Login(),
   "/MusicListRequest": (BuildContext context) => MusicListRequest(),
   "/MusicListSaved": (BuildContext context) => MusicListSaved(),

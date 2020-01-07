@@ -9,6 +9,7 @@ import 'package:vk_parse/api/requestAuthCheck.dart';
 import 'package:vk_parse/functions/save/logout.dart';
 
 class Intro extends StatefulWidget {
+
   @override
   _IntroState createState() => _IntroState();
 }
@@ -16,12 +17,13 @@ class Intro extends StatefulWidget {
 class _IntroState extends State<Intro> {
   final int splashDuration = 2;
 
+
   startTime() {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       bool needToken = false;
       final lastPage = await getLastRoute();
-      if (lastPage != '/Login' && lastPage != '/MusicListSaved') {
+      if (lastPage != '/Login' /*&& lastPage != '/MusicListSaved'*/) {
         if (!await requestAuthCheck()) {
           await logout();
         }

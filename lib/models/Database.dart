@@ -8,7 +8,7 @@ import 'User.dart';
 import 'Song.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music2.db';
+  static const dbName = 'vk_music3.db';
 
   DBProvider._();
 
@@ -38,9 +38,9 @@ class DBProvider {
           "date_joined TEXT,"
           "last_login TEXT,"
           "token TEXT,"
-          "vk_auth BOOLEAN DEFAULT FALSE,"
-          "is_staff BOOLEAN DEFAULT FALSE,"
-          "can_use_vk BOOLEAN DEFAULT FALSE"
+          "vk_auth INTEGER DEFAULT 0,"
+          "is_staff INTEGER DEFAULT 0,"
+          "can_use_vk INTEGER DEFAULT 0"
           ")");
       await db.execute("CREATE TABLE Song ("
           "song_id INTEGER PRIMARY KEY,"
