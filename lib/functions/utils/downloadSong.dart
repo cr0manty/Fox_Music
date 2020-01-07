@@ -8,6 +8,7 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatFileName.dart';
 import 'package:vk_parse/models/Database.dart';
+import 'package:vk_parse/functions/get/getUserId.dart';
 
 downloadSong(Song song, {BuildContext context}) async {
   try {
@@ -34,6 +35,7 @@ downloadSong(Song song, {BuildContext context}) async {
     await file.writeAsBytes(bytes);
 
     song.localUrl = file.path;
+    song.user_id = await getUserId();
     await DBProvider.db.newSong(song);
 
     if (context != null) {

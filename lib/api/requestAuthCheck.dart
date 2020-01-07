@@ -23,21 +23,3 @@ requestAuthCheck() async {
     return false;
   }
 }
-
-requestVkAuthCheck() async {
-  try {
-    final token = await getToken();
-    final response = await http.put(AUTH_CHECK, headers: formatToken(token)).timeout(Duration(seconds: 30));
-
-    if (response.statusCode == 200) {
-      return true;
-    }
-    return false;
-  } on TimeoutException catch(e) {
-    return false;
-  }
-  catch (e) {
-    print(e);
-    return false;
-  }
-}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
+import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
@@ -21,10 +22,11 @@ class MusicListRequest extends StatefulWidget {
 
 class MusicListRequestState extends State<MusicListRequest> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
-  new GlobalKey<RefreshIndicatorState>();
+      new GlobalKey<RefreshIndicatorState>();
   final GlobalKey<ScaffoldState> menuKey = new GlobalKey<ScaffoldState>();
   List<Song> _data = [];
-  List<String> _localData = [];
+  List<Song> _localData = [];
+  User user;
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +76,10 @@ class MusicListRequestState extends State<MusicListRequest> {
     }
 
     return _data
-        .map((Song song) =>
-        ListTile(
+        .map((Song song) => ListTile(
             title: Text(song.name),
             subtitle:
-            Text(song.artist, style: TextStyle(color: Colors.black54)),
+                Text(song.artist, style: TextStyle(color: Colors.black54)),
             trailing: new Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -90,8 +91,8 @@ class MusicListRequestState extends State<MusicListRequest> {
                     onPressed: _localData.contains(song)
                         ? null
                         : () {
-                      downloadSong(song, context: context);
-                    },
+                            downloadSong(song, context: context);
+                          },
                     icon: Icon(Icons.file_download,
                         size: 35, color: Color.fromRGBO(100, 100, 100, 1)),
                   ),

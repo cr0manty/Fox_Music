@@ -40,9 +40,9 @@ class FriendListState extends State<FriendList> {
     }
     return _data
         .map((User user) => ListTile(
-            title: Text(user.firstName),
+            title: Text(user.first_name),
             subtitle:
-                Text(user.lastName, style: TextStyle(color: Colors.black54)),
+                Text(user.last_name, style: TextStyle(color: Colors.black54)),
             trailing: new Row(
               mainAxisSize: MainAxisSize.min,
               children: [

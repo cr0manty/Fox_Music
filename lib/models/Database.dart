@@ -8,7 +8,7 @@ import 'User.dart';
 import 'Song.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music7.db';
+  static const dbName = 'vk_music2.db';
 
   DBProvider._();
 
@@ -29,25 +29,28 @@ class DBProvider {
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE User ("
           "id INTEGER PRIMARY KEY,"
-          "userId INTEGER,"
-          "firstName TEXT,"
+          "user_id INTEGER,"
+          "first_name TEXT,"
           "username TEXT,"
-          "lastName TEXT,"
+          "last_name TEXT,"
           "image TEXT,"
           "email TEXT,"
-          "joined TEXT,"
-          "lastLogin TEXT,"
+          "date_joined TEXT,"
+          "last_login TEXT,"
           "token TEXT,"
-          "vkAuth BOOLEAN,"
-          "isStaff BOOLEAN"
+          "vk_auth BOOLEAN DEFAULT FALSE,"
+          "is_staff BOOLEAN DEFAULT FALSE,"
+          "can_use_vk BOOLEAN DEFAULT FALSE"
           ")");
       await db.execute("CREATE TABLE Song ("
-          "songId INTEGER PRIMARY KEY,"
+          "song_id INTEGER PRIMARY KEY,"
           "duration INTEGER,"
-          "userId INTEGER,"
+          "user_id INTEGER,"
+          "download TEXT,"
           "artist TEXT,"
           "name TEXT,"
-          "postedAt TEXT,"
+          "posted_at TEXT,"
+          "updated_at TEXT,"
           "localUrl TEXT"
           ")");
     });
@@ -94,7 +97,7 @@ class DBProvider {
   updateSong(Song song) async {
     final db = await database;
     var res = await db.update("Song", song.toJson(),
-        where: "songId = ?", whereArgs: [song.songId]);
+        where: "songId = ?", whereArgs: [song.song_id]);
     return res;
   }
 
@@ -105,12 +108,12 @@ class DBProvider {
 
   deleteSong(int id) async {
     final db = await database;
-    db.delete("Song", where: "songId = ?", whereArgs: [id]);
+    db.delete("Song", where: "song_id = ?", whereArgs: [id]);
   }
 
   getSong(int id) async {
     final db = await database;
-    var res = await db.query("Song", where: "songId = ?", whereArgs: [id]);
+    var res = await db.query("Song", where: "song_id = ?", whereArgs: [id]);
     return res.isNotEmpty ? Song.fromJson(res.first) : null;
   }
 
@@ -120,7 +123,7 @@ class DBProvider {
     }
 
     final db = await database;
-    var res = await db.query("Song", where: "userId = ?", whereArgs: [id]);
+    var res = await db.query("Song", where: "user_id = ?", whereArgs: [id]);
     List<Song> list =
         res.isNotEmpty ? res.map((c) => Song.fromJson(c)).toList() : [];
     return list;

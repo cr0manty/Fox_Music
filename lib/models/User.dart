@@ -11,58 +11,60 @@ String userToJson(User data) {
 }
 
 class User {
-  String firstName;
-  String lastName;
+  String first_name;
+  String last_name;
   String image;
   String email;
-  String joined;
-  String lastLogin;
-  bool vkAuth;
-  bool isStaff;
+  String date_joined;
+  String last_login;
+  bool vk_auth;
+  bool is_staff;
   int id;
+  bool can_use_vk;
   final String username;
   final String token;
-  final int userId;
+  final int user_id;
 
   User(
       {this.id,
       this.username,
       this.token,
-      this.userId,
+      this.user_id,
       this.image,
       this.email,
-      this.firstName,
-      this.joined,
-      this.lastName,
-      this.vkAuth,
-      this.isStaff,
-      this.lastLogin});
+      this.first_name,
+      this.date_joined,
+      this.last_name,
+      this.vk_auth,
+      this.is_staff,
+      this.last_login});
 
   factory User.fromJson(Map<String, dynamic> json) => new User(
       username: json['username'],
       token: json['token'],
-      userId: json['user_id'],
+      user_id: json['user_id'],
       id: json['id'],
       image: json['image'],
       email: json['email'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      lastLogin: json['last_login'],
-      joined: json['date_joined'],
-      vkAuth: json['vk_auth']);
+      first_name: json['first_name'],
+      last_name: json['last_name'],
+      last_login: json['last_login'],
+      date_joined: json['date_joined'],
+      vk_auth: json['vk_auth'],
+      is_staff: json['is_staff']);
 
   Map<String, dynamic> toJson() => {
         'username': username,
         'token': token,
-        'userId': userId,
-        'firstName': firstName,
-        'lastName': lastName,
+        'user_id': user_id,
+        'first_name': first_name,
+        'last_name': last_name,
         'email': email,
-        'joined': joined,
+        'date_joined': date_joined,
         'image': image,
-        'vkAuth': vkAuth,
-        'isStaff': isStaff,
-        'lastLogin': lastLogin,
+        'vk_auth': vk_auth,
+        'is_staff': is_staff,
+        'last_login': last_login,
         'id': id
       };
 }

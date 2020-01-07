@@ -23,7 +23,7 @@ class _IntroState extends State<Intro> {
       final lastPage = await getLastRoute();
       if (lastPage != '/Login' && lastPage != '/MusicListSaved') {
         if (!await requestAuthCheck()) {
-          logout();
+          await logout();
         }
         final token = await getToken();
         if (token == null || token.length == 0) {
