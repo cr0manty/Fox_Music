@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';

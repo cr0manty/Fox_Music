@@ -25,21 +25,26 @@ downloadSong(Song song, {BuildContext context}) async {
       return null;
     }
 
-    File file = new File('$dir/songs/$filename');
     var request = await http
         .get(
           song.download,
         )
         .timeout(Duration(minutes: 2));
-    var bytes = await request.bodyBytes;
-    await file.writeAsBytes(bytes);
+    if (request.statusCode == 200) {
+      File file = new File('$dir/songs/$filename');
+      var bytes = await request.bodyBytes;
+      await file.writeAsBytes(bytes);
 
-    song.localUrl = file.path;
-    song.user_id = await getUserId();
-    await DBProvider.db.newSong(song);
+      song.localUrl = file.path;
+      song.user_id = await getUserId();
+      await DBProvider.db.newSong(song);
 
-    if (context != null) {
-      infoDialog(context, 'Success', 'Song $filename successfully downloaded!');
+      if (context != null) {
+        infoDialog(
+            context, 'Success', 'Song $filename successfully downloaded!');
+      }
+    } else {
+      throw "Connection erroe";
     }
   } on TimeoutException catch (e) {
     if (context != null) {

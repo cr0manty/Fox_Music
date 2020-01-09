@@ -37,7 +37,8 @@ class User {
       this.last_name,
       this.vk_auth,
       this.is_staff,
-      this.last_login});
+      this.last_login,
+      this.can_use_vk});
 
   factory User.fromJson(Map<String, dynamic> json) => new User(
       username: json['username'],
@@ -48,10 +49,10 @@ class User {
       email: json['email'],
       first_name: json['first_name'],
       last_name: json['last_name'],
-      last_login: json['last_login'],
       date_joined: json['date_joined'],
-      vk_auth: json['vk_auth'],
-      is_staff: json['is_staff']);
+      vk_auth: json['vk_auth'] != null && json['vk_auth'] ? 1 : 0,
+      is_staff: json['is_staff'] != null && json['is_staff'] ? 1 : 0,
+      can_use_vk: json['can_use_vk'] != null && json['can_use_vk'] ? 1 : 0);
 
   Map<String, dynamic> toJson() => {
         'username': username,
@@ -64,7 +65,7 @@ class User {
         'image': image,
         'vk_auth': vk_auth,
         'is_staff': is_staff,
-        'last_login': last_login,
-        'id': id
+        'id': id,
+        'can_use_vk': can_use_vk
       };
 }

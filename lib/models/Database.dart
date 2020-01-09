@@ -8,7 +8,7 @@ import 'User.dart';
 import 'Song.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music3.db';
+  static const dbName = 'vk_music4.db';
 
   DBProvider._();
 
