@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-User userFromJson(String str) {
-  final data = json.decode(str);
-  return User.fromJson(data);
-}
-
 String userToJson(User data) {
   final str = data.toJson();
   return json.encode(str);
+}
+
+User userFromJson(String str) {
+  final data = json.decode(str);
+  return User.fromJson(data);
 }
 
 class User {
@@ -17,13 +17,13 @@ class User {
   String email;
   String date_joined;
   String last_login;
-  int vk_auth;
-  int is_staff;
+  bool vk_auth;
+  bool is_staff;
+  bool can_use_vk;
   int id;
-  int can_use_vk;
+  int user_id;
   final String username;
   final String token;
-  final int user_id;
 
   User(
       {this.id,
@@ -50,9 +50,9 @@ class User {
       first_name: json['first_name'],
       last_name: json['last_name'],
       date_joined: json['date_joined'],
-      vk_auth: json['vk_auth'] != null && json['vk_auth'] ? 1 : 0,
-      is_staff: json['is_staff'] != null && json['is_staff'] ? 1 : 0,
-      can_use_vk: json['can_use_vk'] != null && json['can_use_vk'] ? 1 : 0);
+      vk_auth: json['vk_auth'] != null ? json['vk_auth'] : false,
+      is_staff: json['is_staff'] != null ? json['is_staff'] : false,
+      can_use_vk: json['can_use_vk'] != null ? json['can_use_vk'] : false);
 
   Map<String, dynamic> toJson() => {
         'username': username,

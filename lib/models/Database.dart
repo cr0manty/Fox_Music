@@ -4,11 +4,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'User.dart';
 import 'Song.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music4.db';
+  static const dbName = 'vk_music5.db';
 
   DBProvider._();
 
@@ -27,65 +26,15 @@ class DBProvider {
     String path = join(documentsDirectory.path, dbName);
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-      await db.execute("CREATE TABLE User ("
-          "id INTEGER PRIMARY KEY,"
-          "user_id INTEGER,"
-          "first_name TEXT,"
-          "username TEXT,"
-          "last_name TEXT,"
-          "image TEXT,"
-          "email TEXT,"
-          "date_joined TEXT,"
-          "last_login TEXT,"
-          "token TEXT,"
-          "vk_auth INTEGER DEFAULT 0,"
-          "is_staff INTEGER DEFAULT 0,"
-          "can_use_vk INTEGER DEFAULT 0"
-          ")");
       await db.execute("CREATE TABLE Song ("
           "song_id INTEGER PRIMARY KEY,"
           "duration INTEGER,"
           "user_id INTEGER,"
-          "download TEXT,"
           "artist TEXT,"
           "name TEXT,"
-          "posted_at TEXT,"
-          "updated_at TEXT,"
-          "localUrl TEXT"
+          "path TEXT"
           ")");
     });
-  }
-
-  newUser(User user) async {
-    final db = await database;
-    var res = await db.insert("User", user.toJson());
-    return res;
-  }
-
-  getUser(int id) async {
-    final db = await database;
-    var res = await db.query("User", where: "id = ?", whereArgs: [id]);
-    return res.isNotEmpty ? User.fromJson(res.first) : null;
-  }
-
-  getAllUsers() async {
-    final db = await database;
-    var res = await db.query("User");
-    List<User> list =
-        res.isNotEmpty ? res.map((c) => User.fromJson(c)).toList() : [];
-    return list;
-  }
-
-  updateUser(User user) async {
-    final db = await database;
-    var res = await db
-        .update("User", user.toJson(), where: "id = ?", whereArgs: [user.id]);
-    return res;
-  }
-
-  deleteUser(int id) async {
-    final db = await database;
-    db.delete("User", where: "id = ?", whereArgs: [id]);
   }
 
   newSong(Song song) async {
@@ -121,7 +70,6 @@ class DBProvider {
     if (id == -1) {
       return null;
     }
-
     final db = await database;
     var res = await db.query("Song", where: "user_id = ?", whereArgs: [id]);
     List<Song> list =

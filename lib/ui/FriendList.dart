@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/ui/AppBar.dart';
+import 'package:vk_parse/widgets/AppBarDrawer.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
@@ -25,7 +25,7 @@ class FriendListState extends State<FriendList> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _menuKey,
-      drawer: makeDrawer(context),
+      drawer: AppBarDrawer(),
       appBar: makeAppBar('Friends', _menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
@@ -61,23 +61,23 @@ class FriendListState extends State<FriendList> {
       return null;
     }
     return _data
-        .map((User user) => ListTile(
-            title: Text(user.last_name != null ? user.last_name : 'Unknown'),
-            subtitle: Text(
-                user.first_name != null ? user.first_name : 'Unknown',
-                style: TextStyle(color: Colors.black54)),
-            onTap: () {
-
-            },
-            trailing: IconButton(
+        .map((User user) => new ListTile(
+            title:
+                new Text(user.last_name.isEmpty ? 'Unknown' : user.last_name),
+            subtitle: new Text(
+                user.first_name.isEmpty ? 'Unknown' : user.first_name,
+                style: new TextStyle(color: Colors.black54)),
+            onTap: () {},
+            trailing: new IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.more_vert,
+                icon: new Icon(Icons.more_vert,
                     size: 35, color: Color.fromRGBO(100, 100, 100, 1))),
-            leading: CircleAvatar(
+            leading: new CircleAvatar(
                 radius: 25,
+                backgroundColor: Colors.grey,
                 backgroundImage: user.image != null
-                    ? Image.network(BASE_URL + user.image).image
-                    : AssetImage('assets/images/user-default.jpg'))))
+                    ? new Image.network(BASE_URL + user.image).image
+                    : new AssetImage('assets/images/user-default.jpg'))))
         .toList();
   }
 }

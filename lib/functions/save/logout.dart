@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 logout() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
 
-  await preferences.setInt('CurrentUserId', 0);
+  await preferences.setString('CurrentUser', "");
   await preferences.setString('CurrentToken', "");
-
+  await preferences.setString('LastRoute', "");
 }

@@ -9,14 +9,12 @@ import 'package:vk_parse/api/requestAuthCheck.dart';
 import 'package:vk_parse/functions/save/logout.dart';
 
 class Intro extends StatefulWidget {
-
   @override
   _IntroState createState() => _IntroState();
 }
 
 class _IntroState extends State<Intro> {
   final int splashDuration = 2;
-
 
   startTime() {
     return Timer(Duration(seconds: splashDuration), () async {
@@ -46,7 +44,6 @@ class _IntroState extends State<Intro> {
   @override
   Widget build(BuildContext context) {
     var drawer = Drawer();
-
     return Scaffold(
         drawer: drawer,
         body: Container(

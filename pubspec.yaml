@@ -29,7 +29,7 @@ dependencies:
   path_provider: ^1.5.1
   sqflite: any
   audioplayers: ^0.13.6
-
+  modal_progress_hud: ^0.1.3
 
 dev_dependencies:
   flutter_test:

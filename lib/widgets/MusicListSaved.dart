@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:vk_parse/ui/AppBar.dart';
 import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/utils/colors.dart';
-import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/models/Database.dart';
-import 'package:vk_parse/functions/get/getUserId.dart';
+import 'package:vk_parse/functions/get/getUser.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/playSong.dart';
 
@@ -22,35 +18,28 @@ class MusicListSaved extends StatefulWidget {
 class MusicListSavedState extends State<MusicListSaved> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
 
   List<Song> _data = [];
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _menuKey,
-      drawer: makeDrawer(context),
-      appBar: makeAppBar('Saved Music', _menuKey),
-      backgroundColor: lightGrey,
-      body: RefreshIndicator(
+    return new RefreshIndicator(
           key: _refreshKey,
           onRefresh: () async => await _refreshSongList(),
           child: ListView(
             children: _buildList(),
-          )),
+          ),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    _loadSongs();
-    saveCurrentRoute('/MusicListSaved');
+//    _loadSongs();
   }
 
-  _refreshSongList() {
+  _refreshSongList() async {
     requestMusicListGet();
     _loadSongs();
   }
@@ -82,7 +71,7 @@ class MusicListSavedState extends State<MusicListSaved> {
             leading: IconButton(
                 onPressed: () {
                   print('play started');
-                  playSong(song.localUrl);
+                  playSong(song.path);
                 },
                 icon: Icon(
                   Icons.play_arrow,

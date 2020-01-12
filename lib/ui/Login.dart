@@ -4,6 +4,7 @@ import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -13,34 +14,51 @@ class Login extends StatefulWidget {
 enum FormType { login, register }
 
 class LoginState extends State<Login> {
-  final TextEditingController _loginFilter = new TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final TextEditingController _firstNameFilter = new TextEditingController();
+  final TextEditingController _lastNameFilter = new TextEditingController();
+  final TextEditingController _emailFilter = new TextEditingController();
+  final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
+  String _firstName = "";
+  String _lastName = "";
+  String _email = "";
   String _username = "";
   String _password = "";
   FormType _form = FormType
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
+  bool _disabled = false;
 
   LoginState() {
-    _loginFilter.addListener(_usernameListen);
+    _lastNameFilter.addListener(_lastNameListen);
+    _firstNameFilter.addListener(_firstNameListen);
+    _emailFilter.addListener(_emailListen);
+    _usernameFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
   }
 
-  void _usernameListen() {
-    if (_loginFilter.text.isEmpty) {
-      _username = "";
+  void _lastNameListen() {
+    if (_lastNameFilter.text.isEmpty) {
+      _lastName = "";
     } else {
-      _username = _loginFilter.text;
+      _lastName = _lastNameFilter.text;
     }
   }
 
-  int isNumeric(String str) {
-    int value;
-    try {
-      value = int.parse(str);
-    } on FormatException {
-      return null;
+  void _firstNameListen() {
+    if (_firstNameFilter.text.isEmpty) {
+      _firstName = "";
+    } else {
+      _firstName = _firstNameFilter.text;
     }
-    return value;
+  }
+
+  void _usernameListen() {
+    if (_usernameFilter.text.isEmpty) {
+      _username = "";
+    } else {
+      _username = _usernameFilter.text;
+    }
   }
 
   void _passwordListen() {
@@ -48,6 +66,14 @@ class LoginState extends State<Login> {
       _password = "";
     } else {
       _password = _passwordFilter.text;
+    }
+  }
+
+  void _emailListen() {
+    if (_emailFilter.text.isEmpty) {
+      _email = "";
+    } else {
+      _email = _emailFilter.text;
     }
   }
 
@@ -64,22 +90,24 @@ class LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: _buildBar(context),
-      body: new Container(
-        padding: EdgeInsets.all(16.0),
-        child: new Column(
-          children: <Widget>[
-            _buildTextFields(),
-            _buildButtons(),
-          ],
-        ),
-      ),
-    );
+        key: _scaffoldKey,
+        appBar: _buildBar(context),
+        body: ModalProgressHUD(
+            child: new Container(
+              padding: EdgeInsets.all(16.0),
+              child: new Column(
+                children: <Widget>[
+                  _buildTextFields(),
+                  _buildButtons(),
+                ],
+              ),
+            ),
+            inAsyncCall: _disabled));
   }
 
   Widget _buildBar(BuildContext context) {
     return new AppBar(
-      title: new Text("Auth Page"),
+      title: new Text("Auth"),
       centerTitle: true,
     );
   }
@@ -90,7 +118,7 @@ class LoginState extends State<Login> {
         children: <Widget>[
           new Container(
             child: new TextField(
-              controller: _loginFilter,
+              controller: _usernameFilter,
               decoration: new InputDecoration(labelText: 'Login'),
             ),
           ),
@@ -112,18 +140,23 @@ class LoginState extends State<Login> {
     saveCurrentRoute("/Login");
   }
 
+  _setButtonStatus() {
+    setState(() {
+      _disabled = !_disabled;
+    });
+  }
+
   Widget _buildButtons() {
     if (_form == FormType.login) {
       return new Container(
         child: new Column(
           children: <Widget>[
             new RaisedButton(
-              child: new Text('Login'),
-              onPressed: _loginPressed,
-            ),
+                child: new Text('Login'),
+                onPressed: _disabled ? null : () => _loginPressed()),
             new FlatButton(
               child: new Text('Dont have an account? Tap here to register.'),
-              onPressed: _formChange,
+              onPressed: _disabled ? null : () => _formChange(),
             ),
           ],
         ),
@@ -132,13 +165,30 @@ class LoginState extends State<Login> {
       return new Container(
         child: new Column(
           children: <Widget>[
-            new RaisedButton(
-              child: new Text('Create an Account'),
-              onPressed: _createAccountPressed,
+            new Container(
+              child: new TextField(
+                controller: _emailFilter,
+                decoration: new InputDecoration(labelText: 'Email'),
+              ),
             ),
+            new Container(
+              child: new TextField(
+                controller: _lastNameFilter,
+                decoration: new InputDecoration(labelText: 'First name'),
+              ),
+            ),
+            new Container(
+              child: new TextField(
+                controller: _lastNameFilter,
+                decoration: new InputDecoration(labelText: 'Last name'),
+              ),
+            ),
+            new RaisedButton(
+                child: new Text('Create an Account'),
+                onPressed: _disabled ? null : () => _createAccountPressed()),
             new FlatButton(
               child: new Text('Have an account? Click here to login.'),
-              onPressed: _formChange,
+              onPressed: _disabled ? null : _formChange,
             )
           ],
         ),
@@ -146,53 +196,44 @@ class LoginState extends State<Login> {
     }
   }
 
-  void _loginPressed() async {
-    print('Login - $_username');
-    final login = await requestLogin(_username, _password);
+  _loginPressed() async {
+    _setButtonStatus();
+    // final login = await requestLogin(_username, _password);
+    final login = await requestLogin('380501751678', 'killerGun1337');
     if (login != null) {
-      final newRouteName = "/MusicListRequest";
+      final newRouteName = "/MusicList";
       bool isNewRouteSameAsCurrent = false;
-
       Navigator.popUntil(context, (route) {
         if (route.settings.name == newRouteName) {
           isNewRouteSameAsCurrent = true;
         }
         return true;
       });
-
       if (!isNewRouteSameAsCurrent) {
         Navigator.of(context).pushNamedAndRemoveUntil(
             newRouteName, (Route<dynamic> route) => false);
       }
     } else {
+//      Navigator.pop(context);
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");
     }
+    _setButtonStatus();
   }
 
-  void _createAccountPressed() {
-    print('Registration - $_username');
-    // TODO: check userID for num only
-    final reg = requestRegistration(_username, _password);
+  _createAccountPressed() async {
+    _setButtonStatus();
+    final reg = await requestRegistration(
+        _username, _password, _email, _firstName, _lastName);
     if (reg != null) {
       final newRouteName = "/Login";
-      bool isNewRouteSameAsCurrent = false;
-
-      Navigator.popUntil(context, (route) {
-        if (route.settings.name == newRouteName) {
-          isNewRouteSameAsCurrent = true;
-        }
-        return true;
-      });
       infoDialog(context, "You have successfully registered!",
           "Now you need to log in.");
-      if (!isNewRouteSameAsCurrent) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-            newRouteName, (Route<dynamic> route) => false);
-      }
+      Navigator.popAndPushNamed(context, newRouteName);
     } else {
       infoDialog(context, "Unable to register",
-          "You may have supplied an duplicate 'Username'");
+          "Not all data was entered or you may have supplied an duplicate 'Username'");
     }
+    _setButtonStatus();
   }
 }
