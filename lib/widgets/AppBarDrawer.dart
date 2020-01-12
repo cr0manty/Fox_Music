@@ -94,28 +94,6 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                 ])),
                 new Divider(),
                 new ListTile(
-                  title: new Text('Update Music',
-                      style: TextStyle(fontSize: 15.0, color: Colors.white)),
-                  leading: new Icon(Icons.update, color: Colors.white),
-                  onTap: () async {
-                    try {
-                      _setUpdating();
-                      final listNewSong = await requestMusicListPost();
-                      if (listNewSong != null) {
-                        infoDialog(context, "New songs",
-                            "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
-                      } else {
-                        infoDialog(context, "Something went wrong",
-                            "Unable to get Music List.");
-                      }
-                    } catch (e) {
-                      print(e);
-                    } finally {
-                      _setUpdating();
-                    }
-                  },
-                ),
-                new ListTile(
                   title: new Text('Music',
                       style: TextStyle(fontSize: 15.0, color: Colors.white)),
                   leading: new Icon(Icons.wifi, color: Colors.white),
@@ -177,6 +155,29 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                                 newRouteName, (Route<dynamic> route) => false);
                           }
                         },
+                ),
+                new Divider(),
+                new ListTile(
+                  title: new Text('Update Music',
+                      style: TextStyle(fontSize: 15.0, color: Colors.white)),
+                  leading: new Icon(Icons.update, color: Colors.white),
+                  onTap: () async {
+                    try {
+                      _setUpdating();
+                      final listNewSong = await requestMusicListPost();
+                      if (listNewSong != null) {
+                        infoDialog(context, "New songs",
+                            "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                      } else {
+                        infoDialog(context, "Something went wrong",
+                            "Unable to get Music List.");
+                      }
+                    } catch (e) {
+                      print(e);
+                    } finally {
+                      _setUpdating();
+                    }
+                  },
                 ),
                 new ListTile(
                   title: new Text('Download all',
