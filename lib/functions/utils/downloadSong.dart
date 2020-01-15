@@ -7,8 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/fromatSongName.dart';
-import 'package:vk_parse/models/Database.dart';
-import 'package:vk_parse/functions/get/getUser.dart';
 
 downloadSong(Song song, {BuildContext context}) async {
   try {
@@ -17,7 +15,6 @@ downloadSong(Song song, {BuildContext context}) async {
     if (!await _appDocDirFolder.exists()) {
       await _appDocDirFolder.create(recursive: true);
     }
-
     String filename = formatFileName(song);
     if (context != null && File('$dir/songs/$filename').existsSync()) {
       infoDialog(
@@ -34,9 +31,6 @@ downloadSong(Song song, {BuildContext context}) async {
       File file = new File('$dir/songs/$filename');
       var bytes = await request.bodyBytes;
       await file.writeAsBytes(bytes);
-
-      song.path = file.path;
-      await DBProvider.db.newSong(song);
 
       if (context != null) {
         infoDialog(

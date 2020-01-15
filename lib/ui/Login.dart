@@ -90,6 +90,7 @@ class LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+        resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
         appBar: _buildBar(context),
         body: ModalProgressHUD(
@@ -213,7 +214,6 @@ class LoginState extends State<Login> {
             newRouteName, (Route<dynamic> route) => false);
       }
     } else {
-//      Navigator.pop(context);
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");
     }

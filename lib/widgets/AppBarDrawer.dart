@@ -22,6 +22,7 @@ class AppBarDrawer extends StatefulWidget {
 }
 
 class _AppBarDrawerState extends State<AppBarDrawer> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool _updating = false;
 
   _setUpdating() {
@@ -38,6 +39,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
               canvasColor: Color.fromRGBO(30, 30, 30, 0.7),
             ),
             child: new Drawer(
+              key: _scaffoldKey,
                 child: new ListView(
               children: [
                 new DrawerHeader(
@@ -92,7 +94,6 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                     ],
                   ))
                 ])),
-                new Divider(),
                 new ListTile(
                   title: new Text('Music',
                       style: TextStyle(fontSize: 15.0, color: Colors.white)),
@@ -166,10 +167,10 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                       _setUpdating();
                       final listNewSong = await requestMusicListPost();
                       if (listNewSong != null) {
-                        infoDialog(context, "New songs",
+                        infoDialog(_scaffoldKey.currentContext, "New songs",
                             "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
                       } else {
-                        infoDialog(context, "Something went wrong",
+                        infoDialog(_scaffoldKey.currentContext, "Something went wrong",
                             "Unable to get Music List.");
                       }
                     } catch (e) {
@@ -184,7 +185,21 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                       style: TextStyle(fontSize: 15.0, color: Colors.white)),
                   leading: new Icon(Icons.arrow_downward, color: Colors.white),
                   onTap: () async {
-                    downloadAll(context);
+                    try {
+                      final downloadAmount = await downloadAll();
+                      if (downloadAmount > -1)
+                        infoDialog(_scaffoldKey.currentContext, "Downloader",
+                            "$downloadAmount songs downloaded");
+                      else if (downloadAmount == -1) {
+                        infoDialog(_scaffoldKey.currentContext, "Downloader Error",
+                            "Can't connect to VK servers, try to use VPN or Proxy.");
+                      } else if (downloadAmount == -2) {
+                        infoDialog(_scaffoldKey.currentContext, "Ooops", "Smth went wrong.");
+                      }
+                    } catch (e) {
+                      infoDialog(_scaffoldKey.currentContext, "Ooops", "Smth went wrong.");
+                    } finally {
+                    }
                   },
                 ),
                 new Divider(),

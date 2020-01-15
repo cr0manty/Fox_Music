@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/models/Database.dart';
-import 'package:vk_parse/functions/get/getUser.dart';
-import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/playSong.dart';
+import 'package:vk_parse/functions/format/fromatSongName.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/functions/utils/askDialog.dart';
 
 class MusicListSaved extends StatefulWidget {
   @override
@@ -16,43 +17,34 @@ class MusicListSaved extends StatefulWidget {
 }
 
 class MusicListSavedState extends State<MusicListSaved> {
-  GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Song> _data = [];
-
 
   @override
   Widget build(BuildContext context) {
-    return new RefreshIndicator(
-          key: _refreshKey,
-          onRefresh: () async => await _refreshSongList(),
-          child: ListView(
-            children: _buildList(),
-          ),
+    return new ListView(
+      key: _scaffoldKey,
+      children: _buildList(),
     );
   }
 
   @override
   void initState() {
     super.initState();
-//    _loadSongs();
-  }
-
-  _refreshSongList() async {
-    requestMusicListGet();
     _loadSongs();
   }
 
   _loadSongs() async {
-    final userId = await getUserId();
-    final listSong = await DBProvider.db.getAllUserSongs(userId);
-    if (listSong != null) {
+    List<Song> songData = [];
+    final String directory = (await getApplicationDocumentsDirectory()).path;
+    final fileList = Directory("$directory/songs/").listSync();
+    fileList.forEach((songPath) {
+      songData.add(formatSong(songPath.path));
+    });
+    if (songData != null) {
       setState(() {
-        _data = listSong;
+        _data = songData;
       });
-    } else {
-      infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
   }
 
@@ -65,8 +57,40 @@ class MusicListSavedState extends State<MusicListSaved> {
             title: Text(song.name),
             subtitle:
                 Text(song.artist, style: TextStyle(color: Colors.black54)),
-            trailing: Container(
-              child: new Text(formatTime(song.duration)),
+            trailing: new Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  child: new Text(formatTime(song.duration)),
+                ),
+                Container(
+                  child: new IconButton(
+                    onPressed: () {
+                      askDialog(
+                          _scaffoldKey.currentContext,
+                          'Delete',
+                          'Are you sure you want to delete this file?',
+                          'Yes',
+                          'Cancel', () {
+                        try {
+                          File(song.path).deleteSync();
+                          setState(() {
+                            _data.remove(song);
+                          });
+                          infoDialog(_scaffoldKey.currentContext, 'File deleted',
+                              'Song ${song.artist} - ${song.name} successfully deleted');
+                        } catch (e) {
+                          print(e);
+                          infoDialog(_scaffoldKey.currentContext, 'File deleted error',
+                              'Something went wrong while deleting the file');
+                        }
+                      });
+                    },
+                    icon: Icon(Icons.delete,
+                        size: 35, color: Color.fromRGBO(100, 100, 100, 1)),
+                  ),
+                )
+              ],
             ),
             leading: IconButton(
                 onPressed: () {

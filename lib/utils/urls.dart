@@ -12,3 +12,5 @@ const SONG_LIST_URL = '$BASE_API_URL/songs/info/';
 
 const FRIEND_LIST_URL = '$BASE_API_URL/users/friends/';
 const FRIEND_LIST_SONG_LIST_URL = '$BASE_API_URL/';
+
+const VK_CONNECTION = 'https://vk.com/';

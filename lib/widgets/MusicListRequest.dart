@@ -23,12 +23,11 @@ class MusicListRequestState extends State<MusicListRequest> {
   @override
   Widget build(BuildContext context) {
     return new RefreshIndicator(
-          key: _refreshKey,
-          onRefresh: () async => await _loadSongs(),
-          child: ListView(
-            children: _buildList(),
-          )
-    );
+        key: _refreshKey,
+        onRefresh: () async => await _loadSongs(),
+        child: ListView(
+          children: _buildList(),
+        ));
   }
 
   @override
@@ -41,13 +40,14 @@ class MusicListRequestState extends State<MusicListRequest> {
     final listSong = await requestMusicListGet();
     if (listSong != null) {
       setState(() {
-        _data = listSong;
+        if (_data.isEmpty) {
+          _data = listSong;
+        }
       });
     } else {
       infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
   }
-
 
   List<Widget> _buildList() {
     if (_data == null) {
@@ -79,7 +79,7 @@ class MusicListRequestState extends State<MusicListRequest> {
               ],
             ),
             leading: IconButton(
-                onPressed: () {
+                onPressed: () async {
                   print('play started');
                   playSong(song.download);
                 },
