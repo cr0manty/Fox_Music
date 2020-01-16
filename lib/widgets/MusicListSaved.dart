@@ -45,7 +45,6 @@ class MusicListSavedState extends State<MusicListSaved> {
   }
 
   _loadSongs() async {
-    _setUpdatingStatus();
     List<Song> songData = [];
     final String directory = (await getApplicationDocumentsDirectory()).path;
     final fileList = Directory("$directory/songs/").listSync();
@@ -57,7 +56,6 @@ class MusicListSavedState extends State<MusicListSaved> {
         _data = songData;
       });
     }
-    _setUpdatingStatus();
   }
 
   List<Widget> _buildList() {
