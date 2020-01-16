@@ -1,47 +1,45 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/utils/playSong.dart';
 import 'package:vk_parse/functions/format/fromatSongName.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/askDialog.dart';
 
 class MusicListSaved extends StatefulWidget {
+  final AudioPlayer _audioPlayer;
+
+  MusicListSaved(this._audioPlayer);
+
   @override
-  State<StatefulWidget> createState() {
-    return MusicListSavedState();
-  }
+  State<StatefulWidget> createState() => MusicListSavedState(_audioPlayer);
 }
 
 class MusicListSavedState extends State<MusicListSaved> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+//  AudioPlayer _audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
+
   List<Song> _data = [];
-  bool _loading = false;
+  final AudioPlayer _audioPlayer;
+
+  MusicListSavedState(this._audioPlayer);
 
   @override
   Widget build(BuildContext context) {
-    return ModalProgressHUD(
-        child: new ListView(
-          key: _scaffoldKey,
-          children: _buildList(),
-        ),
-        inAsyncCall: _loading);
+    return new ListView(
+      key: _scaffoldKey,
+      children: _buildList(),
+    );
   }
 
   @override
   void initState() {
     super.initState();
     _loadSongs();
-  }
-
-  _setUpdatingStatus() {
-    setState(() {
-      _loading = !_loading;
-    });
   }
 
   _loadSongs() async {
@@ -109,10 +107,16 @@ class MusicListSavedState extends State<MusicListSaved> {
             leading: IconButton(
                 onPressed: () {
                   print('play started');
-                  playSong(song.path);
+                  if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+                    _audioPlayer.stop();
+                  }
+                  _audioPlayer.play(song.path, isLocal: true);
+                  setState(() {
+                    song.isPlaying = !song.isPlaying;
+                  });
                 },
                 icon: Icon(
-                  Icons.play_arrow,
+                  song.isPlaying ? Icons.pause : Icons.play_arrow,
                   size: 35,
                   color: Color.fromRGBO(100, 100, 100, 1),
                 ))))

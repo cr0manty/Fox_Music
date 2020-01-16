@@ -17,6 +17,7 @@ class Song {
   String path;
   int duration;
   int song_id;
+  bool isPlaying = false;
 
   Song(
       {this.song_id,

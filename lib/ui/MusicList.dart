@@ -6,16 +6,22 @@ import 'package:vk_parse/widgets/AppBarDrawer.dart';
 
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/utils/colors.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class MusicList extends StatefulWidget {
+  final AudioPlayer _audioPlayer;
+
+  MusicList(this._audioPlayer);
+
   @override
-  State<StatefulWidget> createState() {
-    return MusicListState();
-  }
+  State<StatefulWidget> createState() => new MusicListState(_audioPlayer);
 }
 
 class MusicListState extends State<MusicList> {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
+  final AudioPlayer _audioPlayer;
+
+  MusicListState(this._audioPlayer);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +29,7 @@ class MusicListState extends State<MusicList> {
         length: 3,
         child: Scaffold(
           key: _menuKey,
-          drawer: AppBarDrawer(),
+          drawer: AppBarDrawer(_audioPlayer),
           backgroundColor: lightGrey,
           appBar: AppBar(
             leading: new IconButton(
@@ -48,7 +54,7 @@ class MusicListState extends State<MusicList> {
           body: TabBarView(
             children: [
               MusicListRequest(),
-              MusicListSaved(),
+              MusicListSaved(_audioPlayer),
               Icon(Icons.not_interested),
             ],
           ),
@@ -58,6 +64,6 @@ class MusicListState extends State<MusicList> {
   @override
   void initState() {
     super.initState();
-    saveCurrentRoute('/MusicList');
+    saveCurrentRoute(route: 1);
   }
 }

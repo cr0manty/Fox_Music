@@ -11,10 +11,6 @@ import 'package:vk_parse/functions/format/fromatSongName.dart';
 downloadSong(Song song, {BuildContext context}) async {
   try {
     String dir = (await getApplicationDocumentsDirectory()).path;
-    final Directory _appDocDirFolder = Directory('$dir/songs/');
-    if (!await _appDocDirFolder.exists()) {
-      await _appDocDirFolder.create(recursive: true);
-    }
     String filename = formatFileName(song);
     if (context != null && File('$dir/songs/$filename').existsSync()) {
       infoDialog(

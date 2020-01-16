@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:vk_parse/utils/routes.dart';
 
 class Login extends StatefulWidget {
+  final AudioPlayer _audioPlayer;
+
+  Login(this._audioPlayer);
+
   @override
-  State<StatefulWidget> createState() => new LoginState();
+  State<StatefulWidget> createState() => new LoginState(_audioPlayer);
 }
 
 enum FormType { login, register }
@@ -20,6 +26,7 @@ class LoginState extends State<Login> {
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
+  final AudioPlayer _audioPlayer;
   String _firstName = "";
   String _lastName = "";
   String _email = "";
@@ -29,7 +36,7 @@ class LoginState extends State<Login> {
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
   bool _disabled = false;
 
-  LoginState() {
+  LoginState(this._audioPlayer) {
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
     _emailFilter.addListener(_emailListen);
@@ -138,7 +145,7 @@ class LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    saveCurrentRoute("/Login");
+    saveCurrentRoute();
   }
 
   _setButtonStatus() {
@@ -201,18 +208,10 @@ class LoginState extends State<Login> {
     _setButtonStatus();
     final login = await requestLogin(_username, _password);
     if (login != null) {
-      final newRouteName = "/MusicList";
-      bool isNewRouteSameAsCurrent = false;
-      Navigator.popUntil(context, (route) {
-        if (route.settings.name == newRouteName) {
-          isNewRouteSameAsCurrent = true;
-        }
-        return true;
-      });
-      if (!isNewRouteSameAsCurrent) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-            newRouteName, (Route<dynamic> route) => false);
-      }
+      Navigator.of(context).pop();
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) =>
+              switchRoutes(_audioPlayer, route: 1)));
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");
@@ -228,7 +227,10 @@ class LoginState extends State<Login> {
       final newRouteName = "/Login";
       infoDialog(context, "You have successfully registered!",
           "Now you need to log in.");
-      Navigator.popAndPushNamed(context, newRouteName);
+      Navigator.of(context).pop();
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) =>
+              switchRoutes(_audioPlayer)));
     } else {
       infoDialog(context, "Unable to register",
           "Not all data was entered or you may have supplied an duplicate 'Username'");

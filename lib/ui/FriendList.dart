@@ -10,9 +10,7 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class FriendList extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return FriendListState();
-  }
+  State<StatefulWidget> createState() => new FriendListState();
 }
 
 class FriendListState extends State<FriendList> {
@@ -25,7 +23,7 @@ class FriendListState extends State<FriendList> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _menuKey,
-      drawer: AppBarDrawer(),
+//      drawer: AppBarDrawer(),
       appBar: makeAppBar('Friends', _menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
@@ -41,7 +39,7 @@ class FriendListState extends State<FriendList> {
   void initState() {
     super.initState();
     _loadFriends();
-    saveCurrentRoute('/FriendList');
+    saveCurrentRoute(route: 3);
   }
 
   _loadFriends() async {

@@ -10,9 +10,7 @@ import 'package:vk_parse/functions/format/formatTime.dart';
 
 class MusicListRequest extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return MusicListRequestState();
-  }
+  State<StatefulWidget> createState() => new MusicListRequestState();
 }
 
 class MusicListRequestState extends State<MusicListRequest> {
