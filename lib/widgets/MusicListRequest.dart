@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
@@ -19,15 +20,24 @@ class MusicListRequestState extends State<MusicListRequest> {
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
   List<Song> _localData = [];
+  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
     return new RefreshIndicator(
         key: _refreshKey,
         onRefresh: () async => await _loadSongs(),
-        child: ListView(
-          children: _buildList(),
-        ));
+        child: ModalProgressHUD(
+            child: ListView(
+              children: _buildList(),
+            ),
+            inAsyncCall: _loading));
+  }
+
+  _setUpdatingStatus() {
+    setState(() {
+      _loading = !_loading;
+    });
   }
 
   @override
@@ -37,6 +47,7 @@ class MusicListRequestState extends State<MusicListRequest> {
   }
 
   _loadSongs() async {
+    _setUpdatingStatus();
     final listSong = await requestMusicListGet();
     if (listSong != null) {
       setState(() {
@@ -47,6 +58,7 @@ class MusicListRequestState extends State<MusicListRequest> {
     } else {
       infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
+    _setUpdatingStatus();
   }
 
   List<Widget> _buildList() {

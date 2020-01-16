@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
@@ -19,13 +20,16 @@ class MusicListSaved extends StatefulWidget {
 class MusicListSavedState extends State<MusicListSaved> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Song> _data = [];
+  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
-    return new ListView(
-      key: _scaffoldKey,
-      children: _buildList(),
-    );
+    return ModalProgressHUD(
+        child: new ListView(
+          key: _scaffoldKey,
+          children: _buildList(),
+        ),
+        inAsyncCall: _loading);
   }
 
   @override
@@ -34,7 +38,14 @@ class MusicListSavedState extends State<MusicListSaved> {
     _loadSongs();
   }
 
+  _setUpdatingStatus() {
+    setState(() {
+      _loading = !_loading;
+    });
+  }
+
   _loadSongs() async {
+    _setUpdatingStatus();
     List<Song> songData = [];
     final String directory = (await getApplicationDocumentsDirectory()).path;
     final fileList = Directory("$directory/songs/").listSync();
@@ -46,6 +57,7 @@ class MusicListSavedState extends State<MusicListSaved> {
         _data = songData;
       });
     }
+    _setUpdatingStatus();
   }
 
   List<Widget> _buildList() {
@@ -77,17 +89,21 @@ class MusicListSavedState extends State<MusicListSaved> {
                           setState(() {
                             _data.remove(song);
                           });
-                          infoDialog(_scaffoldKey.currentContext, 'File deleted',
+                          infoDialog(
+                              _scaffoldKey.currentContext,
+                              'File deleted',
                               'Song ${song.artist} - ${song.name} successfully deleted');
                         } catch (e) {
                           print(e);
-                          infoDialog(_scaffoldKey.currentContext, 'File deleted error',
+                          infoDialog(
+                              _scaffoldKey.currentContext,
+                              'File deleted error',
                               'Something went wrong while deleting the file');
                         }
                       });
                     },
-                    icon: Icon(Icons.delete,
-                        size: 35, color: Color.fromRGBO(100, 100, 100, 1)),
+                    icon: Icon(Icons.more_vert,
+                        size: 30, color: Color.fromRGBO(100, 100, 100, 1)),
                   ),
                 )
               ],
