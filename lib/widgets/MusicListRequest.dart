@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:flutter_plugin_playlist/flutter_plugin_playlist.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
-import 'package:vk_parse/functions/utils/playSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 
 class MusicListRequest extends StatefulWidget {
+  final RmxAudioPlayer _audioPlayer;
+
+  MusicListRequest(this._audioPlayer);
+
   @override
-  State<StatefulWidget> createState() => new MusicListRequestState();
+  State<StatefulWidget> createState() =>
+      new MusicListRequestState(this._audioPlayer);
 }
 
 class MusicListRequestState extends State<MusicListRequest> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
+  final RmxAudioPlayer _audioPlayer;
+
+  MusicListRequestState(this._audioPlayer);
+
   List<Song> _data = [];
   List<Song> _localData = [];
   bool _loading = false;
@@ -89,12 +98,30 @@ class MusicListRequestState extends State<MusicListRequest> {
               ],
             ),
             leading: IconButton(
-                onPressed: () async {
+                onPressed: () {
                   print('play started');
-                  playSong(song.download);
+                  if (_audioPlayer.isPlaying) {
+                    _audioPlayer.pause();
+                  } else {
+                    _audioPlayer.setPlaylistItems([
+                      new AudioTrack(
+                          album: 'saved',
+                          artist: song.artist,
+                          assetUrl: song.path,
+                          title: song.name,
+                          trackId: song.song_id.toString())
+                    ]);
+                    _audioPlayer.play();
+                  }
+                  setState(() {
+                    song.isPlaying = !song.isPlaying;
+                  });
                 },
-                icon: Icon(Icons.play_arrow,
-                    size: 35, color: Color.fromRGBO(100, 100, 100, 1)))))
+                icon: Icon(
+                  song.isPlaying ? Icons.pause : Icons.play_arrow,
+                  size: 35,
+                  color: Color.fromRGBO(100, 100, 100, 1),
+                ))))
         .toList();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_plugin_playlist/flutter_plugin_playlist.dart';
 
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
@@ -9,7 +9,7 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/utils/routes.dart';
 
 class Login extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
+  final RmxAudioPlayer _audioPlayer;
 
   Login(this._audioPlayer);
 
@@ -26,7 +26,7 @@ class LoginState extends State<Login> {
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
-  final AudioPlayer _audioPlayer;
+  final RmxAudioPlayer _audioPlayer;
   String _firstName = "";
   String _lastName = "";
   String _email = "";
@@ -206,7 +206,8 @@ class LoginState extends State<Login> {
 
   _loginPressed() async {
     _setButtonStatus();
-    final login = await requestLogin(_username, _password);
+    final login = await requestLogin('380501751678', 'killerGun1337');
+//    final login = await requestLogin(_username, _password);
     if (login != null) {
       Navigator.of(context).pop();
       Navigator.of(context).push(MaterialPageRoute(

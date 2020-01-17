@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_plugin_playlist/flutter_plugin_playlist.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
@@ -10,23 +10,21 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/askDialog.dart';
 
 class MusicListSaved extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
-
-  MusicListSaved(this._audioPlayer);
+  final RmxAudioPlayer _audioPlayer;
+  final bool offline;
+  MusicListSaved(this._audioPlayer, {this.offline});
 
   @override
-  State<StatefulWidget> createState() => MusicListSavedState(_audioPlayer);
+  State<StatefulWidget> createState() => MusicListSavedState(_audioPlayer, this.offline);
 }
 
 class MusicListSavedState extends State<MusicListSaved> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-//  AudioPlayer _audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
-
   List<Song> _data = [];
-  final AudioPlayer _audioPlayer;
-
-  MusicListSavedState(this._audioPlayer);
+  final RmxAudioPlayer _audioPlayer;
+  final bool offline;
+  MusicListSavedState(this._audioPlayer, this.offline);
 
   @override
   Widget build(BuildContext context) {
@@ -107,10 +105,19 @@ class MusicListSavedState extends State<MusicListSaved> {
             leading: IconButton(
                 onPressed: () {
                   print('play started');
-                  if (_audioPlayer.state == AudioPlayerState.PLAYING) {
-                    _audioPlayer.stop();
+                  if (_audioPlayer.isPlaying) {
+                    _audioPlayer.pause();
+                  } else {
+                    _audioPlayer.setPlaylistItems([
+                      new AudioTrack(
+                          album: 'saved',
+                          artist: song.artist,
+                          assetUrl: song.path,
+                          title: song.name,
+                          trackId: song.song_id.toString())
+                    ]);
+                    _audioPlayer.play();
                   }
-                  _audioPlayer.play(song.path, isLocal: true);
                   setState(() {
                     song.isPlaying = !song.isPlaying;
                   });

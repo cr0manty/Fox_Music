@@ -4,12 +4,13 @@ import 'package:vk_parse/ui/FriendList.dart';
 import 'package:vk_parse/ui/Login.dart';
 
 switchRoutes(player, {int route, bool offline, user}) {
-  if (offline != null && offline) {
-    return MusicList(player);
+  offline = offline != null ? offline : false;
+  if (offline) {
+    return MusicList(player, offline);
   }
   switch (route) {
     case 1:
-      return MusicList(player);
+      return MusicList(player, offline);
       break;
     case 2:
       return Account();
@@ -19,4 +20,3 @@ switchRoutes(player, {int route, bool offline, user}) {
   }
   return Login(player);
 }
-

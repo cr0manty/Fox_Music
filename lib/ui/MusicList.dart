@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_plugin_playlist/flutter_plugin_playlist.dart';
 
 import 'package:vk_parse/widgets/MusicListRequest.dart';
 import 'package:vk_parse/widgets/MusicListSaved.dart';
@@ -6,22 +7,24 @@ import 'package:vk_parse/widgets/AppBarDrawer.dart';
 
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/utils/colors.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 class MusicList extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
+  final RmxAudioPlayer _audioPlayer;
+  final bool _offline;
 
-  MusicList(this._audioPlayer);
+  MusicList(this._audioPlayer, this._offline);
 
   @override
-  State<StatefulWidget> createState() => new MusicListState(_audioPlayer);
+  State<StatefulWidget> createState() =>
+      new MusicListState(_audioPlayer, _offline);
 }
 
 class MusicListState extends State<MusicList> {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
-  final AudioPlayer _audioPlayer;
+  final RmxAudioPlayer _audioPlayer;
+  final bool _offline;
 
-  MusicListState(this._audioPlayer);
+  MusicListState(this._audioPlayer, this._offline);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +32,7 @@ class MusicListState extends State<MusicList> {
         length: 3,
         child: Scaffold(
           key: _menuKey,
-          drawer: AppBarDrawer(_audioPlayer),
+          drawer: AppBarDrawer(_audioPlayer, _offline),
           backgroundColor: lightGrey,
           appBar: AppBar(
             leading: new IconButton(
@@ -53,7 +56,9 @@ class MusicListState extends State<MusicList> {
           ),
           body: TabBarView(
             children: [
-              MusicListRequest(),
+              _offline
+                  ? Icon(Icons.not_interested)
+                  : MusicListRequest(_audioPlayer),
               MusicListSaved(_audioPlayer),
               Icon(Icons.not_interested),
             ],

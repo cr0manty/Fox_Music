@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_plugin_playlist/flutter_plugin_playlist.dart';
 
 import 'package:vk_parse/functions/get/getToken.dart';
 import 'package:vk_parse/functions/get/getLastRoute.dart';
@@ -19,11 +19,14 @@ class Intro extends StatefulWidget {
 
 class _IntroState extends State<Intro> {
   final int splashDuration = 2;
-  final AudioPlayer _audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
+
+  final RmxAudioPlayer _audioPlayer = new RmxAudioPlayer();
 
   startTime() {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
+      _audioPlayer.initialize();
+
       bool offlineMode = false;
 
       int lastPage = await getLastRoute();
@@ -44,8 +47,8 @@ class _IntroState extends State<Intro> {
 
       Navigator.of(context).pop();
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) =>
-              switchRoutes(_audioPlayer, offline: offlineMode)));
+          builder: (BuildContext context) => switchRoutes(_audioPlayer,
+              route: lastPage, offline: offlineMode)));
     });
   }
 

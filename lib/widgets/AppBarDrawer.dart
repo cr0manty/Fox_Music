@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_plugin_playlist/flutter_plugin_playlist.dart';
 
 import 'package:vk_parse/functions/save/logout.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
@@ -18,22 +18,23 @@ makeAppBar(String text, dynamic menuKey) {
 }
 
 class AppBarDrawer extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
-
-  AppBarDrawer(this._audioPlayer);
+  final RmxAudioPlayer _audioPlayer;
+  final bool _offline;
+  AppBarDrawer(this._audioPlayer, this._offline);
 
   @override
-  _AppBarDrawerState createState() => _AppBarDrawerState(_audioPlayer);
+  _AppBarDrawerState createState() => _AppBarDrawerState(_audioPlayer, _offline);
 }
 
 class _AppBarDrawerState extends State<AppBarDrawer> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final AudioPlayer _audioPlayer;
+  final RmxAudioPlayer _audioPlayer;
+  final bool _offline;
 
   bool _updating = false;
   var playerIcon = Icons.play_arrow;
 
-  _AppBarDrawerState(this._audioPlayer);
+  _AppBarDrawerState(this._audioPlayer, this._offline);
 
   _setUpdating() {
     setState(() {
@@ -49,7 +50,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
   @override
   Widget build(BuildContext context) {
     setState(() {
-      if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+      if (_audioPlayer.isPlaying) {
         playerIcon = Icons.pause;
       } else {
         playerIcon = Icons.play_arrow;
@@ -97,13 +98,13 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
             new IconButton(
               icon: Icon(playerIcon, size: 35, color: Colors.white70),
               onPressed: () {
-                if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+                if (_audioPlayer.isPlaying) {
                   _audioPlayer.pause();
                   setState(() {
                     playerIcon = Icons.play_arrow;
                   });
-                } else {
-                  _audioPlayer.resume();
+                } else  if(_audioPlayer.isStopped || _audioPlayer.isPaused){
+                  _audioPlayer.play();
                   setState(() {
                     playerIcon = Icons.pause;
                   });
