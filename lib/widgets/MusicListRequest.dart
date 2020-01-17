@@ -107,7 +107,7 @@ class MusicListRequestState extends State<MusicListRequest> {
                       new AudioTrack(
                           album: 'saved',
                           artist: song.artist,
-                          assetUrl: song.path,
+                          assetUrl: song.download,
                           title: song.name,
                           trackId: song.song_id.toString())
                     ]);

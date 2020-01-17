@@ -112,7 +112,7 @@ class MusicListSavedState extends State<MusicListSaved> {
                       new AudioTrack(
                           album: 'saved',
                           artist: song.artist,
-                          assetUrl: song.path,
+                          assetUrl: Platform.isIOS ? 'file://${song.path}' : song.path,
                           title: song.name,
                           trackId: song.song_id.toString())
                     ]);
