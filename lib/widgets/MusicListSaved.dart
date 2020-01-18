@@ -104,23 +104,29 @@ class MusicListSavedState extends State<MusicListSaved> {
             ),
             leading: IconButton(
                 onPressed: () {
-                  print('play started');
-                  if (_audioPlayer.isPlaying) {
-                    _audioPlayer.pause();
-                  } else {
-                    _audioPlayer.setPlaylistItems([
-                      new AudioTrack(
-                          album: 'saved',
-                          artist: song.artist,
-                          assetUrl: Platform.isIOS ? 'file://${song.path}' : song.path,
-                          title: song.name,
-                          trackId: song.song_id.toString())
-                    ]);
-                    _audioPlayer.play();
+                  try {
+                    print('play started');
+                    if (_audioPlayer.isPlaying) {
+                      _audioPlayer.pause();
+                    } else {
+                      _audioPlayer.setPlaylistItems([
+                        new AudioTrack(
+                            album: 'saved',
+                            artist: song.artist,
+                            assetUrl: Platform.isIOS
+                                ? 'file://${song.path}'
+                                : song.path,
+                            title: song.name,
+                            trackId: song.song_id.toString())
+                      ]);
+                      _audioPlayer.play();
+                    }
+                    setState(() {
+                      song.isPlaying = !song.isPlaying;
+                    });
+                  } catch(e) {
+                    infoDialog(_scaffoldKey.currentContext, 'Error', e);
                   }
-                  setState(() {
-                    song.isPlaying = !song.isPlaying;
-                  });
                 },
                 icon: Icon(
                   song.isPlaying ? Icons.pause : Icons.play_arrow,
