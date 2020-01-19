@@ -84,8 +84,7 @@ class MusicListRequestState extends State<MusicListRequest> {
     }
 
     return _data
-        .map(
-          (Song song) => ListTile(
+        .map((Song song) => ListTile(
             title: Text(song.title),
             subtitle:
                 Text(song.artist, style: TextStyle(color: Colors.black54)),
@@ -105,18 +104,47 @@ class MusicListRequestState extends State<MusicListRequest> {
                 });
               }
             },
-            leading: new IconButton(
-              onPressed: _localData.contains(song)
-                  ? null
-                  : () {
-                      downloadSong(song, context: _refreshKey.currentContext);
-                    },
-              icon: Icon(Icons.cloud_download,
-                  size: 30, color: Color.fromRGBO(100, 100, 100, 1)),
-            ),
-            trailing: new Text(formatTime(song.duration)),
-          ),
-        )
+            trailing: new Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(
+                child: new Text(formatTime(song.duration)),
+              ),
+              Container(
+                child: new IconButton(
+                  onPressed: _localData.contains(song)
+                      ? null
+                      : () {
+                          downloadSong(song, context: context);
+                        },
+                  icon: Icon(Icons.file_download,
+                      size: 35, color: Color.fromRGBO(100, 100, 100, 1)),
+                ),
+              )
+            ]),
+            leading: IconButton(
+                onPressed: () async {
+                  print('play started');
+                  if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+                    await _audioPlayer.stop();
+                  }
+                  if (_audioPlayer.state == AudioPlayerState.PAUSED ||
+                      _audioPlayer.state == AudioPlayerState.COMPLETED ||
+                      _audioPlayer.state == AudioPlayerState.STOPPED ||
+                      _audioPlayer.state == null) {
+                    await _audioPlayer.play(song.path, isLocal: true);
+                    await savePlayedSong(song);
+                    setState(() {
+                      playedSong = song;
+                    });
+                  }
+                },
+                icon: Icon(
+                  _audioPlayer.state == AudioPlayerState.PLAYING &&
+                          playedSong.song_id == song.song_id
+                      ? Icons.pause
+                      : Icons.play_arrow,
+                  size: 35,
+                  color: Color.fromRGBO(100, 100, 100, 1),
+                ))))
         .toList();
   }
 }

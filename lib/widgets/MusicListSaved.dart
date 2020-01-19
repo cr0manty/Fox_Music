@@ -70,65 +70,70 @@ class MusicListSavedState extends State<MusicListSaved> {
     }
     return _data
         .map((Song song) => ListTile(
-              title: Text(song.title),
-              subtitle:
-                  Text(song.artist, style: TextStyle(color: Colors.black54)),
-              onTap: () async {
-                print('play started');
-                if (_audioPlayer.state == AudioPlayerState.PLAYING) {
-                  await _audioPlayer.stop();
-                }
-                if (_audioPlayer.state == AudioPlayerState.PAUSED ||
-                    _audioPlayer.state == AudioPlayerState.COMPLETED ||
-                    _audioPlayer.state == AudioPlayerState.STOPPED ||
-                    _audioPlayer.state == null) {
-                  await _audioPlayer.play(song.path, isLocal: true);
-                  await savePlayedSong(song);
-                  setState(() {
-                    playedSong = song;
-                  });
-                }
-              },
-              trailing: new Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    child: new Text(formatTime(song.duration)),
+            title: Text(song.title),
+            subtitle:
+                Text(song.artist, style: TextStyle(color: Colors.black54)),
+            trailing: new Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  child: new Text(formatTime(song.duration)),
+                ),
+                Container(
+                  child: new IconButton(
+                    onPressed: () {
+                      askDialog(
+                          _scaffoldKey.currentContext,
+                          'Delete',
+                          'Are you sure you want to delete this file?',
+                          'Delete',
+                          'Cancel', () {
+                        try {
+                          File(song.path).deleteSync();
+                          setState(() {
+                            _data.remove(song);
+                          });
+                          infoDialog(
+                              _scaffoldKey.currentContext,
+                              'File deleted',
+                              'Song ${song.artist} - ${song.title} successfully deleted');
+                        } catch (e) {
+                          print(e);
+                          infoDialog(
+                              _scaffoldKey.currentContext,
+                              'File deleted error',
+                              'Something went wrong while deleting the file');
+                        }
+                      });
+                    },
+                    icon: Icon(Icons.more_vert,
+                        size: 25, color: Color.fromRGBO(100, 100, 100, 1)),
                   ),
-                  Container(
-                    child: new IconButton(
-                      onPressed: () {
-                        askDialog(
-                            _scaffoldKey.currentContext,
-                            'Delete',
-                            'Are you sure you want to delete this file?',
-                            'Delete',
-                            'Cancel', () {
-                          try {
-                            File(song.path).deleteSync();
-                            setState(() {
-                              _data.remove(song);
-                            });
-                            infoDialog(
-                                _scaffoldKey.currentContext,
-                                'File deleted',
-                                'Song ${song.artist} - ${song.title} successfully deleted');
-                          } catch (e) {
-                            print(e);
-                            infoDialog(
-                                _scaffoldKey.currentContext,
-                                'File deleted error',
-                                'Something went wrong while deleting the file');
-                          }
-                        });
-                      },
-                      icon: Icon(Icons.more_vert,
-                          size: 25, color: Color.fromRGBO(100, 100, 100, 1)),
-                    ),
-                  )
-                ],
-              ),
-            ))
+                )
+              ],
+            ),
+            leading: IconButton(
+                onPressed: () async {
+                  print('play started');
+                  if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+                    await _audioPlayer.stop();
+                  }
+                  if (_audioPlayer.state != AudioPlayerState.PAUSED) {
+                    await _audioPlayer.play(song.path, isLocal: true);
+                    await savePlayedSong(song);
+                    setState(() {
+                      playedSong = song;
+                    });
+                  }
+                },
+                icon: Icon(
+                  _audioPlayer.state == AudioPlayerState.PLAYING &&
+                          playedSong.song_id == song.song_id
+                      ? Icons.pause
+                      : Icons.play_arrow,
+                  size: 35,
+                  color: Color.fromRGBO(100, 100, 100, 1),
+                ))))
         .toList();
   }
 }

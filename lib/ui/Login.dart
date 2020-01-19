@@ -181,7 +181,7 @@ class LoginState extends State<Login> {
             ),
             new Container(
               child: new TextField(
-                controller: _lastNameFilter,
+                controller: _firstNameFilter,
                 decoration: new InputDecoration(labelText: 'First name'),
               ),
             ),
