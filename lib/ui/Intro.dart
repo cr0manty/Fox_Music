@@ -48,7 +48,7 @@ class _IntroState extends State<Intro> {
         lastPage = 1;
       }
 
-      if (lastPage > 0 && lastPage < 4) {
+      if (lastPage != null && lastPage > 0 && lastPage < 4) {
         lastUser = await getCurrentUser();
       }
 
