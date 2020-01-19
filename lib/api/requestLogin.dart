@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:vk_parse/api/requestProfile.dart';
+import 'package:vk_parse/functions/save/saveToken.dart';
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 
@@ -20,7 +21,8 @@ requestLogin(String username, String password) async {
         .timeout(Duration(seconds: 30));
     if (response.statusCode == 200) {
       final responseJson = json.decode(response.body);
-      final user = await requestProfileGet(responseJson['token']);
+      await saveToken(responseJson['token']);
+      final user = await requestProfileGet();
       if (user != null) {
         await saveCurrentUser(user);
         return true;

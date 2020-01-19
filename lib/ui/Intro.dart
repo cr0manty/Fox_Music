@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:vk_parse/functions/get/getCurrentUser.dart';
@@ -28,13 +26,12 @@ class _IntroState extends State<Intro> {
   startTime() {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      bool offlineMode = false;
+      bool offlineMode;
       int lastPage;
       User lastUser;
 
-      if (await Connectivity().checkConnectivity() == ConnectivityResult.none) {
-        offlineMode = true;
-      }
+      final connection = await Connectivity().checkConnectivity();
+      offlineMode = connection == ConnectivityResult.none ? true : false;
 
       if (!offlineMode) {
         lastPage = await getLastRoute();
@@ -44,7 +41,7 @@ class _IntroState extends State<Intro> {
           }
           final token = await getToken();
           if (token == null || token.length == 0) {
-            offlineMode = true;
+            lastPage = null;
           }
         }
       } else {
@@ -52,12 +49,7 @@ class _IntroState extends State<Intro> {
       }
 
       if (lastPage == 2) {
-        lastUser = await getLastUser();
-      }
-      final String directory = (await getApplicationDocumentsDirectory()).path;
-      final documentDir = new Directory("$directory/songs/");
-      if (!documentDir.existsSync()) {
-        documentDir.createSync();
+        lastUser = await getCurrentUser();
       }
 
       await Navigator.of(context).pop();

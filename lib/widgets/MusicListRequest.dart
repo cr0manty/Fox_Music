@@ -122,7 +122,6 @@ class MusicListRequestState extends State<MusicListRequest> {
             ]),
             leading: IconButton(
                 onPressed: () async {
-                  print('play started');
                   if (_audioPlayer.state == AudioPlayerState.PLAYING) {
                     await _audioPlayer.stop();
                   }

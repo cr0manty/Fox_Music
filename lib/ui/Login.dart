@@ -32,8 +32,7 @@ class LoginState extends State<Login> {
   String _email = "";
   String _username = "";
   String _password = "";
-  FormType _form = FormType
-      .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
+  FormType _form = FormType.login;
   bool _disabled = false;
 
   LoginState(this._audioPlayer) {
@@ -100,7 +99,10 @@ class LoginState extends State<Login> {
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
-        appBar: _buildBar(context),
+        appBar: new AppBar(
+          title: new Text("Auth"),
+          centerTitle: true,
+        ),
         body: ModalProgressHUD(
             child: new Container(
               padding: EdgeInsets.all(16.0),
@@ -112,13 +114,6 @@ class LoginState extends State<Login> {
               ),
             ),
             inAsyncCall: _disabled));
-  }
-
-  Widget _buildBar(BuildContext context) {
-    return new AppBar(
-      title: new Text("Auth"),
-      centerTitle: true,
-    );
   }
 
   Widget _buildTextFields() {

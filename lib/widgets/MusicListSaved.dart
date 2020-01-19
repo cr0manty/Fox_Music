@@ -28,7 +28,17 @@ class MusicListSavedState extends State<MusicListSaved> {
   int nowPlayingSongId = -1;
   Song playedSong;
 
-  MusicListSavedState(this._audioPlayer);
+  MusicListSavedState(this._audioPlayer) {
+    _checkDirectory();
+  }
+
+  _checkDirectory() async {
+    final String directory = (await getApplicationDocumentsDirectory()).path;
+    final documentDir = new Directory("$directory/songs/");
+    if (!documentDir.existsSync()) {
+      documentDir.createSync();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +124,6 @@ class MusicListSavedState extends State<MusicListSaved> {
             ),
             leading: IconButton(
                 onPressed: () async {
-                  print('play started');
                   if (_audioPlayer.state == AudioPlayerState.PLAYING) {
                     await _audioPlayer.stop();
                   }

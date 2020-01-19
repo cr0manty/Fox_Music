@@ -35,7 +35,7 @@ class MusicListState extends State<MusicList> {
         length: 3,
         child: Scaffold(
           key: _menuKey,
-          drawer: AppBarDrawer(_audioPlayer),
+          drawer: AppBarDrawer(_audioPlayer, offlineMode: offlineMode),
           backgroundColor: lightGrey,
           appBar: AppBar(
             leading: new IconButton(

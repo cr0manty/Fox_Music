@@ -5,7 +5,7 @@ import 'package:vk_parse/ui/Login.dart';
 
 switchRoutes(player, {int route, bool offline, user}) {
   if (offline != null && offline) {
-    return MusicList(player);
+    return MusicList(player, offlineMode: offline);
   }
   switch (route) {
     case 1:

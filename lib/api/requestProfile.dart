@@ -7,8 +7,9 @@ import 'package:vk_parse/functions/format/headersToken.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 
-requestProfileGet(String token, {int friendId}) async {
+requestProfileGet({int friendId}) async {
   try {
+    final String token = await getToken();
     final String profileUrl =
         PROFILE_URL + (friendId != null ? '?user_id=$friendId' : '');
     final response = await http
@@ -34,11 +35,18 @@ requestProfileGet(String token, {int friendId}) async {
 requestProfilePost({body}) async {
   try {
     final String token = await getToken();
-    final String profileUrl = PROFILE_URL;
-    final response = await http
-        .post(profileUrl, headers: formatToken(token), body: body)
-        .timeout(Duration(seconds: 30));
-    return response.statusCode == 200;
+    final uri = Uri.parse(PROFILE_URL);
+    http.MultipartRequest request = http.MultipartRequest('POST', uri);
+
+    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
+        'image', body['image'].path); //returns a Future<MultipartFile>
+
+    request.files.add(multipartFile);
+    request.headers.addAll(formatToken(token));
+
+    http.StreamedResponse response = await request.send();
+    return response.statusCode == 201;
+
   } on TimeoutException catch (_) {
     return false;
   } catch (e) {

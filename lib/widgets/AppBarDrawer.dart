@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vk_parse/api/requestProfile.dart';
 import 'package:vk_parse/functions/get/getCurrentUser.dart';
 import 'package:vk_parse/models/Song.dart';
 
@@ -12,20 +13,14 @@ import 'package:vk_parse/utils/routes.dart';
 import 'package:vk_parse/functions/get/getLastRoute.dart';
 import 'package:vk_parse/functions/get/getPlayedSong.dart';
 
-makeAppBar(String text, dynamic menuKey, {action}) {
+makeAppBar(String text, dynamic menuKey) {
   return AppBar(
-      leading: new IconButton(
-          icon: new Icon(Icons.menu),
-          onPressed: () => menuKey.currentState.openDrawer()),
-      title: Text(text),
-      centerTitle: true,
-      actions: action == null
-          ? null
-          : [
-              IconButton(
-                icon: Icon(Icons.edit),
-              )
-            ]);
+    leading: new IconButton(
+        icon: new Icon(Icons.menu),
+        onPressed: () => menuKey.currentState.openDrawer()),
+    title: Text(text),
+    centerTitle: true,
+  );
 }
 
 class AppBarDrawer extends StatefulWidget {
@@ -139,7 +134,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
               ? null
               : () async {
                   final lastRoute = await getLastRoute();
-                  final user = await getLastUser();
+                  final user = await requestProfileGet();
                   if (lastRoute != 2) {
                     await Navigator.of(context).pop();
                     await Navigator.of(context).push(MaterialPageRoute(
@@ -188,27 +183,25 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
       title: new Text('Music',
           style: TextStyle(fontSize: 15.0, color: Colors.white)),
       leading: new Icon(Icons.music_note, color: Colors.white),
-      onTap: offlineMode
-          ? null
-          : () async {
-              final lastRoute = await getLastRoute();
-              if (lastRoute != 1) {
-                await Navigator.of(context).pop();
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => switchRoutes(
-                        _audioPlayer,
-                        offline: offlineMode,
-                        route: 1)));
-              }
-            },
+      onTap: () async {
+        final lastRoute = await getLastRoute();
+        if (lastRoute != 1) {
+          await Navigator.of(context).pop();
+          await Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  switchRoutes(_audioPlayer, offline: offlineMode, route: 1)));
+        }
+      },
     );
   }
 
   _friendsBuild() {
     return new ListTile(
       title: new Text('Friends',
-          style: TextStyle(fontSize: 15.0, color: Colors.white)),
-      leading: new Icon(Icons.people, color: Colors.white),
+          style: TextStyle(
+              fontSize: 15.0, color: offlineMode ? Colors.grey : Colors.white)),
+      leading: new Icon(Icons.people,
+          color: offlineMode ? Colors.grey : Colors.white),
       onTap: offlineMode
           ? null
           : () async {
@@ -228,8 +221,10 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
   _searchBuild() {
     return new ListTile(
       title: new Text('Search',
-          style: TextStyle(fontSize: 15.0, color: Colors.white)),
-      leading: new Icon(Icons.search, color: Colors.white),
+          style: TextStyle(
+              fontSize: 15.0, color: offlineMode ? Colors.grey : Colors.white)),
+      leading: new Icon(Icons.search,
+          color: offlineMode ? Colors.grey : Colors.white),
       onTap: true || offlineMode
           ? null
           : () async {
@@ -249,50 +244,59 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
   _updateMusicBuild() {
     return new ListTile(
       title: new Text('Update Music',
-          style: TextStyle(fontSize: 15.0, color: Colors.white)),
-      leading: new Icon(Icons.update, color: Colors.white),
-      onTap: () async {
-        try {
-          _setUpdating();
-          final listNewSong = await requestMusicListPost();
-          if (listNewSong != null) {
-            infoDialog(_scaffoldKey.currentContext, "New songs",
-                "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
-          } else {
-            infoDialog(_scaffoldKey.currentContext, "Something went wrong",
-                "Unable to get Music List.");
-          }
-        } catch (e) {
-          print(e);
-        } finally {
-          _setUpdating();
-        }
-      },
+          style: TextStyle(
+              fontSize: 15.0, color: offlineMode ? Colors.grey : Colors.white)),
+      leading: new Icon(Icons.update,
+          color: offlineMode ? Colors.grey : Colors.white),
+      onTap: offlineMode
+          ? null
+          : () async {
+              try {
+                _setUpdating();
+                final listNewSong = await requestMusicListPost();
+                if (listNewSong != null) {
+                  infoDialog(_scaffoldKey.currentContext, "New songs",
+                      "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                } else {
+                  infoDialog(_scaffoldKey.currentContext,
+                      "Something went wrong", "Unable to get Music List.");
+                }
+              } catch (e) {
+                print(e);
+              } finally {
+                _setUpdating();
+              }
+            },
     );
   }
 
   _downloadAllBuild() {
     return new ListTile(
       title: new Text('Download all',
-          style: TextStyle(fontSize: 15.0, color: Colors.white)),
-      leading: new Icon(Icons.arrow_downward, color: Colors.white),
-      onTap: () async {
-        try {
-          final downloadAmount = await downloadAll();
-          if (downloadAmount > -1)
-            infoDialog(_scaffoldKey.currentContext, "Downloader",
-                "$downloadAmount songs downloaded");
-          else if (downloadAmount == -1) {
-            infoDialog(_scaffoldKey.currentContext, "Downloader Error",
-                "Can't connect to VK servers, try to use VPN or Proxy.");
-          } else if (downloadAmount == -2) {
-            infoDialog(
-                _scaffoldKey.currentContext, "Ooops", "Smth went wrong.");
-          }
-        } catch (e) {
-          infoDialog(_scaffoldKey.currentContext, "Ooops", "Smth went wrong.");
-        } finally {}
-      },
+          style: TextStyle(
+              fontSize: 15.0, color: offlineMode ? Colors.grey : Colors.white)),
+      leading: new Icon(Icons.arrow_downward,
+          color: offlineMode ? Colors.grey : Colors.white),
+      onTap: offlineMode
+          ? null
+          : () async {
+              try {
+                final downloadAmount = await downloadAll();
+                if (downloadAmount > -1)
+                  infoDialog(_scaffoldKey.currentContext, "Downloader",
+                      "$downloadAmount songs downloaded");
+                else if (downloadAmount == -1) {
+                  infoDialog(_scaffoldKey.currentContext, "Downloader Error",
+                      "Can't connect to VK servers, try to use VPN or Proxy.");
+                } else if (downloadAmount == -2) {
+                  infoDialog(
+                      _scaffoldKey.currentContext, "Ooops", "Smth went wrong.");
+                }
+              } catch (e) {
+                infoDialog(
+                    _scaffoldKey.currentContext, "Ooops", "Smth went wrong.");
+              } finally {}
+            },
     );
   }
 
