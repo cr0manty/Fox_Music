@@ -84,8 +84,17 @@ class LoginState extends State<Login> {
     }
   }
 
+  _clearFiller() {
+    _usernameFilter.text = "";
+    _passwordFilter.text = "";
+    _emailFilter.text = "";
+    _firstNameFilter.text = "";
+    _lastNameFilter.text = "";
+  }
+
   void _formChange() async {
     setState(() {
+      _clearFiller();
       if (_form == FormType.register) {
         _form = FormType.login;
       } else {
@@ -191,7 +200,7 @@ class LoginState extends State<Login> {
                 onPressed: _disabled ? null : () => _createAccountPressed()),
             new FlatButton(
               child: new Text('Have an account? Click here to login.'),
-              onPressed: _disabled ? null : _formChange,
+              onPressed: _disabled ? null : () => _formChange(),
             )
           ],
         ),
@@ -201,12 +210,14 @@ class LoginState extends State<Login> {
 
   _loginPressed() async {
     _setButtonStatus();
-    final login = await requestLogin(_username, _password);
-    if (login != null) {
-      Navigator.of(context).pop();
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) =>
-              switchRoutes(_audioPlayer, route: 1)));
+    final user = await requestLogin(_username, _password);
+    if (user != null) {
+      Navigator.popUntil(context, (Route<dynamic> route) => true);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  switchRoutes(_audioPlayer, user: user, route: 1)),
+          (Route<dynamic> route) => false);
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");
@@ -221,9 +232,7 @@ class LoginState extends State<Login> {
     if (reg != null) {
       infoDialog(context, "You have successfully registered!",
           "Now you need to log in.");
-      Navigator.of(context).pop();
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) => switchRoutes(_audioPlayer)));
+      _formChange();
     } else {
       infoDialog(context, "Unable to register",
           "Not all data was entered or you may have supplied an duplicate 'Username'");

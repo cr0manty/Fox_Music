@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/api/requestProfile.dart';
-import 'package:vk_parse/functions/get/getCurrentUser.dart';
 import 'package:vk_parse/models/Song.dart';
 
 import 'package:vk_parse/functions/save/logout.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/downloadAll.dart';
+import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/utils/routes.dart';
 import 'package:vk_parse/functions/get/getLastRoute.dart';
 import 'package:vk_parse/functions/get/getPlayedSong.dart';
+import 'package:vk_parse/utils/urls.dart';
 
 makeAppBar(String text, dynamic menuKey) {
   return AppBar(
@@ -26,24 +26,26 @@ makeAppBar(String text, dynamic menuKey) {
 class AppBarDrawer extends StatefulWidget {
   final AudioPlayer _audioPlayer;
   final bool offlineMode;
+  final User _user;
 
-  AppBarDrawer(this._audioPlayer, {this.offlineMode});
+  AppBarDrawer(this._audioPlayer, this._user, {this.offlineMode});
 
   @override
   _AppBarDrawerState createState() =>
-      _AppBarDrawerState(_audioPlayer, offlineMode);
+      _AppBarDrawerState(_audioPlayer, _user, offlineMode);
 }
 
 class _AppBarDrawerState extends State<AppBarDrawer> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final AudioPlayer _audioPlayer;
+  final User _user;
 
   bool _updating = false;
   bool offlineMode;
   Song playedSong;
   var playerIcon = Icons.play_arrow;
 
-  _AppBarDrawerState(this._audioPlayer, this.offlineMode) {
+  _AppBarDrawerState(this._audioPlayer, this._user, this.offlineMode) {
     offlineMode = offlineMode == null ? false : offlineMode;
   }
 
@@ -106,6 +108,8 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
               color: Color.fromRGBO(25, 25, 25, 0.85),
               padding: new EdgeInsets.all(1.5),
               child: new ListTile(
+                title: Text('Title', style: TextStyle(color: Colors.white)),
+                subtitle: Text('Artist', style: TextStyle(color: Colors.white)),
                 leading: new IconButton(
                   icon: Icon(playerIcon, size: 35, color: Colors.white70),
                   onPressed: () {
@@ -114,7 +118,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                       setState(() {
                         playerIcon = Icons.play_arrow;
                       });
-                    } else {
+                    } else if (_audioPlayer.state == AudioPlayerState.PAUSED) {
                       _audioPlayer.resume();
                       setState(() {
                         playerIcon = Icons.pause;
@@ -134,22 +138,24 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
               ? null
               : () async {
                   final lastRoute = await getLastRoute();
-                  final user = await requestProfileGet();
                   if (lastRoute != 2) {
-                    await Navigator.of(context).pop();
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (BuildContext context) => switchRoutes(
-                            _audioPlayer,
-                            offline: offlineMode,
-                            route: 2,
-                            user: user)));
+                    Navigator.popUntil(context, (Route<dynamic> route) => true);
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => switchRoutes(
+                                _audioPlayer,
+                                offline: offlineMode,
+                                user: _user,
+                                route: 2)),
+                        (Route<dynamic> route) => false);
                   }
                 },
           shape: new CircleBorder(),
           child: new CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey,
-              backgroundImage: AssetImage('assets/images/user-default.jpg'))),
+              backgroundImage:
+                  new Image.network(BASE_URL + _user.image).image)),
       new Center(
           child: new Column(
         children: <Widget>[
@@ -160,7 +166,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                 right: 20,
               ),
               child: Text(
-                "Denis",
+                _user.first_name,
                 style: TextStyle(fontSize: 15.0, color: Colors.white),
               )),
           new Padding(
@@ -170,7 +176,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
                 right: 20,
               ),
               child: Text(
-                "Cr0manty",
+                _user.last_name,
                 style: TextStyle(fontSize: 15.0, color: Colors.white),
               ))
         ],
@@ -186,10 +192,12 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
       onTap: () async {
         final lastRoute = await getLastRoute();
         if (lastRoute != 1) {
-          await Navigator.of(context).pop();
-          await Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  switchRoutes(_audioPlayer, offline: offlineMode, route: 1)));
+          Navigator.popUntil(context, (Route<dynamic> route) => true);
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (BuildContext context) => switchRoutes(_audioPlayer,
+                      offline: offlineMode, user: _user, route: 1)),
+              (Route<dynamic> route) => false);
         }
       },
     );
@@ -207,12 +215,15 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
           : () async {
               final lastRoute = await getLastRoute();
               if (lastRoute != 3) {
-                await Navigator.of(context).pop();
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => switchRoutes(
-                        _audioPlayer,
-                        offline: offlineMode,
-                        route: 3)));
+                Navigator.popUntil(context, (Route<dynamic> route) => true);
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => switchRoutes(
+                            _audioPlayer,
+                            offline: offlineMode,
+                            user: _user,
+                            route: 3)),
+                    (Route<dynamic> route) => false);
               }
             },
     );
@@ -230,12 +241,15 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
           : () async {
               final lastRoute = await getLastRoute();
               if (lastRoute != -1) {
-                await Navigator.of(context).pop();
-                await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => switchRoutes(
-                        _audioPlayer,
-                        offline: offlineMode,
-                        route: -1)));
+                Navigator.popUntil(context, (Route<dynamic> route) => true);
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => switchRoutes(
+                            _audioPlayer,
+                            offline: offlineMode,
+                            user: _user,
+                            route: -1)),
+                    (Route<dynamic> route) => false);
               }
             },
     );
@@ -307,9 +321,12 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
       leading: new Icon(Icons.exit_to_app, color: Colors.white),
       onTap: () {
         logout();
-        Navigator.of(context).pop();
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => switchRoutes(_audioPlayer)));
+        Navigator.popUntil(context, (Route<dynamic> route) => true);
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (BuildContext context) => switchRoutes(_audioPlayer,
+                    offline: offlineMode, user: _user)),
+            (Route<dynamic> route) => false);
       },
     );
   }

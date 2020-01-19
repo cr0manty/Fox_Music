@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:wc_flutter_share/wc_flutter_share.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
@@ -19,6 +20,8 @@ class MusicListSaved extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => MusicListSavedState(_audioPlayer);
 }
+
+enum ButtonState { SHARE, DELETE }
 
 class MusicListSavedState extends State<MusicListSaved> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -74,6 +77,34 @@ class MusicListSavedState extends State<MusicListSaved> {
     }
   }
 
+  _deleteSong(Song song) {
+    askDialog(_scaffoldKey.currentContext, 'Delete',
+        'Are you sure you want to delete this file?', 'Delete', 'Cancel', () {
+      try {
+        File(song.path).deleteSync();
+        setState(() {
+          _data.remove(song);
+        });
+        infoDialog(_scaffoldKey.currentContext, 'File deleted',
+            'Song ${song.artist} - ${song.title} successfully deleted');
+      } catch (e) {
+        print(e);
+        infoDialog(_scaffoldKey.currentContext, 'File deleted error',
+            'Something went wrong while deleting the file');
+      }
+    });
+  }
+
+  _shareSong(Song song) async {
+    final File bytes = await File(song.path);
+    await WcFlutterShare.share(
+        sharePopupTitle: 'Share',
+        fileName:
+            '${song.artist}-${song.title}-${song.duration}-${song.song_id}.mp3',
+        mimeType: 'song/mp3',
+        bytesOfFile: bytes.readAsBytesSync());
+  }
+
   List<Widget> _buildList() {
     if (_data == null) {
       return null;
@@ -90,44 +121,51 @@ class MusicListSavedState extends State<MusicListSaved> {
                   child: new Text(formatTime(song.duration)),
                 ),
                 Container(
-                  child: new IconButton(
-                    onPressed: () {
-                      askDialog(
-                          _scaffoldKey.currentContext,
-                          'Delete',
-                          'Are you sure you want to delete this file?',
-                          'Delete',
-                          'Cancel', () {
-                        try {
-                          File(song.path).deleteSync();
-                          setState(() {
-                            _data.remove(song);
-                          });
-                          infoDialog(
-                              _scaffoldKey.currentContext,
-                              'File deleted',
-                              'Song ${song.artist} - ${song.title} successfully deleted');
-                        } catch (e) {
-                          print(e);
-                          infoDialog(
-                              _scaffoldKey.currentContext,
-                              'File deleted error',
-                              'Something went wrong while deleting the file');
-                        }
-                      });
-                    },
-                    icon: Icon(Icons.more_vert,
-                        size: 25, color: Color.fromRGBO(100, 100, 100, 1)),
-                  ),
-                )
+                    child: PopupMenuButton<ButtonState>(
+                  onSelected: (ButtonState result) {
+                    switch (result) {
+                      case ButtonState.DELETE:
+                        _deleteSong(song);
+                        break;
+                      case ButtonState.SHARE:
+                        _shareSong(song);
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<ButtonState>>[
+                    const PopupMenuItem<ButtonState>(
+                      value: ButtonState.SHARE,
+                      child: Text('Share'),
+                    ),
+                    const PopupMenuItem<ButtonState>(
+                      value: ButtonState.DELETE,
+                      child: Text('Delete'),
+                    ),
+                  ],
+                ))
               ],
             ),
             leading: IconButton(
                 onPressed: () async {
+                  int stopped = -1;
                   if (_audioPlayer.state == AudioPlayerState.PLAYING) {
-                    await _audioPlayer.stop();
+                    if (playedSong.song_id == song.song_id) {
+                      await _audioPlayer.pause();
+                    } else {
+                      await _audioPlayer.stop();
+                    }
+                    stopped = playedSong.song_id;
+                    setState(() {
+                      playedSong = null;
+                    });
                   }
-                  if (_audioPlayer.state != AudioPlayerState.PAUSED) {
+                  if (_audioPlayer.state == AudioPlayerState.PAUSED &&
+                      playedSong != null &&
+                      song.song_id == playedSong.song_id) {
+                    _audioPlayer.resume();
+                  } else if (_audioPlayer.state != AudioPlayerState.PLAYING &&
+                      stopped != song.song_id) {
                     await _audioPlayer.play(song.path, isLocal: true);
                     await savePlayedSong(song);
                     setState(() {
@@ -137,6 +175,7 @@ class MusicListSavedState extends State<MusicListSaved> {
                 },
                 icon: Icon(
                   _audioPlayer.state == AudioPlayerState.PLAYING &&
+                          playedSong != null &&
                           playedSong.song_id == song.song_id
                       ? Icons.pause
                       : Icons.play_arrow,

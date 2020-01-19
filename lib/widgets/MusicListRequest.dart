@@ -26,9 +26,7 @@ class MusicListRequestState extends State<MusicListRequest> {
   List<Song> _data = [];
   List<Song> _localData = [];
   Song playedSong;
-
   bool _loading = false;
-  int nowPlayingSongId = -1;
 
   final AudioPlayer _audioPlayer;
 

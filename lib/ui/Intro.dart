@@ -19,11 +19,11 @@ class Intro extends StatefulWidget {
 }
 
 class _IntroState extends State<Intro> {
-  final int splashDuration = 2;
+  final int splashDuration = 1;
   final AudioPlayer _audioPlayer =
       AudioPlayer(playerId: 'usingThisIdForPlayer');
 
-  startTime() {
+  startTime() async {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       bool offlineMode;
@@ -48,14 +48,16 @@ class _IntroState extends State<Intro> {
         lastPage = 1;
       }
 
-      if (lastPage == 2) {
+      if (lastPage > 0 && lastPage < 4) {
         lastUser = await getCurrentUser();
       }
 
-      await Navigator.of(context).pop();
-      await Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) => switchRoutes(_audioPlayer,
-              offline: offlineMode, route: lastPage, user: lastUser)));
+      Navigator.popUntil(context, (Route<dynamic> route) => true);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: (BuildContext context) => switchRoutes(_audioPlayer,
+                  user: lastUser, offline: offlineMode, route: lastPage)),
+          (Route<dynamic> route) => false);
     });
   }
 

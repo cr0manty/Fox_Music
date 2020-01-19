@@ -25,7 +25,7 @@ requestLogin(String username, String password) async {
       final user = await requestProfileGet();
       if (user != null) {
         await saveCurrentUser(user);
-        return true;
+        return user;
       }
     }
   } on TimeoutException catch (_) {} catch (e) {

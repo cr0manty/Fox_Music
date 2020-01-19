@@ -12,11 +12,12 @@ import 'package:vk_parse/utils/routes.dart';
 
 class FriendList extends StatefulWidget {
   final AudioPlayer _audioPlayer;
+  final User _user;
 
-  FriendList(this._audioPlayer);
+  FriendList(this._audioPlayer, this._user);
 
   @override
-  State<StatefulWidget> createState() => new FriendListState(_audioPlayer);
+  State<StatefulWidget> createState() => new FriendListState(_audioPlayer, _user);
 }
 
 class FriendListState extends State<FriendList> {
@@ -25,14 +26,15 @@ class FriendListState extends State<FriendList> {
       new GlobalKey<RefreshIndicatorState>();
   List<User> _data = [];
   final AudioPlayer _audioPlayer;
+  final User _user;
 
-  FriendListState(this._audioPlayer);
+  FriendListState(this._audioPlayer, this._user);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _menuKey,
-      drawer: AppBarDrawer(_audioPlayer),
+      drawer: AppBarDrawer(_audioPlayer, _user),
       appBar: makeAppBar('Friends', _menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(

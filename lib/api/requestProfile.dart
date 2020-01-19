@@ -39,7 +39,7 @@ requestProfilePost({body}) async {
     http.MultipartRequest request = http.MultipartRequest('POST', uri);
 
     http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
-        'image', body['image'].path); //returns a Future<MultipartFile>
+        'image', body['image'].path);
 
     request.files.add(multipartFile);
     request.headers.addAll(formatToken(token));

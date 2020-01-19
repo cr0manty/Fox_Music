@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vk_parse/models/User.dart';
 
 import 'package:vk_parse/widgets/MusicListRequest.dart';
 import 'package:vk_parse/widgets/MusicListSaved.dart';
@@ -11,20 +12,23 @@ import 'package:audioplayers/audioplayers.dart';
 class MusicList extends StatefulWidget {
   final AudioPlayer _audioPlayer;
   final bool offlineMode;
+  final User _user;
 
-  MusicList(this._audioPlayer, {this.offlineMode});
+  MusicList(this._audioPlayer, this._user, {this.offlineMode});
 
   @override
   State<StatefulWidget> createState() =>
-      new MusicListState(_audioPlayer, offlineMode);
+      new MusicListState(_audioPlayer, _user, offlineMode);
 }
 
 class MusicListState extends State<MusicList> {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
   final AudioPlayer _audioPlayer;
+  final User _user;
+
   bool offlineMode;
 
-  MusicListState(this._audioPlayer, this.offlineMode) {
+  MusicListState(this._audioPlayer, this._user, this.offlineMode) {
     offlineMode = offlineMode == null ? false : offlineMode;
     saveCurrentRoute(route: 1);
   }
@@ -35,7 +39,7 @@ class MusicListState extends State<MusicList> {
         length: 3,
         child: Scaffold(
           key: _menuKey,
-          drawer: AppBarDrawer(_audioPlayer, offlineMode: offlineMode),
+          drawer: AppBarDrawer(_audioPlayer, _user, offlineMode: offlineMode),
           backgroundColor: lightGrey,
           appBar: AppBar(
             leading: new IconButton(
@@ -51,7 +55,7 @@ class MusicListState extends State<MusicList> {
                   text: 'Saved Music',
                 ),
                 Tab(
-                  text: 'Music Search',
+                  text: 'Playlists',
                 ),
               ],
             ),

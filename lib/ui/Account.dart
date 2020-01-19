@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vk_parse/functions/get/getCurrentUser.dart';
 import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 import 'package:vk_parse/models/User.dart';
 
@@ -25,9 +23,15 @@ class Account extends StatefulWidget {
   State<StatefulWidget> createState() => new AccountState(_audioPlayer, _user);
 }
 
-enum AccountType { SELF_SHOW, SELF_EDIT, USER }
-
-enum RelationShipStatus { FRIEND, REQUEST, BLOCK, UNKNOWN, SELF_REQUEST }
+enum AccountType {
+  SELF_SHOW,
+  SELF_EDIT,
+  FRIEND,
+  REQUEST,
+  BLOCK,
+  UNKNOWN,
+  SELF_REQUEST
+}
 
 class AccountState extends State<Account> {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
@@ -43,7 +47,7 @@ class AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _menuKey,
-      drawer: AppBarDrawer(_audioPlayer),
+      drawer: AppBarDrawer(_audioPlayer, _user),
       appBar: new AppBar(
           leading: new IconButton(
               icon: new Icon(Icons.menu),
@@ -78,7 +82,6 @@ class AccountState extends State<Account> {
   @override
   void initState() {
     super.initState();
-
     saveCurrentRoute(route: 2);
   }
 
@@ -110,10 +113,11 @@ class AccountState extends State<Account> {
         new Column(
           children: [
             new Padding(
-                padding: EdgeInsets.only(top: 20, left: 20, bottom: 20),
+                padding: EdgeInsets.only(top: 20, left: 20),
                 child: new Text(_user.username,
                     style:
                         TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
+            new Divider(),
             new Text('First name:'),
             new Text(_user.first_name),
             new Text('Last name:'),
@@ -140,7 +144,6 @@ class AccountState extends State<Account> {
                     backgroundImage:
                         new Image.network(BASE_URL + _user.image).image),
                 onPressed: () async {
-                  var imageFile;
                   chooseDialog(_menuKey.currentContext, 'Upload photo from...',
                       'Gallery', 'Take photo', firstFunction: () async {
                     _image = await ImagePicker.pickImage(
@@ -171,16 +174,12 @@ class AccountState extends State<Account> {
     ));
   }
 
-  _buildUser() {}
-
   _switchBuilders() {
     switch (_accountType) {
-      case AccountType.SELF_SHOW:
-        return _buildSelfShow();
       case AccountType.SELF_EDIT:
         return _buildSelfEdit();
-      case AccountType.USER:
-        return _buildUser();
+      default:
+        return _buildSelfShow();
     }
   }
 }
