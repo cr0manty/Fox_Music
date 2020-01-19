@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 Song songFromJson(String str) {
-  final data = json.decode(str);
-  return Song.fromJson(data);
+  if (str != null) {
+    final data = json.decode(str);
+    return Song.fromJson(data);
+  }
 }
 
 String songToJson(Song data) {
@@ -11,24 +13,23 @@ String songToJson(Song data) {
 }
 
 class Song {
-  String name;
+  String title;
   String artist;
   String download;
   String path;
   int duration;
   int song_id;
-  bool isPlaying = false;
 
   Song(
       {this.song_id,
       this.artist,
-      this.name,
+      this.title,
       this.duration,
       this.download,
       this.path});
 
   factory Song.fromJson(Map<String, dynamic> json) => new Song(
-      name: json['name'],
+      title: json['name'],
       artist: json['artist'],
       duration: json['duration'],
       download: json['download'],
@@ -36,7 +37,7 @@ class Song {
       path: json['path']);
 
   Map<String, dynamic> toJson() => {
-        'name': name,
+        'name': title,
         'artist': artist,
         'duration': duration,
         'download': download,

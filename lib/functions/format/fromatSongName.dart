@@ -5,7 +5,7 @@ splitStringToFile(String str) {
 }
 
 formatFileName(Song song) {
-  return '${splitStringToFile(song.artist)}-${splitStringToFile(song.name)}-${song.duration}.mp3';
+  return '${splitStringToFile(song.artist)}-${splitStringToFile(song.title)}-${song.duration}-${song.song_id}.mp3';
 }
 
 splitStringFromFile(String str) {
@@ -13,11 +13,16 @@ splitStringFromFile(String str) {
 }
 
 formatSong(String path) {
-  String songData = path.substring(path.lastIndexOf('/')+1);
-  final data = songData.split('-');
-  return Song(
-      artist: splitStringFromFile(data[0]),
-      name: splitStringFromFile(data[1]),
-      duration: int.parse(data[2].split('.')[0]),
-      path: path);
+  try {
+    String songData = path.substring(path.lastIndexOf('/') + 1);
+    final data = songData.split('-');
+    return Song(
+        artist: splitStringFromFile(data[0]),
+        title: splitStringFromFile(data[1]),
+        duration: int.parse(data[2]),
+        song_id: int.parse(data[3].split('.')[0]),
+        path: path);
+  } catch (e) {
+    return null;
+  }
 }

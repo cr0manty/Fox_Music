@@ -37,6 +37,7 @@ class LoginState extends State<Login> {
   bool _disabled = false;
 
   LoginState(this._audioPlayer) {
+    saveCurrentRoute();
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
     _emailFilter.addListener(_emailListen);
@@ -145,7 +146,6 @@ class LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    saveCurrentRoute();
   }
 
   _setButtonStatus() {
@@ -224,13 +224,11 @@ class LoginState extends State<Login> {
     final reg = await requestRegistration(
         _username, _password, _email, _firstName, _lastName);
     if (reg != null) {
-      final newRouteName = "/Login";
       infoDialog(context, "You have successfully registered!",
           "Now you need to log in.");
       Navigator.of(context).pop();
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (BuildContext context) =>
-              switchRoutes(_audioPlayer)));
+          builder: (BuildContext context) => switchRoutes(_audioPlayer)));
     } else {
       infoDialog(context, "Unable to register",
           "Not all data was entered or you may have supplied an duplicate 'Username'");

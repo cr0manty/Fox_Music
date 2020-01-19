@@ -10,18 +10,24 @@ import 'package:audioplayers/audioplayers.dart';
 
 class MusicList extends StatefulWidget {
   final AudioPlayer _audioPlayer;
+  final bool offlineMode;
 
-  MusicList(this._audioPlayer);
+  MusicList(this._audioPlayer, {this.offlineMode});
 
   @override
-  State<StatefulWidget> createState() => new MusicListState(_audioPlayer);
+  State<StatefulWidget> createState() =>
+      new MusicListState(_audioPlayer, offlineMode);
 }
 
 class MusicListState extends State<MusicList> {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
   final AudioPlayer _audioPlayer;
+  bool offlineMode;
 
-  MusicListState(this._audioPlayer);
+  MusicListState(this._audioPlayer, this.offlineMode) {
+    offlineMode = offlineMode == null ? false : offlineMode;
+    saveCurrentRoute(route: 1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,17 +59,13 @@ class MusicListState extends State<MusicList> {
           ),
           body: TabBarView(
             children: [
-              MusicListRequest(),
+              offlineMode
+                  ? Icon(Icons.not_interested)
+                  : MusicListRequest(_audioPlayer),
               MusicListSaved(_audioPlayer),
               Icon(Icons.not_interested),
             ],
           ),
         ));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    saveCurrentRoute(route: 1);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/widgets/AppBarDrawer.dart';
@@ -7,10 +8,15 @@ import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/api/requestFriendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/utils/routes.dart';
 
 class FriendList extends StatefulWidget {
+  final AudioPlayer _audioPlayer;
+
+  FriendList(this._audioPlayer);
+
   @override
-  State<StatefulWidget> createState() => new FriendListState();
+  State<StatefulWidget> createState() => new FriendListState(_audioPlayer);
 }
 
 class FriendListState extends State<FriendList> {
@@ -18,12 +24,15 @@ class FriendListState extends State<FriendList> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
   List<User> _data = [];
+  final AudioPlayer _audioPlayer;
+
+  FriendListState(this._audioPlayer);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _menuKey,
-//      drawer: AppBarDrawer(),
+      drawer: AppBarDrawer(_audioPlayer),
       appBar: makeAppBar('Friends', _menuKey),
       backgroundColor: lightGrey,
       body: RefreshIndicator(
@@ -73,9 +82,8 @@ class FriendListState extends State<FriendList> {
             leading: new CircleAvatar(
                 radius: 25,
                 backgroundColor: Colors.grey,
-                backgroundImage: user.image != null
-                    ? new Image.network(BASE_URL + user.image).image
-                    : new AssetImage('assets/images/user-default.jpg'))))
+                backgroundImage:
+                    new Image.network(BASE_URL + user.image).image)))
         .toList();
   }
 }

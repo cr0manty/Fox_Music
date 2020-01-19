@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
-import 'package:vk_parse/functions/utils/playSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/functions/save/savePlayedSong.dart';
+import 'package:vk_parse/functions/get/getPlayedSong.dart';
 
 class MusicListRequest extends StatefulWidget {
+  final AudioPlayer _audioPlayer;
+
+  MusicListRequest(this._audioPlayer);
+
   @override
-  State<StatefulWidget> createState() => new MusicListRequestState();
+  State<StatefulWidget> createState() =>
+      new MusicListRequestState(_audioPlayer);
 }
 
 class MusicListRequestState extends State<MusicListRequest> {
@@ -18,7 +25,14 @@ class MusicListRequestState extends State<MusicListRequest> {
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
   List<Song> _localData = [];
+  Song playedSong;
+
   bool _loading = false;
+  int nowPlayingSongId = -1;
+
+  final AudioPlayer _audioPlayer;
+
+  MusicListRequestState(this._audioPlayer);
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +56,7 @@ class MusicListRequestState extends State<MusicListRequest> {
   void initState() {
     super.initState();
     _loadSongs();
+    _setPlayedSong();
   }
 
   _loadSongs() async {
@@ -59,42 +74,49 @@ class MusicListRequestState extends State<MusicListRequest> {
     _setUpdatingStatus();
   }
 
+  _setPlayedSong() async {
+    playedSong = await getPlayedSong();
+  }
+
   List<Widget> _buildList() {
     if (_data == null) {
       return null;
     }
 
     return _data
-        .map((Song song) => ListTile(
-            title: Text(song.name),
+        .map(
+          (Song song) => ListTile(
+            title: Text(song.title),
             subtitle:
                 Text(song.artist, style: TextStyle(color: Colors.black54)),
-            trailing: new Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  child: new Text(formatTime(song.duration)),
-                ),
-                Container(
-                  child: new IconButton(
-                    onPressed: _localData.contains(song)
-                        ? null
-                        : () {
-                            downloadSong(song, context: context);
-                          },
-                    icon: Icon(Icons.file_download,
-                        size: 35, color: Color.fromRGBO(100, 100, 100, 1)),
-                  ),
-                )
-              ],
+            onTap: () async {
+              print('play started');
+              if (_audioPlayer.state == AudioPlayerState.PLAYING) {
+                await _audioPlayer.stop();
+              }
+              if (_audioPlayer.state == AudioPlayerState.PAUSED ||
+                  _audioPlayer.state == AudioPlayerState.COMPLETED ||
+                  _audioPlayer.state == AudioPlayerState.STOPPED ||
+                  _audioPlayer.state == null) {
+                await _audioPlayer.play(song.download);
+                await savePlayedSong(song);
+                setState(() {
+                  playedSong = song;
+                });
+              }
+            },
+            leading: new IconButton(
+              onPressed: _localData.contains(song)
+                  ? null
+                  : () {
+                      downloadSong(song, context: _refreshKey.currentContext);
+                    },
+              icon: Icon(Icons.cloud_download,
+                  size: 30, color: Color.fromRGBO(100, 100, 100, 1)),
             ),
-            leading: IconButton(
-                onPressed: () async {
-                  print('play started');
-                  playSong(song.download);
-                },
-                icon: Icon(Icons.play_arrow,
-                    size: 35, color: Color.fromRGBO(100, 100, 100, 1)))))
+            trailing: new Text(formatTime(song.duration)),
+          ),
+        )
         .toList();
   }
 }

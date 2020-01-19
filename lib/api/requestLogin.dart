@@ -20,7 +20,7 @@ requestLogin(String username, String password) async {
         .timeout(Duration(seconds: 30));
     if (response.statusCode == 200) {
       final responseJson = json.decode(response.body);
-      final user = await requestProfile(responseJson['token']);
+      final user = await requestProfileGet(responseJson['token']);
       if (user != null) {
         await saveCurrentUser(user);
         return true;

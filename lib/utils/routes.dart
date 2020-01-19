@@ -10,12 +10,10 @@ switchRoutes(player, {int route, bool offline, user}) {
   switch (route) {
     case 1:
       return MusicList(player);
-      break;
     case 2:
-      return Account();
+      return Account(player, user);
     case 3:
-      return FriendList();
-      break;
+      return FriendList(player);
   }
   return Login(player);
 }
