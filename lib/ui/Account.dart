@@ -1,27 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vk_parse/functions/save/saveCurrentUser.dart';
+import 'package:vk_parse/functions/save/saveLastFriendId.dart';
 import 'package:vk_parse/models/User.dart';
 
-import 'package:vk_parse/widgets/AppBarDrawer.dart';
-import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/functions/utils/chooseDialog.dart';
 import 'package:vk_parse/api/requestProfile.dart';
-import 'package:vk_parse/utils/routes.dart';
-
-class Account extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
-  final User _user;
-
-  Account(this._audioPlayer, this._user);
-
-  @override
-  State<StatefulWidget> createState() => new AccountState(_audioPlayer, _user);
-}
 
 enum AccountType {
   SELF_SHOW,
@@ -33,25 +20,35 @@ enum AccountType {
   SELF_REQUEST
 }
 
+class Account extends StatefulWidget {
+  final User _user;
+  final User friend;
+
+  Account(this._user, {this.friend});
+
+  @override
+  State<StatefulWidget> createState() => new AccountState(_user, friend);
+}
+
 class AccountState extends State<Account> {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
-  final AudioPlayer _audioPlayer;
   User _user;
-  AccountType _accountType = AccountType.SELF_SHOW;
+  User friend;
+  AccountType _accountType;
 
   File _image;
 
-  AccountState(this._audioPlayer, this._user);
+  AccountState(this._user, this.friend) {
+    if (friend == null) {
+      _accountType = AccountType.SELF_SHOW;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _menuKey,
-      drawer: AppBarDrawer(_audioPlayer, _user),
       appBar: new AppBar(
-          leading: new IconButton(
-              icon: new Icon(Icons.menu),
-              onPressed: () => _menuKey.currentState.openDrawer()),
           title: Text('User account'),
           centerTitle: true,
           actions: _accountType == AccountType.SELF_SHOW ||
@@ -74,7 +71,7 @@ class AccountState extends State<Account> {
                   )
                 ]
               : null),
-      backgroundColor: lightGrey,
+      backgroundColor: Color.fromRGBO(35, 35, 35, 1),
       body: _switchBuilders(),
     );
   }
@@ -82,7 +79,13 @@ class AccountState extends State<Account> {
   @override
   void initState() {
     super.initState();
-    saveCurrentRoute(route: 2);
+    if (_accountType == AccountType.SELF_SHOW ||
+        _accountType == AccountType.SELF_EDIT) {
+      saveCurrentRoute(route: 2);
+    } else if (_accountType == AccountType.FRIEND) {
+      saveLastFriendId(_user.id);
+      saveCurrentRoute(route: 4);
+    }
   }
 
   _updateData() async {
@@ -114,17 +117,18 @@ class AccountState extends State<Account> {
           children: [
             new Padding(
                 padding: EdgeInsets.only(top: 20, left: 20),
-                child: new Text(_user.username,
+                child: new Text(
+                    _user.username.isEmpty ? 'Unknown' : _user.username,
                     style:
                         TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
             new Divider(),
             new Text('First name:'),
-            new Text(_user.first_name),
+            new Text(_user.first_name.isEmpty ? 'Unknown' : _user.first_name),
             new Text('Last name:'),
-            new Text(_user.last_name),
+            new Text(_user.last_name.isEmpty ? 'Unknown' : _user.last_name),
             new Divider(),
             new Text('Email:'),
-            new Text(_user.email),
+            new Text(_user.email.isEmpty ? 'Unknown' : _user.email),
           ],
         )
       ],
@@ -158,16 +162,15 @@ class AccountState extends State<Account> {
           children: [
             new Padding(
                 padding: EdgeInsets.only(top: 20, left: 20, bottom: 20),
-                child: new Text(_user.username,
+                child: new Text(
+                    _user.username.isEmpty ? 'Unknown' : _user.username,
                     style:
                         TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
+            new Divider(),
             new Text('First name:'),
-            new Text(_user.first_name),
             new Text('Last name:'),
-            new Text(_user.last_name),
             new Divider(),
             new Text('Email:'),
-            new Text(_user.email),
           ],
         )
       ],

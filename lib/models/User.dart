@@ -6,8 +6,10 @@ String userToJson(User data) {
 }
 
 User userFromJson(String str) {
-  final data = json.decode(str);
-  return User.fromJson(data);
+  if (str != null) {
+    final data = json.decode(str);
+    return User.fromJson(data);
+  }
 }
 
 class User {

@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:vk_parse/functions/get/getCurrentUser.dart';
 
+import 'package:vk_parse/api/requestProfile.dart';
+import 'package:vk_parse/functions/get/getLastFriendId.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 import 'package:vk_parse/functions/get/getLastRoute.dart';
 import 'package:vk_parse/api/requestAuthCheck.dart';
 import 'package:vk_parse/functions/save/logout.dart';
+import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/utils/routes.dart';
 
@@ -29,6 +31,7 @@ class _IntroState extends State<Intro> {
       bool offlineMode;
       int lastPage;
       User lastUser;
+      User friend;
 
       final connection = await Connectivity().checkConnectivity();
       offlineMode = connection == ConnectivityResult.none ? true : false;
@@ -47,16 +50,23 @@ class _IntroState extends State<Intro> {
       } else {
         lastPage = 1;
       }
-
-      if (lastPage != null && lastPage > 0 && lastPage < 4) {
-        lastUser = await getCurrentUser();
+      if (lastPage != null) {
+        if (lastPage > 0 && lastPage < 4) {
+          lastUser = await requestProfileGet();
+          saveCurrentUser(lastUser);
+        } else if (lastPage == 4) {
+          int lastFriendId = await getLastFriendId();
+          friend = await requestProfileGet(friendId: lastFriendId);
+        }
       }
-
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
               builder: (BuildContext context) => switchRoutes(_audioPlayer,
-                  user: lastUser, offline: offlineMode, route: lastPage)),
+                  user: lastUser,
+                  offline: offlineMode,
+                  route: lastPage,
+                  friend: friend)),
           (Route<dynamic> route) => false);
     });
   }

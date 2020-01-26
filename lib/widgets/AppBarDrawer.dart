@@ -77,7 +77,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
     return ModalProgressHUD(
         child: new Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Color.fromRGBO(30, 30, 30, 0.7),
+              canvasColor: Color.fromRGBO(30, 30, 30, 0.8),
             ),
             child: new Drawer(
                 key: _scaffoldKey,

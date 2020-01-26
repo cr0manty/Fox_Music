@@ -7,6 +7,8 @@ logout() async {
   await preferences.setString('CurrentUser', "");
   await preferences.setString('CurrentToken', "");
   await preferences.setString('LastRoute', "");
+  await preferences.setString('PlayedSong', "");
+
   AudioPlayer _audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
   _audioPlayer.stop();
 }

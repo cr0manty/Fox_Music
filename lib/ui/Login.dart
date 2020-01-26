@@ -9,12 +9,8 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/utils/routes.dart';
 
 class Login extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
-
-  Login(this._audioPlayer);
-
   @override
-  State<StatefulWidget> createState() => new LoginState(_audioPlayer);
+  State<StatefulWidget> createState() => new LoginState();
 }
 
 enum FormType { login, register }
@@ -26,7 +22,6 @@ class LoginState extends State<Login> {
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
-  final AudioPlayer _audioPlayer;
   String _firstName = "";
   String _lastName = "";
   String _email = "";
@@ -35,8 +30,7 @@ class LoginState extends State<Login> {
   FormType _form = FormType.login;
   bool _disabled = false;
 
-  LoginState(this._audioPlayer) {
-    saveCurrentRoute();
+  LoginState() {
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
     _emailFilter.addListener(_emailListen);
@@ -212,12 +206,12 @@ class LoginState extends State<Login> {
     _setButtonStatus();
     final user = await requestLogin(_username, _password);
     if (user != null) {
-      Navigator.popUntil(context, (Route<dynamic> route) => true);
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  switchRoutes(_audioPlayer, user: user, route: 1)),
-          (Route<dynamic> route) => false);
+//      Navigator.popUntil(context, (Route<dynamic> route) => true);
+//      Navigator.of(context).pushAndRemoveUntil(
+//          MaterialPageRoute(
+//              builder: (BuildContext context) =>
+//                  switchRoutes(_audioPlayer, user: user, route: 1)),
+//          (Route<dynamic> route) => false);
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");

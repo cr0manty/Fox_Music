@@ -11,6 +11,7 @@ import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/askDialog.dart';
 import 'package:vk_parse/functions/save/savePlayedSong.dart';
 import 'package:vk_parse/functions/get/getPlayedSong.dart';
+import 'package:vk_parse/utils/colors.dart';
 
 class MusicListSaved extends StatefulWidget {
   final AudioPlayer _audioPlayer;
@@ -45,10 +46,13 @@ class MusicListSavedState extends State<MusicListSaved> {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView(
-      key: _scaffoldKey,
-      children: _buildList(),
-    );
+    return new Scaffold(
+        key: _scaffoldKey,
+        appBar: new AppBar(title: Text('Media'), centerTitle: true),
+        backgroundColor: Color.fromRGBO(35, 35, 35, 1),
+        body: new ListView(
+          children: _buildList(),
+        ));
   }
 
   @override
@@ -70,7 +74,7 @@ class MusicListSavedState extends State<MusicListSaved> {
       final song = formatSong(songPath.path);
       if (song != null) songData.add(song);
     });
-    if (songData != null) {
+    if (mounted && songData != null) {
       setState(() {
         _data = songData;
       });
@@ -81,12 +85,14 @@ class MusicListSavedState extends State<MusicListSaved> {
     askDialog(_scaffoldKey.currentContext, 'Delete',
         'Are you sure you want to delete this file?', 'Delete', 'Cancel', () {
       try {
-        File(song.path).deleteSync();
-        setState(() {
-          _data.remove(song);
-        });
-        infoDialog(_scaffoldKey.currentContext, 'File deleted',
-            'Song ${song.artist} - ${song.title} successfully deleted');
+        if (mounted) {
+          File(song.path).deleteSync();
+          setState(() {
+            _data.remove(song);
+          });
+          infoDialog(_scaffoldKey.currentContext, 'File deleted',
+              'Song ${song.artist} - ${song.title} successfully deleted');
+        }
       } catch (e) {
         print(e);
         infoDialog(_scaffoldKey.currentContext, 'File deleted error',
@@ -156,9 +162,11 @@ class MusicListSavedState extends State<MusicListSaved> {
                       await _audioPlayer.stop();
                     }
                     stopped = playedSong.song_id;
-                    setState(() {
-                      playedSong = null;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        playedSong = null;
+                      });
+                    }
                   }
                   if (_audioPlayer.state == AudioPlayerState.PAUSED &&
                       playedSong != null &&
@@ -168,9 +176,11 @@ class MusicListSavedState extends State<MusicListSaved> {
                       stopped != song.song_id) {
                     await _audioPlayer.play(song.path, isLocal: true);
                     await savePlayedSong(song);
-                    setState(() {
-                      playedSong = song;
-                    });
+                    if (mounted) {
+                      setState(() {
+                        playedSong = song;
+                      });
+                    }
                   }
                 },
                 icon: Icon(
