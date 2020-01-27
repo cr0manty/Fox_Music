@@ -73,26 +73,45 @@ class PlayerState extends State<Player> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               IconButton(
+                padding: EdgeInsets.only(top: 17),
+                onPressed: null,
+                icon: Icon(Icons.repeat, size: 30, color: Colors.grey),
+              ),
+              IconButton(
                   onPressed: currentSong != null ? null : null,
-                  icon:
-                      Icon(Icons.skip_previous, color: currentSong != null ? Color.fromRGBO(60, 60, 60, 1): Colors.grey,
-                  size: 50,
-                )),
+                  icon: Icon(
+                    Icons.fast_rewind,
+                    color: currentSong != null
+                        ? Color.fromRGBO(60, 60, 60, 1)
+                        : Colors.grey,
+                    size: 50,
+                  )),
               IconButton(
                 onPressed: currentSong != null ? null : null,
                 icon: Icon(
-                  _songState == AudioPlayerState.PLAYING ? Icons.pause : Icons.play_arrow,
-                  color: currentSong != null ? Color.fromRGBO(60, 60, 60, 1): Colors.grey,
+                  _songState == AudioPlayerState.PLAYING
+                      ? Icons.pause
+                      : Icons.play_arrow,
+                  color: currentSong != null
+                      ? Color.fromRGBO(60, 60, 60, 1)
+                      : Colors.grey,
                   size: 50,
                 ),
               ),
               IconButton(
                   onPressed: currentSong != null ? null : null,
                   icon: Icon(
-                    Icons.skip_next,
-                    color: currentSong != null ? Color.fromRGBO(60, 60, 60, 1): Colors.grey,
-                  size: 50,
-                ),)
+                    Icons.fast_forward,
+                    color: currentSong != null
+                        ? Color.fromRGBO(60, 60, 60, 1)
+                        : Colors.grey,
+                    size: 50,
+                  )),
+              IconButton(
+                padding: EdgeInsets.only(top: 17),
+                onPressed: null,
+                icon: Icon(Icons.swap_horiz, size: 30, color: Colors.grey),
+              )
             ],
           ),
         )

@@ -1,24 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/save/saveCurrentUser.dart';
-import 'package:vk_parse/functions/save/saveLastFriendId.dart';
+import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/models/User.dart';
 
-import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/functions/utils/chooseDialog.dart';
 import 'package:vk_parse/api/requestProfile.dart';
 
-enum AccountType {
-  SELF_SHOW,
-  SELF_EDIT,
-  FRIEND,
-  REQUEST,
-  BLOCK,
-  UNKNOWN,
-  SELF_REQUEST
-}
+enum AccountType { SELF_SHOW, SELF_EDIT }
 
 class Account extends StatefulWidget {
   final User _user;
@@ -35,7 +28,7 @@ class AccountState extends State<Account> {
   User _user;
   User friend;
   AccountType _accountType;
-
+  bool _updating = false;
   File _image;
 
   AccountState(this._user, this.friend) {
@@ -49,7 +42,7 @@ class AccountState extends State<Account> {
     return Scaffold(
       key: _menuKey,
       appBar: new AppBar(
-          title: Text('User account'),
+          title: Text('Profile'),
           centerTitle: true,
           actions: _accountType == AccountType.SELF_SHOW ||
                   _accountType == AccountType.SELF_EDIT
@@ -72,20 +65,9 @@ class AccountState extends State<Account> {
                 ]
               : null),
       backgroundColor: Color.fromRGBO(35, 35, 35, 1),
-      body: _switchBuilders(),
+      body: new ModalProgressHUD(
+          child: _switchBuilders(), inAsyncCall: _updating),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (_accountType == AccountType.SELF_SHOW ||
-        _accountType == AccountType.SELF_EDIT) {
-      saveCurrentRoute(route: 2);
-    } else if (_accountType == AccountType.FRIEND) {
-      saveLastFriendId(_user.id);
-      saveCurrentRoute(route: 4);
-    }
   }
 
   _updateData() async {
@@ -102,35 +84,99 @@ class AccountState extends State<Account> {
     }
   }
 
+  _setUpdating() {
+    setState(() {
+      _updating = !_updating;
+    });
+  }
+
   _buildSelfShow() {
     return Container(
         child: Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         new Padding(
             padding: EdgeInsets.only(top: 20, left: 20, bottom: 20),
             child: new CircleAvatar(
-                radius: 100,
+                radius: 70,
                 backgroundColor: Colors.grey,
                 backgroundImage:
                     new Image.network(BASE_URL + _user.image).image)),
-        new Column(
-          children: [
-            new Padding(
-                padding: EdgeInsets.only(top: 20, left: 20),
-                child: new Text(
-                    _user.username.isEmpty ? 'Unknown' : _user.username,
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
-            new Divider(),
-            new Text('First name:'),
-            new Text(_user.first_name.isEmpty ? 'Unknown' : _user.first_name),
-            new Text('Last name:'),
-            new Text(_user.last_name.isEmpty ? 'Unknown' : _user.last_name),
-            new Divider(),
-            new Text('Email:'),
-            new Text(_user.email.isEmpty ? 'Unknown' : _user.email),
-          ],
-        )
+        new Padding(
+            padding: EdgeInsets.only(bottom: 15),
+            child: new Text(
+                _user.last_name.isEmpty && _user.first_name.isEmpty
+                    ? ''
+                    : '${_user.first_name} ${_user.last_name}',
+                style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white))),
+        _buildTabList(),
+      ],
+    ));
+  }
+
+  _buildTabList() {
+    return new Expanded(
+        child: ListView(
+      children: [
+        Divider(color: Colors.black87),
+        ListTile(
+          title: Text(
+            'VK Music',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        Divider(color: Colors.black87),
+        Divider(color: Colors.black87),
+        ListTile(
+            title: Text(
+              'Update music',
+              style: TextStyle(color: Colors.grey),
+            ),
+            onTap: () async {
+              try {
+                _setUpdating();
+                final listNewSong = await requestMusicListPost();
+                if (listNewSong != null) {
+                  infoDialog(_menuKey.currentContext, "New songs",
+                      "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                } else {
+                  infoDialog(_menuKey.currentContext, "Something went wrong",
+                      "Unable to get Music List.");
+                }
+              } catch (e) {
+                print(e);
+              } finally {
+                _setUpdating();
+              }
+            }),
+        Divider(color: Colors.black87),
+        Divider(color: Colors.black87),
+        ListTile(
+          title: Text(
+            'Friends',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        Divider(color: Colors.black87),
+        Divider(color: Colors.black87),
+        ListTile(
+          title: Text(
+            'Search',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        Divider(color: Colors.black87),
+        Divider(color: Colors.black87),
+        ListTile(
+          title: Text(
+            'Download all',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        Divider(color: Colors.black87),
       ],
     ));
   }
