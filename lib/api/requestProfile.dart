@@ -38,15 +38,20 @@ requestProfilePost({body}) async {
     final uri = Uri.parse(PROFILE_URL);
     http.MultipartRequest request = http.MultipartRequest('POST', uri);
 
-    http.MultipartFile multipartFile = await http.MultipartFile.fromPath(
-        'image', body['image'].path);
-
-    request.files.add(multipartFile);
+    if (body['image'] != null) {
+      http.MultipartFile multipartFile =
+          await http.MultipartFile.fromPath('image', body['image'].path);
+      request.files.add(multipartFile);
+    }
+    body.remove('image');
+    body.forEach((key, value) {
+      request.fields[key] = value;
+    });
     request.headers.addAll(formatToken(token));
+
 
     http.StreamedResponse response = await request.send();
     return response.statusCode == 201;
-
   } on TimeoutException catch (_) {
     return false;
   } catch (e) {

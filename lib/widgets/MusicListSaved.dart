@@ -3,36 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
+import 'package:provider/provider.dart';
+import 'package:vk_parse/models/ProjectData.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/format/fromatSongName.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/askDialog.dart';
-import 'package:vk_parse/functions/save/savePlayedSong.dart';
-import 'package:vk_parse/functions/get/getPlayedSong.dart';
-import 'package:vk_parse/utils/colors.dart';
 
 class MusicListSaved extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
-
-  MusicListSaved(this._audioPlayer);
-
   @override
-  State<StatefulWidget> createState() => MusicListSavedState(_audioPlayer);
+  State<StatefulWidget> createState() => MusicListSavedState();
 }
 
 enum ButtonState { SHARE, DELETE }
 
 class MusicListSavedState extends State<MusicListSaved> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  List<Song> _songData = [];
 
-  List<Song> _data = [];
-  final AudioPlayer _audioPlayer;
-  int nowPlayingSongId = -1;
-  Song playedSong;
-
-  MusicListSavedState(this._audioPlayer) {
+  MusicListSavedState() {
     _checkDirectory();
   }
 
@@ -46,24 +37,19 @@ class MusicListSavedState extends State<MusicListSaved> {
 
   @override
   Widget build(BuildContext context) {
+    final _data = Provider.of<ProjectData>(context);
     return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(title: Text('Media'), centerTitle: true),
-        backgroundColor: Color.fromRGBO(35, 35, 35, 1),
         body: new ListView(
-          children: _buildList(),
+          children: _buildList(_data),
         ));
   }
 
   @override
   void initState() {
     super.initState();
-    _setPlayedSong();
     _loadSongs();
-  }
-
-  _setPlayedSong() async {
-    playedSong = await getPlayedSong();
   }
 
   _loadSongs() async {
@@ -76,7 +62,7 @@ class MusicListSavedState extends State<MusicListSaved> {
     });
     if (mounted && songData != null) {
       setState(() {
-        _data = songData;
+        _songData = songData;
       });
     }
   }
@@ -88,7 +74,7 @@ class MusicListSavedState extends State<MusicListSaved> {
         if (mounted) {
           File(song.path).deleteSync();
           setState(() {
-            _data.remove(song);
+            _songData.remove(song);
           });
           infoDialog(_scaffoldKey.currentContext, 'File deleted',
               'Song ${song.artist} - ${song.title} successfully deleted');
@@ -111,11 +97,11 @@ class MusicListSavedState extends State<MusicListSaved> {
         bytesOfFile: bytes.readAsBytesSync());
   }
 
-  List<Widget> _buildList() {
-    if (_data == null) {
+  _buildList(ProjectData data) {
+    if (_songData == null) {
       return null;
     }
-    return _data
+    return _songData
         .map((Song song) => ListTile(
             title: Text(song.title),
             subtitle:
@@ -155,38 +141,35 @@ class MusicListSavedState extends State<MusicListSaved> {
             leading: IconButton(
                 onPressed: () async {
                   int stopped = -1;
-                  if (_audioPlayer.state == AudioPlayerState.PLAYING) {
-                    if (playedSong.song_id == song.song_id) {
-                      await _audioPlayer.pause();
+                  if (data.audioPlayer.state == AudioPlayerState.PLAYING) {
+                    if (data.currentSong.song_id == song.song_id) {
+                      await data.playerPause();
                     } else {
-                      await _audioPlayer.stop();
+                      await data.playerStop();
                     }
-                    stopped = playedSong.song_id;
+                    stopped = data.currentSong.song_id;
                     if (mounted) {
-                      setState(() {
-                        playedSong = null;
-                      });
+                      data.setPlayedSong(null);
                     }
                   }
-                  if (_audioPlayer.state == AudioPlayerState.PAUSED &&
-                      playedSong != null &&
-                      song.song_id == playedSong.song_id) {
-                    _audioPlayer.resume();
-                  } else if (_audioPlayer.state != AudioPlayerState.PLAYING &&
+                  if ((data.audioPlayer.state == AudioPlayerState.PAUSED ||
+                          data.audioPlayer.state == AudioPlayerState.STOPPED) &&
+                      data.currentSong != null &&
+                      song.song_id == data.currentSong.song_id) {
+                    data.playerResume();
+                  } else if (data.audioPlayer.state !=
+                          AudioPlayerState.PLAYING &&
                       stopped != song.song_id) {
-                    await _audioPlayer.play(song.path, isLocal: true);
-                    await savePlayedSong(song);
+                    await data.playerPlay(song.path, isLocal: true);
                     if (mounted) {
-                      setState(() {
-                        playedSong = song;
-                      });
+                      data.setPlayedSong(song);
                     }
                   }
                 },
                 icon: Icon(
-                  _audioPlayer.state == AudioPlayerState.PLAYING &&
-                          playedSong != null &&
-                          playedSong.song_id == song.song_id
+                  data.audioPlayer.state == AudioPlayerState.PLAYING &&
+                          data.currentSong != null &&
+                          data.currentSong.song_id == song.song_id
                       ? Icons.pause
                       : Icons.play_arrow,
                   size: 35,

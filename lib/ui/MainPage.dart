@@ -1,49 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/api/requestProfile.dart';
-import 'package:vk_parse/functions/get/getCurrentUser.dart';
-import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/ui/Login.dart';
 import 'package:vk_parse/ui/Player.dart';
 import 'package:vk_parse/ui/Playlists.dart';
 
+import 'package:provider/provider.dart';
+import 'package:vk_parse/models/ProjectData.dart';
+
 import 'package:vk_parse/widgets/MusicListSaved.dart';
 import 'package:vk_parse/ui/Account.dart';
 
-class MainPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  final AudioPlayer _audioPlayer =
-      AudioPlayer(playerId: 'usingThisIdForPlayer');
-  User _user;
-
-  _getUser() async {
-    final user = await requestProfileGet();
-    setState(() {
-      _user = user;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getUser();
+class MainPage extends StatelessWidget {
+  _buildView(ProjectData data, child) {
+    return ChangeNotifierProvider<ProjectData>.value(
+        value: data, child: child);
   }
 
   @override
   Widget build(BuildContext context) {
+    final _sharedData = Provider.of<ProjectData>(context);
     return DefaultTabController(
         length: 5,
         child: new Scaffold(
           body: TabBarView(
             children: [
-              PlaylistPage(_audioPlayer),
-              MusicListSaved(_audioPlayer),
-              Player(_audioPlayer),
-              _user != null ? Account(_user) : Login(),
+              _buildView(_sharedData, PlaylistPage()),
+              _buildView(_sharedData, MusicListSaved()),
+              _buildView(_sharedData, Player()),
+              _buildView(_sharedData, _sharedData.user != null ? Account() : Login()),
               Container(
                 color: Color.fromRGBO(35, 35, 35, 1),
               ),

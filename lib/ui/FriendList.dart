@@ -9,7 +9,6 @@ import 'package:vk_parse/utils/colors.dart';
 import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/api/requestFriendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/utils/routes.dart';
 
 class FriendList extends StatefulWidget {
   final AudioPlayer _audioPlayer;
@@ -81,9 +80,9 @@ class FriendListState extends State<FriendList> {
             onTap: () async {
               final friend = await requestProfileGet(friendId: user.id);
               await Navigator.of(context).pop();
-              await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      switchRoutes(_audioPlayer, route: 2, user: user, friend: friend)));
+//              await Navigator.of(context).push(MaterialPageRoute(
+//                  builder: (BuildContext context) =>
+//                      switchRoutes(_audioPlayer, route: 2, user: user, friend: friend)));
             },
             trailing: new IconButton(
                 onPressed: () {},

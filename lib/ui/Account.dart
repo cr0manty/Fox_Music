@@ -1,143 +1,225 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
+import 'package:vk_parse/models/ProjectData.dart';
+
 import 'package:vk_parse/api/requestMusicList.dart';
-import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/models/User.dart';
-
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/functions/utils/chooseDialog.dart';
-import 'package:vk_parse/api/requestProfile.dart';
 
-enum AccountType { SELF_SHOW, SELF_EDIT }
-
-class Account extends StatefulWidget {
-  final User _user;
-  final User friend;
-
-  Account(this._user, {this.friend});
-
-  @override
-  State<StatefulWidget> createState() => new AccountState(_user, friend);
-}
-
-class AccountState extends State<Account> {
+class Account extends StatelessWidget {
   final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
-  User _user;
-  User friend;
-  AccountType _accountType;
-  bool _updating = false;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameFilter = new TextEditingController();
+  final TextEditingController _lastNameFilter = new TextEditingController();
+  final TextEditingController _emailFilter = new TextEditingController();
+  final TextEditingController _passwordConfirmFilter =
+      new TextEditingController();
+  final TextEditingController _usernameFilter = new TextEditingController();
+  final TextEditingController _passwordFilter = new TextEditingController();
+  String _firstName = "";
+  String _lastName = "";
+  String _email = "";
+  String _passwordConfirm = "";
+  String _username = "";
+  String _password = "";
   File _image;
+  bool _updating = false;
 
-  AccountState(this._user, this.friend) {
-    if (friend == null) {
-      _accountType = AccountType.SELF_SHOW;
+  Account() {
+    _lastNameFilter.addListener(_lastNameListen);
+    _firstNameFilter.addListener(_firstNameListen);
+    _emailFilter.addListener(_emailListen);
+    _passwordConfirmFilter.addListener(_passwordConfirmListen);
+    _usernameFilter.addListener(_usernameListen);
+    _passwordFilter.addListener(_passwordListen);
+  }
+
+  void _lastNameListen() {
+    if (_lastNameFilter.text.isEmpty) {
+      _lastName = null;
+    } else {
+      _lastName = _lastNameFilter.text;
     }
+  }
+
+  void _firstNameListen() {
+    if (_firstNameFilter.text.isEmpty) {
+      _firstName = null;
+    } else {
+      _firstName = _firstNameFilter.text;
+    }
+  }
+
+  void _emailListen() {
+    if (_emailFilter.text.isEmpty) {
+      _email = null;
+    } else {
+      _email = _emailFilter.text;
+    }
+  }
+
+  void _usernameListen() {
+    if (_usernameFilter.text.isEmpty) {
+      _username = null;
+    } else {
+      _username = _usernameFilter.text;
+    }
+  }
+
+  void _passwordListen() {
+    if (_passwordFilter.text.isEmpty) {
+      _password = null;
+    } else {
+      _password = _passwordFilter.text;
+    }
+  }
+
+  void _passwordConfirmListen() {
+    if (_passwordConfirmFilter.text.isEmpty) {
+      _passwordConfirm = null;
+    } else {
+      _passwordConfirm = _passwordConfirmFilter.text;
+    }
+  }
+
+  _setFilter(ProjectData data) {
+    _usernameFilter.text = data.user.username;
+    _emailFilter.text = data.user.email;
+    _firstNameFilter.text = data.user.first_name;
+    _lastNameFilter.text = data.user.last_name;
   }
 
   @override
   Widget build(BuildContext context) {
+    final _data = Provider.of<ProjectData>(context);
+    if (_data.accountType == AccountType.SELF_EDIT) {
+      _setFilter(_data);
+    }
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       key: _menuKey,
       appBar: new AppBar(
-          title: Text('Profile'),
+          title: Text(_data.accountType == AccountType.SELF_EDIT
+              ? 'Profile edit'
+              : 'Profile'),
           centerTitle: true,
-          actions: _accountType == AccountType.SELF_SHOW ||
-                  _accountType == AccountType.SELF_EDIT
+          actions: _data.accountType == AccountType.SELF_EDIT
               ? [
                   IconButton(
-                    icon: Icon(_accountType == AccountType.SELF_EDIT
-                        ? Icons.done
-                        : Icons.edit),
+                    icon: Icon(Icons.done),
                     onPressed: () {
-                      setState(() {
-                        if (_accountType == AccountType.SELF_EDIT) {
-                          _accountType = AccountType.SELF_SHOW;
-                          _updateData();
-                        } else {
-                          _accountType = AccountType.SELF_EDIT;
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      if (_formKey.currentState.validate()) {
+                        if (_password.isNotEmpty) {
+                          if (_password != _passwordConfirm) {
+                            infoDialog(context, '', 'Passwords do not match');
+                          }
                         }
-                      });
+                        var data = {
+                          'image': _image,
+                          'first_name': _firstName,
+                          'last_name': _lastName,
+                          'email': _email,
+                          'password': _password,
+                          'username': _username
+                        };
+                        _data.updateUserData(data);
+                      }
                     },
-                  )
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        _data.setNewImage(null);
+                        _data.changeAccountState();
+                      })
                 ]
               : null),
-      backgroundColor: Color.fromRGBO(35, 35, 35, 1),
-      body: new ModalProgressHUD(
-          child: _switchBuilders(), inAsyncCall: _updating),
+      body: _switchBuilders(_data),
     );
   }
 
-  _updateData() async {
-    if (_image != null) {
-      if (await requestProfilePost(body: {'image': _image})) {
-        User user = await requestProfileGet();
-        if (user != null) {
-          setState(() {
-            _user = user;
-            saveCurrentUser(_user);
-          });
-        }
-      }
-    }
-  }
-
-  _setUpdating() {
-    setState(() {
-      _updating = !_updating;
-    });
-  }
-
-  _buildSelfShow() {
+  _buildSelfShow(ProjectData _data) {
     return Container(
         child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        new Padding(
-            padding: EdgeInsets.only(top: 20, left: 20, bottom: 20),
-            child: new CircleAvatar(
-                radius: 70,
-                backgroundColor: Colors.grey,
-                backgroundImage:
-                    new Image.network(BASE_URL + _user.image).image)),
-        new Padding(
+        Padding(
+            padding: EdgeInsets.only(bottom: 15, top: 15),
+            child: GestureDetector(
+              onTap: () {
+                showCupertinoModalPopup(
+                    context: _menuKey.currentContext,
+                    builder: (context) {
+                      return CupertinoActionSheet(
+                        actions: <Widget>[
+                          CupertinoActionSheetAction(
+                              onPressed: () {
+                                _data.changeAccountState();
+                                Navigator.pop(context);
+                              },
+                              child: Text('Edit')),
+                          CupertinoActionSheetAction(
+                              onPressed: () async {
+                                await _data.makeLogout();
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                'Logout',
+                                style: TextStyle(color: Colors.red),
+                              ))
+                        ],
+                      );
+                    });
+              },
+              child: ClipOval(
+                  child: CircleAvatar(
+                      radius: 70,
+                      backgroundColor: Colors.grey,
+                      backgroundImage:
+                          Image.network(BASE_URL + _data.user.image).image)),
+            )),
+        Padding(
             padding: EdgeInsets.only(bottom: 15),
             child: new Text(
-                _user.last_name.isEmpty && _user.first_name.isEmpty
+                _data.user.last_name.isEmpty && _data.user.first_name.isEmpty
                     ? ''
-                    : '${_user.first_name} ${_user.last_name}',
+                    : '${_data.user.first_name} ${_data.user.last_name}',
                 style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.white))),
-        _buildTabList(),
+        _buildTabList(_data),
       ],
     ));
   }
 
-  _buildTabList() {
+  _buildTabList(ProjectData _data) {
     return new Expanded(
         child: ListView(
       children: [
         Divider(color: Colors.black87),
         ListTile(
+          leading: Icon(Icons.music_note, color: Colors.white),
           title: Text(
             'VK Music',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Colors.white),
           ),
         ),
         Divider(color: Colors.black87),
-        Divider(color: Colors.black87),
         ListTile(
+            leading: Icon(Icons.update, color: Colors.white),
             title: Text(
               'Update music',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.white),
             ),
             onTap: () async {
               try {
-                _setUpdating();
                 final listNewSong = await requestMusicListPost();
                 if (listNewSong != null) {
                   infoDialog(_menuKey.currentContext, "New songs",
@@ -148,32 +230,30 @@ class AccountState extends State<Account> {
                 }
               } catch (e) {
                 print(e);
-              } finally {
-                _setUpdating();
-              }
+              } finally {}
             }),
         Divider(color: Colors.black87),
-        Divider(color: Colors.black87),
         ListTile(
+          leading: Icon(Icons.people, color: Colors.white),
           title: Text(
             'Friends',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Colors.white),
           ),
         ),
         Divider(color: Colors.black87),
-        Divider(color: Colors.black87),
         ListTile(
+          leading: Icon(Icons.search, color: Colors.white),
           title: Text(
             'Search',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Colors.white),
           ),
         ),
-        Divider(color: Colors.black87),
         Divider(color: Colors.black87),
         ListTile(
+          leading: Icon(Icons.file_download, color: Colors.white),
           title: Text(
             'Download all',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Colors.white),
           ),
         ),
         Divider(color: Colors.black87),
@@ -181,54 +261,127 @@ class AccountState extends State<Account> {
     ));
   }
 
-  _buildSelfEdit() {
-    return Container(
-        child: Column(
-      children: [
-        new Padding(
-            padding: EdgeInsets.only(top: 20, left: 20, bottom: 20),
-            child: new FlatButton(
-                child: new CircleAvatar(
-                    radius: 100,
-                    backgroundColor: Colors.grey,
-                    backgroundImage:
-                        new Image.network(BASE_URL + _user.image).image),
-                onPressed: () async {
-                  chooseDialog(_menuKey.currentContext, 'Upload photo from...',
-                      'Gallery', 'Take photo', firstFunction: () async {
-                    _image = await ImagePicker.pickImage(
-                        source: ImageSource.gallery);
-                  }, secondFunction: () async {
-                    _image =
-                        await ImagePicker.pickImage(source: ImageSource.camera);
-                  });
-                },
-                shape: CircleBorder())),
-        new Column(
-          children: [
-            new Padding(
-                padding: EdgeInsets.only(top: 20, left: 20, bottom: 20),
-                child: new Text(
-                    _user.username.isEmpty ? 'Unknown' : _user.username,
-                    style:
-                        TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
-            new Divider(),
-            new Text('First name:'),
-            new Text('Last name:'),
-            new Divider(),
-            new Text('Email:'),
-          ],
-        )
-      ],
-    ));
+  _changeAreaForm() {
+    return [
+      TextFormField(
+        controller: _firstNameFilter,
+        decoration: InputDecoration(
+          labelText: 'First name',
+        ),
+      ),
+      TextFormField(
+        controller: _lastNameFilter,
+        decoration: InputDecoration(
+          labelText: 'Last name',
+        ),
+      ),
+      TextFormField(
+        controller: _emailFilter,
+        decoration: InputDecoration(
+          labelText: 'Email',
+        ),
+      ),
+      TextFormField(
+        controller: _usernameFilter,
+        decoration: InputDecoration(
+          labelText: 'Username',
+        ),
+      ),
+      TextFormField(
+        controller: _passwordFilter,
+        decoration: InputDecoration(
+          labelText: 'Password',
+        ),
+        validator: (value) {
+          if (value.isNotEmpty) {
+            if (value.length < 8) {
+              return 'Password must be more than 8 characters';
+            }
+          }
+          return null;
+        },
+      ),
+      TextFormField(
+        controller: _passwordConfirmFilter,
+        decoration: InputDecoration(
+          labelText: 'Password confirm',
+        ),
+      ),
+    ];
   }
 
-  _switchBuilders() {
-    switch (_accountType) {
+  _buildSelfEdit(ProjectData _data) {
+    return Container(
+        child: SingleChildScrollView(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                    padding: EdgeInsets.only(bottom: 15, top: 15),
+                    child: GestureDetector(
+                      onTap: () {
+                        FocusScope.of(_menuKey.currentContext)
+                            .requestFocus(FocusNode());
+                        showCupertinoModalPopup(
+                            context: _menuKey.currentContext,
+                            builder: (context) {
+                              return CupertinoActionSheet(
+                                title: Text('Choose image from...'),
+                                actions: <Widget>[
+                                  CupertinoActionSheetAction(
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        _image = await ImagePicker.pickImage(
+                                            source: ImageSource.camera);
+                                        _data.setNewImage(_image);
+                                      },
+                                      child: Text('Camera')),
+                                  CupertinoActionSheetAction(
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        _image = await ImagePicker.pickImage(
+                                            source: ImageSource.gallery);
+                                      },
+                                      child: Text(
+                                        'Gallery',
+                                      ))
+                                ],
+                              );
+                            });
+                      },
+                      child: ClipOval(
+                          child: CircleAvatar(
+                              radius: 100,
+                              backgroundColor: Colors.grey,
+                              backgroundImage: _data.newImage != null
+                                  ? Image.file(_data.newImage).image
+                                  : Image.network(BASE_URL + _data.user.image)
+                                      .image)),
+                    )),
+                Divider(height: 10),
+                Text('Login and password must match your VK account', style: TextStyle(color: Colors.grey, fontSize: 12),),
+                ModalProgressHUD(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(16.0),
+                      child: Form(
+                          key: _formKey,
+                          child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: _changeAreaForm())),
+                    ),
+                    inAsyncCall: _updating)
+              ],
+            )));
+  }
+
+  _switchBuilders(ProjectData _data) {
+    switch (_data.accountType) {
       case AccountType.SELF_EDIT:
-        return _buildSelfEdit();
+        return _buildSelfEdit(_data);
       default:
-        return _buildSelfShow();
+        return _buildSelfShow(_data);
     }
   }
 }

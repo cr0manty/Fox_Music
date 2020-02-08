@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:audioplayers/audioplayers.dart';
-
+import 'package:provider/provider.dart';
+import 'package:vk_parse/models/ProjectData.dart';
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
-import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/utils/routes.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -16,6 +14,7 @@ class Login extends StatefulWidget {
 enum FormType { login, register }
 
 class LoginState extends State<Login> {
+  final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _firstNameFilter = new TextEditingController();
   final TextEditingController _lastNameFilter = new TextEditingController();
@@ -88,6 +87,7 @@ class LoginState extends State<Login> {
 
   void _formChange() async {
     setState(() {
+      _formKey.currentState.reset();
       _clearFiller();
       if (_form == FormType.register) {
         _form = FormType.login;
@@ -99,51 +99,109 @@ class LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final _data = Provider.of<ProjectData>(context);
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
-        appBar: new AppBar(
-          title: new Text("Auth"),
+        appBar: AppBar(
+          title: Text("Auth"),
           centerTitle: true,
         ),
         body: ModalProgressHUD(
-            child: new Container(
+            child: SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
-              child: new Column(
+              child: Column(
                 children: <Widget>[
-                  _buildTextFields(),
-                  _buildButtons(),
+                  _buildForm(),
+                  _buildButtons(_data),
                 ],
               ),
             ),
             inAsyncCall: _disabled));
   }
 
-  Widget _buildTextFields() {
-    return new Container(
-      child: new Column(
-        children: <Widget>[
-          new Container(
-            child: new TextField(
-              controller: _usernameFilter,
-              decoration: new InputDecoration(labelText: 'Login'),
-            ),
-          ),
-          new Container(
-            child: new TextField(
-              controller: _passwordFilter,
-              decoration: new InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-          )
-        ],
+  _loginAreaForm() {
+    return [
+      TextFormField(
+        controller: _usernameFilter,
+        decoration: InputDecoration(
+          labelText: 'Username',
+        ),
+        validator: (value) {
+          if (value.isEmpty) {
+            return "Username can't be empty";
+          }
+          return null;
+        },
       ),
-    );
+      TextFormField(
+        controller: _passwordFilter,
+        decoration: InputDecoration(
+          labelText: 'Password',
+        ),
+        validator: (value) {
+          if (value.isEmpty) {
+            return "Passwrod can't be empty";
+          } else if (value.length < 8) {
+            return 'Password must be more than 8 characters';
+          }
+          return null;
+        },
+      )
+    ];
   }
 
-  @override
-  void initState() {
-    super.initState();
+  _registrationAreaForm() {
+    return [
+          TextFormField(
+            controller: _firstNameFilter,
+            decoration: InputDecoration(
+              labelText: 'First name',
+            ),
+            validator: (value) {
+              if (value.isEmpty) {
+                return "First name can't be empty";
+              }
+              return null;
+            },
+          ),
+          TextFormField(
+            controller: _lastNameFilter,
+            decoration: InputDecoration(
+              labelText: 'Last name',
+            ),
+            validator: (value) {
+              if (value.isEmpty) {
+                return "Last name can't be empty";
+              }
+              return null;
+            },
+          ),
+          TextFormField(
+            controller: _emailFilter,
+            decoration: InputDecoration(
+              labelText: 'Email',
+            ),
+            validator: (value) {
+              if (value.isEmpty) {
+                return "Email can't be empty";
+              }
+              return null;
+            },
+          ),
+        ] +
+        _loginAreaForm();
+  }
+
+  _buildForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _form == FormType.login
+              ? _loginAreaForm()
+              : _registrationAreaForm()),
+    );
   }
 
   _setButtonStatus() {
@@ -152,66 +210,38 @@ class LoginState extends State<Login> {
     });
   }
 
-  Widget _buildButtons() {
-    if (_form == FormType.login) {
-      return new Container(
-        child: new Column(
-          children: <Widget>[
-            new RaisedButton(
-                child: new Text('Login'),
-                onPressed: _disabled ? null : () => _loginPressed()),
-            new FlatButton(
-              child: new Text('Dont have an account? Tap here to register.'),
-              onPressed: _disabled ? null : () => _formChange(),
-            ),
-          ],
+  Widget _buildButtons(data) {
+    return Column(children: <Widget>[
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        child: RaisedButton(
+          color: Colors.redAccent,
+          onPressed: () {
+            if (_formKey.currentState.validate()) {
+              if (_form == FormType.login) {
+                _loginPressed(data);
+              } else {
+                _createAccountPressed();
+              }
+            }
+          },
+          child: Text(_form == FormType.login ? 'Login' : 'Create an Account'),
         ),
-      );
-    } else {
-      return new Container(
-        child: new Column(
-          children: <Widget>[
-            new Container(
-              child: new TextField(
-                controller: _emailFilter,
-                decoration: new InputDecoration(labelText: 'Email'),
-              ),
-            ),
-            new Container(
-              child: new TextField(
-                controller: _firstNameFilter,
-                decoration: new InputDecoration(labelText: 'First name'),
-              ),
-            ),
-            new Container(
-              child: new TextField(
-                controller: _lastNameFilter,
-                decoration: new InputDecoration(labelText: 'Last name'),
-              ),
-            ),
-            new RaisedButton(
-                child: new Text('Create an Account'),
-                onPressed: _disabled ? null : () => _createAccountPressed()),
-            new FlatButton(
-              child: new Text('Have an account? Click here to login.'),
-              onPressed: _disabled ? null : () => _formChange(),
-            )
-          ],
-        ),
-      );
-    }
+      ),
+      FlatButton(
+        child: Text(_form == FormType.login
+            ? 'Dont have an account? Tap here to register.'
+            : 'Have an account? Click here to login.'),
+        onPressed: _disabled ? null : () => _formChange(),
+      ),
+    ]);
   }
 
-  _loginPressed() async {
+  _loginPressed(ProjectData data) async {
     _setButtonStatus();
     final user = await requestLogin(_username, _password);
     if (user != null) {
-//      Navigator.popUntil(context, (Route<dynamic> route) => true);
-//      Navigator.of(context).pushAndRemoveUntil(
-//          MaterialPageRoute(
-//              builder: (BuildContext context) =>
-//                  switchRoutes(_audioPlayer, user: user, route: 1)),
-//          (Route<dynamic> route) => false);
+      data.setUser(user);
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");
@@ -219,7 +249,7 @@ class LoginState extends State<Login> {
     _setButtonStatus();
   }
 
-  _createAccountPressed() async {
+ _createAccountPressed() async {
     _setButtonStatus();
     final reg = await requestRegistration(
         _username, _password, _email, _firstName, _lastName);
