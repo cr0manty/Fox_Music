@@ -10,7 +10,6 @@ import 'package:vk_parse/functions/save/logout.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/api/requestProfile.dart';
-import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 
 enum AccountType { SELF_SHOW, SELF_EDIT }
 
@@ -60,7 +59,6 @@ class ProjectData with ChangeNotifier {
     if (await requestProfilePost(body: data)) {
       User newUser = await requestProfileGet();
       if (newUser != null) {
-        saveCurrentUser(newUser);
         user = newUser;
       }
       changeAccountState();

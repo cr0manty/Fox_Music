@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:vk_parse/api/requestProfile.dart';
 import 'package:vk_parse/functions/save/saveToken.dart';
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/functions/save/saveCurrentUser.dart';
 
 requestLogin(String username, String password) async {
   Map<String, String> body = {
@@ -24,7 +23,6 @@ requestLogin(String username, String password) async {
       await saveToken(responseJson['token']);
       final user = await requestProfileGet();
       if (user != null) {
-        await saveCurrentUser(user);
         return user;
       }
     }

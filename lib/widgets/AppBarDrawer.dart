@@ -8,8 +8,6 @@ import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/downloadAll.dart';
 import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/functions/get/getLastRoute.dart';
-import 'package:vk_parse/functions/get/getPlayedSong.dart';
 import 'package:vk_parse/utils/urls.dart';
 
 makeAppBar(String text, dynamic menuKey) {
@@ -54,14 +52,9 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
     });
   }
 
-  _setPlayedSong() async {
-    playedSong = await getPlayedSong();
-  }
-
   @override
   void initState() {
     super.initState();
-    _setPlayedSong();
   }
 
   @override
@@ -136,7 +129,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
           onPressed: offlineMode
               ? null
               : () async {
-                  final lastRoute = await getLastRoute();
+                  final lastRoute = -1;
                   if (lastRoute != 2) {
 //                    Navigator.popUntil(context, (Route<dynamic> route) => true);
 //                    Navigator.of(context).pushAndRemoveUntil(
@@ -189,7 +182,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
           style: TextStyle(fontSize: 15.0, color: Colors.white)),
       leading: new Icon(Icons.music_note, color: Colors.white),
       onTap: () async {
-        final lastRoute = await getLastRoute();
+        final lastRoute = -1;
         if (lastRoute != 1) {
 //          Navigator.popUntil(context, (Route<dynamic> route) => true);
 //          Navigator.of(context).pushAndRemoveUntil(
@@ -212,7 +205,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
       onTap: offlineMode
           ? null
           : () async {
-              final lastRoute = await getLastRoute();
+              final lastRoute = -1;
               if (lastRoute != 3) {
 //                Navigator.popUntil(context, (Route<dynamic> route) => true);
 //                Navigator.of(context).pushAndRemoveUntil(
@@ -238,7 +231,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
       onTap: true || offlineMode
           ? null
           : () async {
-              final lastRoute = await getLastRoute();
+              final lastRoute = await -1;
               if (lastRoute != -1) {
 //                Navigator.popUntil(context, (Route<dynamic> route) => true);
 //                Navigator.of(context).pushAndRemoveUntil(

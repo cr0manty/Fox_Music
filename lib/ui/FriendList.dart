@@ -5,8 +5,6 @@ import 'package:vk_parse/api/requestProfile.dart';
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/widgets/AppBarDrawer.dart';
 import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/utils/colors.dart';
-import 'package:vk_parse/functions/save/saveCurrentRoute.dart';
 import 'package:vk_parse/api/requestFriendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
@@ -37,7 +35,6 @@ class FriendListState extends State<FriendList> {
       key: _menuKey,
       drawer: AppBarDrawer(_audioPlayer, _user),
       appBar: makeAppBar('Friends', _menuKey),
-      backgroundColor: lightGrey,
       body: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () async => await _loadFriends(),
@@ -51,7 +48,6 @@ class FriendListState extends State<FriendList> {
   void initState() {
     super.initState();
     _loadFriends();
-    saveCurrentRoute(route: 3);
   }
 
   _loadFriends() async {

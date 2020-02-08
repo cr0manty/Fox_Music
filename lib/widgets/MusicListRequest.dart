@@ -7,8 +7,6 @@ import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/save/savePlayedSong.dart';
-import 'package:vk_parse/functions/get/getPlayedSong.dart';
 
 class MusicListRequest extends StatefulWidget {
   final AudioPlayer _audioPlayer;
@@ -54,7 +52,6 @@ class MusicListRequestState extends State<MusicListRequest> {
   void initState() {
     super.initState();
     _loadSongs();
-    _setPlayedSong();
   }
 
   _loadSongs() async {
@@ -70,10 +67,6 @@ class MusicListRequestState extends State<MusicListRequest> {
       infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
     _setUpdatingStatus();
-  }
-
-  _setPlayedSong() async {
-    playedSong = await getPlayedSong();
   }
 
   List<Widget> _buildList() {
@@ -96,7 +89,6 @@ class MusicListRequestState extends State<MusicListRequest> {
                   _audioPlayer.state == AudioPlayerState.STOPPED ||
                   _audioPlayer.state == null) {
                 await _audioPlayer.play(song.download);
-                await savePlayedSong(song);
                 setState(() {
                   playedSong = song;
                 });
@@ -128,7 +120,6 @@ class MusicListRequestState extends State<MusicListRequest> {
                       _audioPlayer.state == AudioPlayerState.STOPPED ||
                       _audioPlayer.state == null) {
                     await _audioPlayer.play(song.path, isLocal: true);
-                    await savePlayedSong(song);
                     setState(() {
                       playedSong = song;
                     });

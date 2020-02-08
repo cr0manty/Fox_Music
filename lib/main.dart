@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vk_parse/ui/Intro.dart';
 
-import 'package:vk_parse/utils/colors.dart';
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {

@@ -116,7 +116,7 @@ class Account extends StatelessWidget {
                       if (_formKey.currentState.validate()) {
                         if (_password.isNotEmpty) {
                           if (_password != _passwordConfirm) {
-                            infoDialog(context, '', 'Passwords do not match');
+                            infoDialog(context, 'Oops...', 'Passwords do not match');
                           }
                         }
                         var data = {
@@ -360,7 +360,10 @@ class Account extends StatelessWidget {
                                       .image)),
                     )),
                 Divider(height: 10),
-                Text('Login and password must match your VK account', style: TextStyle(color: Colors.grey, fontSize: 12),),
+                Text(
+                  'Login and password must match your VK account',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
                 ModalProgressHUD(
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(16.0),
