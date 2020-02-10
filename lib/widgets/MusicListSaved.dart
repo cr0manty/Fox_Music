@@ -122,16 +122,15 @@ class MusicListSavedState extends State<MusicListSaved> {
         subtitle: Text(song.artist,
             style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
         onTap: () async {
-          if (sharedData.audioPlayer.state == AudioPlayerState.PLAYING) {
+          if (sharedData.playerState == AudioPlayerState.PLAYING) {
             if (sharedData.currentSong.song_id == song.song_id) {
               await sharedData.playerPause();
             } else {
               await sharedData.playerStop();
             }
           }
-          if (sharedData.audioPlayer.state != AudioPlayerState.PLAYING) {
-            sharedData.playerPlay(song.path);
-            sharedData.setPlayedSong(song);
+          if (sharedData.playerState != AudioPlayerState.PLAYING) {
+            sharedData.playerPlay(song);
           }
         },
         trailing: Text(formatDuration(song.duration),

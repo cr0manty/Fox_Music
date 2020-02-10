@@ -29,6 +29,7 @@ class ProjectData with ChangeNotifier {
 
   Duration songPosition;
   Duration songDuration;
+  var platform;
 
   AudioPlayerState playerState;
 
@@ -41,8 +42,9 @@ class ProjectData with ChangeNotifier {
     playerState = AudioPlayerState.STOPPED;
   }
 
-  init(platform) async {
-    initPlayer(platform);
+  init(thisPlatform) async {
+    platform = thisPlatform;
+    initPlayer();
     if (!await requestAuthCheck()) {
       await makeLogout();
     } else {
@@ -52,25 +54,11 @@ class ProjectData with ChangeNotifier {
     offlineMode = connection == ConnectivityResult.none;
   }
 
-  initPlayer(platform) {
+  initPlayer() {
     audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
 
     _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
-
-      if (platform == TargetPlatform.iOS) {
-        audioPlayer.startHeadlessService();
-
-        audioPlayer.setNotification(
-            title: 'App Name',
-            artist: 'Artist or blank',
-            albumTitle: 'Name or blank',
-            imageUrl: 'url or blank',
-            forwardSkipInterval: const Duration(seconds: 30),
-            backwardSkipInterval: const Duration(seconds: 30),
-            duration: duration,
-            elapsedTime: Duration(seconds: 0));
-      }
       notifyListeners();
     });
     _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
@@ -95,6 +83,21 @@ class ProjectData with ChangeNotifier {
     });
   }
 
+  setCCData() {
+    if (platform == TargetPlatform.iOS) {
+      audioPlayer.startHeadlessService();
+
+      audioPlayer.setNotification(
+          title: currentSong.title,
+          artist: currentSong.artist,
+          imageUrl: '',
+          forwardSkipInterval: const Duration(seconds: 15),
+          backwardSkipInterval: const Duration(seconds: 15),
+          duration: songDuration,
+          elapsedTime: Duration(seconds: 0));
+    }
+  }
+
   mixClick() {
     mix = !mix;
     notifyListeners();
@@ -102,6 +105,10 @@ class ProjectData with ChangeNotifier {
 
   repeatClick() {
     repeat = !repeat;
+    notifyListeners();
+  }
+
+  playlistAddClick() {
     notifyListeners();
   }
 
@@ -123,28 +130,28 @@ class ProjectData with ChangeNotifier {
     }
   }
 
-  playerPlay(path) async {
-    audioPlayer.play(path);
+  playerPlay(Song song) async {
+    audioPlayer.play(song.path);
+    currentSong = song;
+    setCCData();
     notifyListeners();
   }
 
   playerStop() async {
     audioPlayer.stop();
+    playerState = AudioPlayerState.STOPPED;
     notifyListeners();
   }
 
   playerResume() async {
     audioPlayer.resume();
+    playerState = AudioPlayerState.PLAYING;
     notifyListeners();
   }
 
   playerPause() async {
     audioPlayer.pause();
-    notifyListeners();
-  }
-
-  setPlayedSong(song) {
-    currentSong = song;
+    playerState = AudioPlayerState.PAUSED;
     notifyListeners();
   }
 
