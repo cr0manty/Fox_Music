@@ -19,7 +19,7 @@ class _IntroState extends State<Intro> {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       final _sharedData = new ProjectData();
-      await _sharedData.init();
+      await _sharedData.init(Theme.of(context).platform);
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator

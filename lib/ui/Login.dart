@@ -139,6 +139,7 @@ class LoginState extends State<Login> {
         decoration: InputDecoration(
           labelText: 'Password',
         ),
+        obscureText: true,
         validator: (value) {
           if (value.isEmpty) {
             return "Passwrod can't be empty";

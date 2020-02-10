@@ -16,6 +16,7 @@ class Song {
   String title;
   String artist;
   String download;
+  String image;
   String path;
   int duration;
   int song_id;
@@ -26,7 +27,8 @@ class Song {
       this.title,
       this.duration,
       this.download,
-      this.path});
+      this.path,
+      this.image});
 
   factory Song.fromJson(Map<String, dynamic> json) => new Song(
       title: json['name'],
@@ -34,6 +36,7 @@ class Song {
       duration: json['duration'],
       download: json['download'],
       song_id: json['song_id'],
+      image: json['image'],
       path: json['path']);
 
   Map<String, dynamic> toJson() => {
@@ -42,6 +45,7 @@ class Song {
         'duration': duration,
         'download': download,
         'song_id': song_id,
+        'image': image,
         'path': path != null ? path : "",
       };
 }

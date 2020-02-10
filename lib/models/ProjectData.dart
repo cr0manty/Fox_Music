@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:vk_parse/api/requestAuthCheck.dart';
+import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/save/logout.dart';
 
 import 'package:vk_parse/models/Song.dart';
@@ -22,13 +24,25 @@ class ProjectData with ChangeNotifier {
   File newImage;
   bool offlineMode = false;
   AccountType accountType;
+  List<Song> forPlaySong;
+  List<Song> localSongs;
+
+  Duration songPosition;
+  Duration songDuration;
+
+  AudioPlayerState playerState;
+
+  StreamSubscription _durationSubscription;
+  StreamSubscription _positionSubscription;
+  StreamSubscription _playerCompleteSubscription;
 
   ProjectData() {
-    audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
     accountType = AccountType.SELF_SHOW;
+    playerState = AudioPlayerState.STOPPED;
   }
 
-  init() async {
+  init(platform) async {
+    initPlayer(platform);
     if (!await requestAuthCheck()) {
       await makeLogout();
     } else {
@@ -36,6 +50,49 @@ class ProjectData with ChangeNotifier {
     }
     final connection = await Connectivity().checkConnectivity();
     offlineMode = connection == ConnectivityResult.none;
+  }
+
+  initPlayer(platform) {
+    audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
+
+    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
+      songDuration = duration;
+
+      if (platform == TargetPlatform.iOS) {
+        audioPlayer.startHeadlessService();
+
+        audioPlayer.setNotification(
+            title: 'App Name',
+            artist: 'Artist or blank',
+            albumTitle: 'Name or blank',
+            imageUrl: 'url or blank',
+            forwardSkipInterval: const Duration(seconds: 30),
+            backwardSkipInterval: const Duration(seconds: 30),
+            duration: duration,
+            elapsedTime: Duration(seconds: 0));
+      }
+      notifyListeners();
+    });
+    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
+      songPosition = p;
+      notifyListeners();
+    });
+    _playerCompleteSubscription =
+        audioPlayer.onPlayerCompletion.listen((event) {
+      songPosition = null;
+      playerState = AudioPlayerState.STOPPED;
+      notifyListeners();
+    });
+
+    audioPlayer.onPlayerStateChanged.listen((state) {
+      playerState = state;
+      notifyListeners();
+    });
+
+    audioPlayer.onNotificationPlayerStateChanged.listen((state) {
+      playerState = state;
+      notifyListeners();
+    });
   }
 
   mixClick() {
@@ -66,24 +123,23 @@ class ProjectData with ChangeNotifier {
     }
   }
 
-  playerPlay(path, {isLocal}) async {
-    isLocal = isLocal != null ? isLocal : false;
-    await audioPlayer.play(path, isLocal: isLocal);
+  playerPlay(path) async {
+    audioPlayer.play(path);
     notifyListeners();
   }
 
   playerStop() async {
-    await audioPlayer.resume();
+    audioPlayer.stop();
     notifyListeners();
   }
 
   playerResume() async {
-    await audioPlayer.resume();
+    audioPlayer.resume();
     notifyListeners();
   }
 
   playerPause() async {
-    await audioPlayer.pause();
+    audioPlayer.pause();
     notifyListeners();
   }
 
@@ -105,5 +161,31 @@ class ProjectData with ChangeNotifier {
   setNewImage(image) {
     newImage = image;
     notifyListeners();
+  }
+
+  prev() {
+    notifyListeners();
+  }
+
+  next() {
+    notifyListeners();
+  }
+
+  seek({duration}) {
+    if (currentSong != null && duration < 1) {
+      int value =
+          (duration != null ? durToInt(songDuration) * duration : 0).toInt();
+      audioPlayer.seek(Duration(seconds: value));
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.stop();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _durationSubscription?.cancel();
+    super.dispose();
   }
 }

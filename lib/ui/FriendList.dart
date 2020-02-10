@@ -20,7 +20,7 @@ class FriendList extends StatefulWidget {
 }
 
 class FriendListState extends State<FriendList> {
-  final GlobalKey<ScaffoldState> _menuKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
   List<User> _data = [];
@@ -32,9 +32,9 @@ class FriendListState extends State<FriendList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _menuKey,
+      key: _scaffoldKey,
       drawer: AppBarDrawer(_audioPlayer, _user),
-      appBar: makeAppBar('Friends', _menuKey),
+      appBar: makeAppBar('Friends', _scaffoldKey),
       body: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () async => await _loadFriends(),

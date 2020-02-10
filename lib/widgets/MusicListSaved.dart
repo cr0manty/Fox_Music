@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/models/ProjectData.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
@@ -37,12 +38,20 @@ class MusicListSavedState extends State<MusicListSaved> {
 
   @override
   Widget build(BuildContext context) {
-    final _data = Provider.of<ProjectData>(context);
+    final sharedData = Provider.of<ProjectData>(context);
     return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(title: Text('Media'), centerTitle: true),
-        body: new ListView(
-          children: _buildList(_data),
+        body: new ListView.separated(
+          separatorBuilder: (context, index) => Padding(
+              padding: EdgeInsets.only(left: 12.0),
+              child: Divider(
+                color: Colors.grey,
+                height: 1,
+              )),
+          itemCount: _songData.length,
+          itemBuilder: (context, index) =>
+              _buildSongListTile(index, sharedData),
         ));
   }
 
@@ -97,84 +106,53 @@ class MusicListSavedState extends State<MusicListSaved> {
         bytesOfFile: bytes.readAsBytesSync());
   }
 
-  _buildList(ProjectData data) {
-    if (_songData == null) {
+  _buildSongListTile(int index, ProjectData sharedData) {
+    Song song = _songData[index];
+    if (song == null) {
       return null;
     }
-    return _songData
-        .map((Song song) => ListTile(
-            title: Text(song.title),
-            subtitle:
-                Text(song.artist, style: TextStyle(color: Colors.black54)),
-            trailing: new Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  child: new Text(formatTime(song.duration)),
-                ),
-                Container(
-                    child: PopupMenuButton<ButtonState>(
-                  onSelected: (ButtonState result) {
-                    switch (result) {
-                      case ButtonState.DELETE:
-                        _deleteSong(song);
-                        break;
-                      case ButtonState.SHARE:
-                        _shareSong(song);
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<ButtonState>>[
-                    const PopupMenuItem<ButtonState>(
-                      value: ButtonState.SHARE,
-                      child: Text('Share'),
-                    ),
-                    const PopupMenuItem<ButtonState>(
-                      value: ButtonState.DELETE,
-                      child: Text('Delete'),
-                    ),
-                  ],
-                ))
-              ],
-            ),
-            leading: IconButton(
-                onPressed: () async {
-                  int stopped = -1;
-                  if (data.audioPlayer.state == AudioPlayerState.PLAYING) {
-                    if (data.currentSong.song_id == song.song_id) {
-                      await data.playerPause();
-                    } else {
-                      await data.playerStop();
-                    }
-                    stopped = data.currentSong.song_id;
-                    if (mounted) {
-                      data.setPlayedSong(null);
-                    }
-                  }
-                  if ((data.audioPlayer.state == AudioPlayerState.PAUSED ||
-                          data.audioPlayer.state == AudioPlayerState.STOPPED) &&
-                      data.currentSong != null &&
-                      song.song_id == data.currentSong.song_id) {
-                    data.playerResume();
-                  } else if (data.audioPlayer.state !=
-                          AudioPlayerState.PLAYING &&
-                      stopped != song.song_id) {
-                    await data.playerPlay(song.path, isLocal: true);
-                    if (mounted) {
-                      data.setPlayedSong(song);
-                    }
-                  }
-                },
-                icon: Icon(
-                  data.audioPlayer.state == AudioPlayerState.PLAYING &&
-                          data.currentSong != null &&
-                          data.currentSong.song_id == song.song_id
-                      ? Icons.pause
-                      : Icons.play_arrow,
-                  size: 35,
-                  color: Color.fromRGBO(100, 100, 100, 1),
-                ))))
-        .toList();
+    return new Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      child: new Container(
+          child: ListTile(
+        contentPadding: EdgeInsets.only(left: 30, right: 20),
+        title: Text(song.title,
+            style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+        subtitle: Text(song.artist,
+            style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+        onTap: () async {
+          if (sharedData.audioPlayer.state == AudioPlayerState.PLAYING) {
+            if (sharedData.currentSong.song_id == song.song_id) {
+              await sharedData.playerPause();
+            } else {
+              await sharedData.playerStop();
+            }
+          }
+          if (sharedData.audioPlayer.state != AudioPlayerState.PLAYING) {
+            sharedData.playerPlay(song.path);
+            sharedData.setPlayedSong(song);
+          }
+        },
+        trailing: Text(formatDuration(song.duration),
+            style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+      )),
+      actions: <Widget>[
+        new IconSlideAction(
+          caption: 'Share',
+          color: Colors.indigo,
+          icon: Icons.share,
+          onTap: () => _shareSong(song),
+        ),
+      ],
+      secondaryActions: <Widget>[
+        new IconSlideAction(
+          caption: 'Delete',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () => _deleteSong(song),
+        ),
+      ],
+    );
   }
 }

@@ -11,7 +11,6 @@ enum ButtonState { SHARE, DELETE }
 
 class PlaylistPage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  List<Song> _songData = [];
 
   PlaylistPage() {
     _checkDirectory();
