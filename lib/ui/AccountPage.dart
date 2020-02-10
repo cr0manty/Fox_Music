@@ -5,15 +5,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/ProjectData.dart';
 
-import 'package:vk_parse/api/requestMusicList.dart';
+import 'package:vk_parse/models/AccountData.dart';
+import 'package:vk_parse/models/MusicData.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/ui/FriendList.dart';
+import 'package:vk_parse/ui/FriendListPage.dart';
+import 'package:vk_parse/ui/VKMusicListPage.dart';
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/widgets/MusicListRequest.dart';
 
-class Account extends StatelessWidget {
+class AccountPage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameFilter = new TextEditingController();
@@ -32,7 +32,7 @@ class Account extends StatelessWidget {
   File _image;
   bool _updating = false;
 
-  Account() {
+  AccountPage() {
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
     _emailFilter.addListener(_emailListen);
@@ -89,7 +89,7 @@ class Account extends StatelessWidget {
     }
   }
 
-  _setFilter(ProjectData data) {
+  _setFilter(AccountData data) {
     _usernameFilter.text = data.user.username;
     _emailFilter.text = data.user.email;
     _firstNameFilter.text = data.user.first_name;
@@ -98,7 +98,8 @@ class Account extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _data = Provider.of<ProjectData>(context);
+    final _data = Provider.of<AccountData>(context);
+    final musicData = Provider.of<MusicData>(context);
     if (_data.accountType == AccountType.SELF_EDIT) {
       _setFilter(_data);
     }
@@ -144,11 +145,11 @@ class Account extends StatelessWidget {
                       })
                 ]
               : null),
-      body: _switchBuilders(_data),
+      body: _switchBuilders(_data, musicData),
     );
   }
 
-  _buildSelfShow(ProjectData _data) {
+  _buildSelfShow(AccountData _data, MusicData musicData) {
     return Container(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -198,12 +199,12 @@ class Account extends StatelessWidget {
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.white))),
-        _buildTabList(_data),
+        _buildTabList(_data, musicData),
       ],
     ));
   }
 
-  _buildTabList(ProjectData _data) {
+  _buildTabList(AccountData _data, MusicData musicData) {
     return Expanded(
         child: Padding(
             padding: EdgeInsets.all(10),
@@ -211,44 +212,12 @@ class Account extends StatelessWidget {
               children: [
                 Card(
                     child: ListTile(
-                  leading: Icon(Icons.music_note, color: Colors.white),
+                  leading: Icon(Icons.search, color: Colors.white),
                   title: Text(
-                    'VK Music',
+                    'Search',
                     style: TextStyle(color: Colors.white),
                   ),
-                  onTap: () {
-                    Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<ProjectData>.value(
-                                    value: _data, child: MusicListRequest())));
-                  },
                 )),
-                Card(
-                    child: ListTile(
-                        leading: Icon(Icons.update, color: Colors.white),
-                        title: Text(
-                          'Update music',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onTap: () async {
-                          try {
-                            final listNewSong = await requestMusicListPost();
-                            if (listNewSong != null) {
-                              infoDialog(
-                                  _scaffoldKey.currentContext,
-                                  "New songs",
-                                  "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
-                            } else {
-                              infoDialog(
-                                  _scaffoldKey.currentContext,
-                                  "Something went wrong",
-                                  "Unable to get Music List.");
-                            }
-                          } catch (e) {
-                            print(e);
-                          } finally {}
-                        })),
                 Card(
                     child: ListTile(
                   leading: Icon(Icons.people, color: Colors.white),
@@ -256,19 +225,12 @@ class Account extends StatelessWidget {
                     Navigator.of(_scaffoldKey.currentContext).push(
                         MaterialPageRoute(
                             builder: (context) =>
-                                ChangeNotifierProvider<ProjectData>.value(
-                                    value: _data, child: FriendList())));
+                                ChangeNotifierProvider<MusicData>.value(
+                                    value: musicData,
+                                    child: FriendListPage())));
                   },
                   title: Text(
                     'Friends',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                )),
-                Card(
-                    child: ListTile(
-                  leading: Icon(Icons.search, color: Colors.white),
-                  title: Text(
-                    'Search',
                     style: TextStyle(color: Colors.white),
                   ),
                 )),
@@ -333,7 +295,7 @@ class Account extends StatelessWidget {
     ];
   }
 
-  _buildSelfEdit(ProjectData _data) {
+  _buildSelfEdit(AccountData _data) {
     return Container(
         child: SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
@@ -402,12 +364,12 @@ class Account extends StatelessWidget {
             )));
   }
 
-  _switchBuilders(ProjectData _data) {
+  _switchBuilders(AccountData _data, MusicData musicData) {
     switch (_data.accountType) {
       case AccountType.SELF_EDIT:
         return _buildSelfEdit(_data);
       default:
-        return _buildSelfShow(_data);
+        return _buildSelfShow(_data, musicData);
     }
   }
 }

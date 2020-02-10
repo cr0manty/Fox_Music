@@ -12,7 +12,7 @@ infoDialog(BuildContext context, String title, String message) {
                     isDefaultAction: true,
                     child: Text("OK"),
                     onPressed: () {
-                      Navigator.pop(context, 'Discard');
+                      Navigator.pop(context);
                     })
               ]));
 }

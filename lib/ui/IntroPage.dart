@@ -3,34 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/models/AccountData.dart';
 
-import 'package:vk_parse/models/ProjectData.dart';
+import 'package:vk_parse/models/MusicData.dart';
 import 'package:vk_parse/ui/MainPage.dart';
 
-class Intro extends StatefulWidget {
+class IntroPage extends StatefulWidget {
   @override
-  _IntroState createState() => new _IntroState();
+  _IntroPageState createState() => new _IntroPageState();
 }
 
-class _IntroState extends State<Intro> {
+class _IntroPageState extends State<IntroPage> {
   final int splashDuration = 1;
 
   startTime() async {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      final _sharedData = new ProjectData();
-      await _sharedData.init(Theme.of(context).platform);
+      final musicData = new MusicData();
+      final userData = new AccountData();
+      await musicData.init(Theme.of(context).platform);
+      await userData.init();
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
-      Navigator
-          .of(context)
-          .pushAndRemoveUntil(
+      Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (BuildContext context) =>
-              ChangeNotifierProvider<ProjectData>.value(
-                  value: _sharedData, child: MainPage())),
-                  (Route<dynamic> route) => false);
-      });
+              builder: (BuildContext context) => MultiProvider(providers: [
+                    ChangeNotifierProvider<MusicData>.value(value: musicData),
+                    ChangeNotifierProvider<AccountData>.value(value: userData),
+                  ], child: MainPage())),
+          (Route<dynamic> route) => false);
+    });
   }
 
   @override

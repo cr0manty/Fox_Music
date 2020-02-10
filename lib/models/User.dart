@@ -52,9 +52,9 @@ class User {
       first_name: json['first_name'],
       last_name: json['last_name'],
       date_joined: json['date_joined'],
-      vk_auth: json['vk_auth'] != null ? json['vk_auth'] : false,
-      is_staff: json['is_staff'] != null ? json['is_staff'] : false,
-      can_use_vk: json['can_use_vk'] != null ? json['can_use_vk'] : false);
+      vk_auth: json['vk_auth'] ?? false,
+      is_staff: json['is_staff'] ?? false,
+      can_use_vk: json['can_use_vk'] ?? false);
 
   Map<String, dynamic> toJson() => {
         'username': username,

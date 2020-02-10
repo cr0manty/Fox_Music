@@ -6,25 +6,16 @@ import 'package:flutter/foundation.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:vk_parse/functions/format/fromatSongName.dart';
-import 'package:connectivity/connectivity.dart';
-import 'package:vk_parse/api/requestAuthCheck.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/save/logout.dart';
 
 import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/api/requestProfile.dart';
 
-enum AccountType { SELF_SHOW, SELF_EDIT }
 
-class ProjectData with ChangeNotifier {
+class MusicData with ChangeNotifier {
   AudioPlayer audioPlayer;
   Song currentSong;
-  User user;
   bool repeat = false;
-  File newImage;
   bool offlineMode = false;
-  AccountType accountType;
   List<Song> forPlaySong = [];
   List<Song> playlist = [];
   List<Song> localSongs = [];
@@ -39,8 +30,7 @@ class ProjectData with ChangeNotifier {
   StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
 
-  ProjectData() {
-    accountType = AccountType.SELF_SHOW;
+  MusicData() {
     playerState = AudioPlayerState.STOPPED;
   }
 
@@ -49,14 +39,6 @@ class ProjectData with ChangeNotifier {
     await initPlayer();
     await _setPlaylist();
     await loadSavedMusic();
-
-    if (!await requestAuthCheck()) {
-      await makeLogout();
-    } else {
-      user = await requestProfileGet();
-    }
-    final connection = await Connectivity().checkConnectivity();
-    offlineMode = connection == ConnectivityResult.none;
   }
 
   initPlayer() {
@@ -141,25 +123,6 @@ class ProjectData with ChangeNotifier {
   playlistAddClick() {
     notifyListeners();
   }
-
-  changeAccountState() {
-    accountType = accountType == AccountType.SELF_SHOW
-        ? AccountType.SELF_EDIT
-        : AccountType.SELF_SHOW;
-    notifyListeners();
-  }
-
-  updateUserData(data) async {
-    if (await requestProfilePost(body: data)) {
-      User newUser = await requestProfileGet();
-      if (newUser != null) {
-        user = newUser;
-      }
-      changeAccountState();
-      notifyListeners();
-    }
-  }
-
   playerPlay(Song song) async {
     audioPlayer.play(song.path);
     currentSong = song;
@@ -182,21 +145,6 @@ class ProjectData with ChangeNotifier {
   playerPause() async {
     audioPlayer.pause();
     playerState = AudioPlayerState.PAUSED;
-    notifyListeners();
-  }
-
-  setUser(newUser) {
-    user = newUser;
-    notifyListeners();
-  }
-
-  makeLogout() {
-    logout();
-    setUser(null);
-  }
-
-  setNewImage(image) {
-    newImage = image;
     notifyListeners();
   }
 

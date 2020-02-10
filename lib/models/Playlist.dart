@@ -18,14 +18,12 @@ class Playlist {
   String image;
   String songList;
 
-  Playlist(
-      {this.id,
-      this.image,
-      this.title,
-      this.songList});
+  Playlist({this.id, this.image, this.title, this.songList}) {
+    songList ??= '';
+  }
 
   factory Playlist.fromJson(Map<String, dynamic> json) => new Playlist(
-      title: json['name'],
+      title: json['title'],
       id: json['id'],
       image: json['image'],
       songList: json['songList']);
@@ -37,7 +35,36 @@ class Playlist {
         'songList': songList,
       };
 
+  List<String> _splitSongList() {
+    return songList.split(',');
+  }
+
   getImage() {
     return base64.decode(image);
+  }
+
+  bool inList(int id) {
+    List<String> data = _splitSongList();
+    return data.indexOf(id.toString()) != -1;
+  }
+
+  notInList(int id) {
+    return !inList(id);
+  }
+
+  addSong(int id) {
+    if (notInList(id)) {
+      songList += '$id,';
+    }
+  }
+
+  deleteSong(int id) {
+    if (inList(id)) {
+      _splitSongList().forEach((data) {
+        if (data != id.toString()) {
+          songList += data;
+        }
+      });
+    }
   }
 }

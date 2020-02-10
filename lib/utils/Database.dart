@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -8,7 +9,7 @@ import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/models/Playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music2.db';
+  static const dbName = 'vk_music4.db';
 
   DBProvider._();
 
@@ -40,7 +41,7 @@ class DBProvider {
           "id INTEGER PRIMARY KEY,"
           "title INTEGER,"
           "image BLOB,"
-          "song_list TEXT"
+          "songList TEXT"
           ")");
     });
   }
@@ -53,6 +54,7 @@ class DBProvider {
 
   newPlaylist(Playlist playlist) async {
     final db = await database;
+    playlist.id = new Random().nextInt(20000000);
     var res = await db.insert("Playlist", playlist.toJson());
     return res;
   }

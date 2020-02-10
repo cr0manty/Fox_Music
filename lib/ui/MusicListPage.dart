@@ -2,38 +2,50 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vk_parse/models/Playlist.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/ProjectData.dart';
+import 'package:vk_parse/models/MusicData.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/functions/utils/askDialog.dart';
 
 enum ButtonState { SHARE, DELETE }
+enum PageType { MAIN, PLAYLIST }
 
-class MusicList extends StatefulWidget {
+class MusicListPage extends StatefulWidget {
   final List<Song> _musicList;
-  String title;
+  PageType _pageType;
+  Playlist playlist;
 
-  MusicList(this._musicList, {this.title});
+  MusicListPage(this._musicList, {this.playlist}) {
+    _pageType = playlist != null ? PageType.PLAYLIST : PageType.MAIN;
+  }
 
   @override
-  State<StatefulWidget> createState() => MusicListState();
+  State<StatefulWidget> createState() => MusicListPageState();
 }
 
-class MusicListState extends State<MusicList> {
+class MusicListPageState extends State<MusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  _addTrackToPlaylistDialog() {}
 
   @override
   Widget build(BuildContext context) {
-    final sharedData = Provider.of<ProjectData>(context);
+    final sharedData = Provider.of<MusicData>(context);
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-            title: Text(widget.title != null ? widget.title : 'Media'),
+            title: Text(widget._pageType == PageType.PLAYLIST
+                ? widget.playlist.title
+                : 'Media'),
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.add), onPressed: _addTrackToPlaylistDialog)
+            ],
             centerTitle: true),
         body: ListView.builder(
           itemCount: widget._musicList.length,
@@ -45,23 +57,42 @@ class MusicListState extends State<MusicList> {
   }
 
   _deleteSong(Song song) {
-    askDialog(_scaffoldKey.currentContext, 'Delete',
-        'Are you sure you want to delete this file?', 'Delete', 'Cancel', () {
-      try {
-        if (mounted) {
-          File(song.path).deleteSync();
-          setState(() {
-            widget._musicList.remove(song);
-          });
-          infoDialog(_scaffoldKey.currentContext, 'File deleted',
-              'Song ${song.artist} - ${song.title} successfully deleted');
-        }
-      } catch (e) {
-        print(e);
-        infoDialog(_scaffoldKey.currentContext, 'File deleted error',
-            'Something went wrong while deleting the file');
-      }
-    });
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => new CupertinoAlertDialog(
+                title: Text('Delete file'),
+                content: Text('Are you sure you want to delete this file?'),
+                actions: [
+                  CupertinoDialogAction(
+                      isDefaultAction: true,
+                      child: Text("Cancel"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      }),
+                  CupertinoDialogAction(
+                      isDefaultAction: true,
+                      isDestructiveAction: true,
+                      child: Text("Delete"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        try {
+                          File(song.path).deleteSync();
+                          setState(() {
+                            widget._musicList.remove(song);
+                          });
+                          infoDialog(
+                              _scaffoldKey.currentContext,
+                              'File deleted',
+                              'Song ${song.artist} - ${song.title} successfully deleted');
+                        } catch (e) {
+                          print(e);
+                          infoDialog(
+                              _scaffoldKey.currentContext,
+                              'File deleted error',
+                              'Something went wrong while deleting the file');
+                        }
+                      })
+                ]));
   }
 
   _renameSong(String artist, String title) {}
@@ -125,7 +156,7 @@ class MusicListState extends State<MusicList> {
         bytesOfFile: bytes.readAsBytesSync());
   }
 
-  _buildSongListTile(int index, ProjectData sharedData) {
+  _buildSongListTile(int index, MusicData sharedData) {
     Song song = widget._musicList[index];
     if (song == null) {
       return null;
@@ -153,7 +184,7 @@ class MusicListState extends State<MusicList> {
             }
             if (sharedData.playerState != AudioPlayerState.PLAYING &&
                 !stopped) {
-              sharedData.playerPlay(song);
+              await sharedData.playerPlay(song);
             }
           },
           trailing: Text(formatDuration(song.duration),

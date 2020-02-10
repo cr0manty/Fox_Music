@@ -1,15 +1,14 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:vk_parse/models/Playlist.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/ProjectData.dart';
-import 'package:vk_parse/ui/MusicList.dart';
+import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/ui/MusicListPage.dart';
+import 'package:vk_parse/utils/Database.dart';
 
 class PlaylistPage extends StatefulWidget {
-  List<Playlist> _playlistList = [Playlist(title: 'Test playlist')];
+  List<Playlist> _playlistList = [];
 
   @override
   State<StatefulWidget> createState() => PlaylistPageState();
@@ -18,10 +17,22 @@ class PlaylistPage extends StatefulWidget {
 class PlaylistPageState extends State<PlaylistPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  _createPlaylist(String playlistName) {
+  _createPlaylist(String playlistName) async {
+    Playlist playlist = new Playlist(title: playlistName);
+    await DBProvider.db.newPlaylist(playlist);
     setState(() {
-      widget._playlistList.add(Playlist(title: playlistName));
+      widget._playlistList.add(playlist);
     });
+  }
+
+  _loadPlaylist() async {
+    List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
+
+    if (mounted) {
+      setState(() {
+        widget._playlistList = playlistList;
+      });
+    }
   }
 
   _createPlaylistShowDialog() async {
@@ -64,17 +75,11 @@ class PlaylistPageState extends State<PlaylistPage> {
     );
   }
 
-  _checkDirectory() async {
-    final String directory = (await getApplicationDocumentsDirectory()).path;
-    final documentDir = new Directory("$directory/playylists/");
-    if (!documentDir.existsSync()) {
-      documentDir.createSync();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final sharedData = Provider.of<ProjectData>(context);
+    final sharedData = Provider.of<MusicData>(context);
+    _loadPlaylist();
+
     return new Scaffold(
         key: _scaffoldKey,
         appBar:
@@ -87,11 +92,12 @@ class PlaylistPageState extends State<PlaylistPage> {
           itemCount: widget._playlistList.length,
           physics: ScrollPhysics(),
           shrinkWrap: true,
-          itemBuilder: (context, index) => _buildPlaylistList(sharedData, index),
+          itemBuilder: (context, index) =>
+              _buildPlaylistList(sharedData, index),
         ));
   }
 
-  _buildPlaylistList(ProjectData data, int index) {
+  _buildPlaylistList(MusicData data, int index) {
     Playlist playlist = widget._playlistList[index];
 
     return Column(children: [
@@ -101,16 +107,21 @@ class PlaylistPageState extends State<PlaylistPage> {
         child: Container(
             child: ListTile(
                 title: Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 20),
+                    padding: EdgeInsets.only(top: 20, bottom: 20, left: 7),
                     child: Text(playlist.title,
                         style: TextStyle(
+                            fontSize: 18,
                             color: Color.fromRGBO(200, 200, 200, 1)))),
                 onTap: () {
                   Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<ProjectData>.value(
-                                    value: data, child: MusicList([], title: playlist.title,))));
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ChangeNotifierProvider<MusicData>.value(
+                                  value: data,
+                                  child: MusicListPage(
+                                    [],
+                                    playlist: playlist,
+                                  ))));
                 },
                 leading: playlist.image != null
                     ? CircleAvatar(
@@ -132,13 +143,21 @@ class PlaylistPageState extends State<PlaylistPage> {
             icon: Icons.play_arrow,
             onTap: null,
           ),
+          new IconSlideAction(
+            caption: 'Set image',
+            color: Colors.pinkAccent,
+            icon: Icons.image,
+            onTap: null,
+          ),
         ],
         secondaryActions: <Widget>[
           new IconSlideAction(
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: null,
+            onTap: () {
+              DBProvider.db.deletePlaylist(playlist.id);
+            },
           ),
         ],
       ),

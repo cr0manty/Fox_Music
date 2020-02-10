@@ -46,6 +46,6 @@ class Song {
         'download': download,
         'song_id': song_id,
         'image': image,
-        'path': path != null ? path : "",
+        'path': path ?? "",
       };
 }

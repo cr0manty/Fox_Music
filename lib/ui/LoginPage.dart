@@ -2,19 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/ProjectData.dart';
+import 'package:vk_parse/models/AccountData.dart';
+import 'package:vk_parse/models/MusicData.dart';
 import 'package:vk_parse/api/requestLogin.dart';
 import 'package:vk_parse/api/requestRegistration.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
-class Login extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new LoginState();
+  State<StatefulWidget> createState() => new LoginPageState();
 }
 
 enum FormType { login, register }
 
-class LoginState extends State<Login> {
+class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _firstNameFilter = new TextEditingController();
@@ -30,7 +31,7 @@ class LoginState extends State<Login> {
   FormType _form = FormType.login;
   bool _disabled = false;
 
-  LoginState() {
+  LoginPageState() {
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
     _emailFilter.addListener(_emailListen);
@@ -100,7 +101,7 @@ class LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final _data = Provider.of<ProjectData>(context);
+    final _data = Provider.of<AccountData>(context);
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
@@ -241,7 +242,7 @@ class LoginState extends State<Login> {
     ]);
   }
 
-  _loginPressed(ProjectData data) async {
+  _loginPressed(AccountData data) async {
     _setButtonStatus();
     final user = await requestLogin(_username, _password);
     if (user != null) {

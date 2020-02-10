@@ -37,7 +37,7 @@ requestMusicListPost() async {
       var songsData =
           (json.decode(response.body) as Map) as Map<String, dynamic>;
       songsData.remove('songs');
-      return songsData != null ? songsData : {'added': 0, 'updated': 0};
+      return songsData ?? {'added': 0, 'updated': 0};
     }
   } catch (e) {
     print(e);

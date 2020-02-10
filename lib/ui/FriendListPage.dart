@@ -6,14 +6,14 @@ import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/api/requestFriendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
-class FriendList extends StatefulWidget {
+class FriendListPage extends StatefulWidget {
   List<User> _friendList = [];
 
   @override
-  State<StatefulWidget> createState() => new FriendListState();
+  State<StatefulWidget> createState() => new FriendListPageState();
 }
 
-class FriendListState extends State<FriendList> {
+class FriendListPageState extends State<FriendListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();

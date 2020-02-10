@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/ui/Login.dart';
-import 'package:vk_parse/ui/Player.dart';
+import 'package:vk_parse/models/AccountData.dart';
+import 'package:vk_parse/ui/LoginPage.dart';
+import 'package:vk_parse/ui/PlayerPage.dart';
 import 'package:vk_parse/ui/PlaylistPage.dart';
 
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/ProjectData.dart';
+import 'package:vk_parse/models/MusicData.dart';
 
-import 'package:vk_parse/ui/MusicList.dart';
-import 'package:vk_parse/ui/Account.dart';
+import 'package:vk_parse/ui/MusicListPage.dart';
+import 'package:vk_parse/ui/AccountPage.dart';
+import 'package:vk_parse/ui/VKMusicListPage.dart';
 
 class MainPage extends StatelessWidget {
-  _buildView(ProjectData data, child) {
-    return ChangeNotifierProvider<ProjectData>.value(value: data, child: child);
+  _buildView(MusicData data, child) {
+    return ChangeNotifierProvider<MusicData>.value(value: data, child: child);
   }
 
   @override
   Widget build(BuildContext context) {
-    final _sharedData = Provider.of<ProjectData>(context);
+    final _sharedData = Provider.of<MusicData>(context);
+    final _accountData = Provider.of<AccountData>(context);
 
     return DefaultTabController(
         length: 5,
@@ -25,34 +27,33 @@ class MainPage extends StatelessWidget {
           body: TabBarView(
             children: [
               _buildView(_sharedData, PlaylistPage()),
-              _buildView(_sharedData, MusicList(_sharedData.localSongs)),
-              _buildView(_sharedData, Player()),
+              _buildView(_sharedData, MusicListPage(_sharedData.localSongs)),
+              _buildView(_sharedData, PlayerPage()),
+              _buildView(_sharedData, VKMusicListPage()),
               _buildView(
-                  _sharedData, _sharedData.user != null ? Account() : Login()),
-              Container(
-                color: Color.fromRGBO(35, 35, 35, 1),
-              ),
+                  _sharedData,
+                  _accountData.user != null ? AccountPage() : LoginPage())
             ],
           ),
           bottomNavigationBar: Container(
               child: new TabBar(
                   tabs: [
-                Tab(
-                  icon: new Icon(Icons.playlist_play, size: 35),
-                ),
-                Tab(
-                  icon: new Icon(Icons.folder, size: 35),
-                ),
-                Tab(
-                  icon: new Icon(Icons.play_circle_outline, size: 45),
-                ),
-                Tab(
-                  icon: new Icon(Icons.perm_identity, size: 35),
-                ),
-                Tab(
-                  icon: new Icon(Icons.settings, size: 35),
-                )
-              ],
+                    Tab(
+                      icon: new Icon(Icons.playlist_play, size: 35),
+                    ),
+                    Tab(
+                      icon: new Icon(Icons.folder, size: 35),
+                    ),
+                    Tab(
+                      icon: new Icon(Icons.play_circle_outline, size: 45),
+                    ),
+                    Tab(
+                      icon: new Icon(Icons.music_note, size: 35),
+                    ),
+                    Tab(
+                      icon: new Icon(Icons.perm_identity, size: 35),
+                    )
+                  ],
                   labelColor: Colors.redAccent,
                   unselectedLabelColor: Colors.grey,
                   indicatorWeight: 0.1)),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/ProjectData.dart';
+import 'package:vk_parse/models/MusicData.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/api/requestMusicList.dart';
@@ -9,25 +9,49 @@ import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 
-class MusicListRequest extends StatefulWidget {
+class VKMusicListPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new MusicListRequestState();
+  State<StatefulWidget> createState() => new VKMusicListPageState();
 }
 
-class MusicListRequestState extends State<MusicListRequest> {
+class VKMusicListPageState extends State<VKMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
-  new GlobalKey<RefreshIndicatorState>();
+      new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
   Song playedSong;
   bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
-    final sharedData = Provider.of<ProjectData>(context);
+    final sharedData = Provider.of<MusicData>(context);
     return new Scaffold(
         key: _scaffoldKey,
-        appBar: new AppBar(title: Text('Music'), centerTitle: true),
+        appBar: new AppBar(
+          title: Text('Music'),
+          centerTitle: true,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () async {
+                try {
+                  final listNewSong = await requestMusicListPost();
+                  if (listNewSong != null) {
+                    infoDialog(_scaffoldKey.currentContext, "New songs",
+                        "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                  } else {
+                    infoDialog(_scaffoldKey.currentContext,
+                        "Something went wrong", "Unable to get Music List.");
+                  }
+                } catch (e) {
+                  print(e);
+                } finally {
+                  _loadSongs();
+                }
+              },
+            )
+          ],
+        ),
         body: new RefreshIndicator(
             key: _refreshKey,
             onRefresh: () async => await _loadSongs(),
@@ -65,7 +89,7 @@ class MusicListRequestState extends State<MusicListRequest> {
     _setUpdatingStatus();
   }
 
-  _buildSongListTile(int index, ProjectData sharedData) {
+  _buildSongListTile(int index, MusicData sharedData) {
     Song song = _data[index];
     if (song == null) {
       return null;
@@ -76,17 +100,17 @@ class MusicListRequestState extends State<MusicListRequest> {
         actionExtentRatio: 0.25,
         child: new Container(
             child: ListTile(
-              contentPadding: EdgeInsets.only(left: 30, right: 20),
-              title: Text(song.title,
-                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-              subtitle: Text(song.artist,
-                  style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-              onTap: () {
-                downloadSong(song, context: context);
-              },
-              trailing: Text(formatDuration(song.duration),
-                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-            )),
+          contentPadding: EdgeInsets.only(left: 30, right: 20),
+          title: Text(song.title,
+              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+          subtitle: Text(song.artist,
+              style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+          onTap: () {
+            downloadSong(song, context: context);
+          },
+          trailing: Text(formatDuration(song.duration),
+              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+        )),
         secondaryActions: <Widget>[
           new IconSlideAction(
             caption: 'Delete',
