@@ -1,21 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void infoDialog(BuildContext context, String title, String message) {
+infoDialog(BuildContext context, String title, String message) {
   showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: new Text(title),
-        content: new Text(message),
-        actions: <Widget>[
-          new FlatButton(
-            child: new Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
+      context: context,
+      builder: (BuildContext context) => new CupertinoAlertDialog(
+              title: Text(title),
+              content: Text(message),
+              actions: [
+                CupertinoDialogAction(
+                    isDefaultAction: true,
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.pop(context, 'Discard');
+                    })
+              ]));
 }

@@ -9,6 +9,7 @@ import 'package:vk_parse/models/ProjectData.dart';
 
 import 'package:vk_parse/api/requestMusicList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/ui/FriendList.dart';
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/widgets/MusicListRequest.dart';
 
@@ -19,7 +20,7 @@ class Account extends StatelessWidget {
   final TextEditingController _lastNameFilter = new TextEditingController();
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _passwordConfirmFilter =
-  new TextEditingController();
+      new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   String _firstName = "";
@@ -111,37 +112,37 @@ class Account extends StatelessWidget {
           centerTitle: true,
           actions: _data.accountType == AccountType.SELF_EDIT
               ? [
-            IconButton(
-              icon: Icon(Icons.done),
-              onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                if (_formKey.currentState.validate()) {
-                  if (_password.isNotEmpty) {
-                    if (_password != _passwordConfirm) {
-                      infoDialog(
-                          context, 'Oops...', 'Passwords do not match');
-                    }
-                  }
-                  var data = {
-                    'image': _image,
-                    'first_name': _firstName,
-                    'last_name': _lastName,
-                    'email': _email,
-                    'password': _password,
-                    'username': _username
-                  };
-                  _data.updateUserData(data);
-                }
-              },
-            ),
-            IconButton(
-                icon: Icon(Icons.clear),
-                onPressed: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  _data.setNewImage(null);
-                  _data.changeAccountState();
-                })
-          ]
+                  IconButton(
+                    icon: Icon(Icons.done),
+                    onPressed: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      if (_formKey.currentState.validate()) {
+                        if (_password.isNotEmpty) {
+                          if (_password != _passwordConfirm) {
+                            infoDialog(
+                                context, 'Oops...', 'Passwords do not match');
+                          }
+                        }
+                        var data = {
+                          'image': _image,
+                          'first_name': _firstName,
+                          'last_name': _lastName,
+                          'email': _email,
+                          'password': _password,
+                          'username': _username
+                        };
+                        _data.updateUserData(data);
+                      }
+                    },
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        _data.setNewImage(null);
+                        _data.changeAccountState();
+                      })
+                ]
               : null),
       body: _switchBuilders(_data),
     );
@@ -150,128 +151,137 @@ class Account extends StatelessWidget {
   _buildSelfShow(ProjectData _data) {
     return Container(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-                padding: EdgeInsets.only(bottom: 15, top: 15),
-                child: GestureDetector(
-                  onTap: () {
-                    showCupertinoModalPopup(
-                        context: _scaffoldKey.currentContext,
-                        builder: (context) {
-                          return CupertinoActionSheet(
-                            actions: <Widget>[
-                              CupertinoActionSheetAction(
-                                  onPressed: () {
-                                    _data.changeAccountState();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text('Edit')),
-                              CupertinoActionSheetAction(
-                                  onPressed: () async {
-                                    await _data.makeLogout();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    'Logout',
-                                    style: TextStyle(color: Colors.red),
-                                  ))
-                            ],
-                          );
-                        });
-                  },
-                  child: ClipOval(
-                      child: CircleAvatar(
-                          radius: 70,
-                          backgroundColor: Colors.grey,
-                          backgroundImage:
-                          Image
-                              .network(BASE_URL + _data.user.image)
-                              .image)),
-                )),
-            Padding(
-                padding: EdgeInsets.only(bottom: 15),
-                child: new Text(
-                    _data.user.last_name.isEmpty &&
-                        _data.user.first_name.isEmpty
-                        ? ''
-                        : '${_data.user.first_name} ${_data.user.last_name}',
-                    style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white))),
-            _buildTabList(_data),
-          ],
-        ));
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+            padding: EdgeInsets.only(bottom: 15, top: 15),
+            child: GestureDetector(
+              onTap: () {
+                showCupertinoModalPopup(
+                    context: _scaffoldKey.currentContext,
+                    builder: (context) {
+                      return CupertinoActionSheet(
+                        actions: <Widget>[
+                          CupertinoActionSheetAction(
+                              onPressed: () {
+                                _data.changeAccountState();
+                                Navigator.pop(context);
+                              },
+                              child: Text('Edit')),
+                          CupertinoActionSheetAction(
+                              onPressed: () async {
+                                await _data.makeLogout();
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                'Logout',
+                                style: TextStyle(color: Colors.red),
+                              ))
+                        ],
+                      );
+                    });
+              },
+              child: ClipOval(
+                  child: CircleAvatar(
+                      radius: 70,
+                      backgroundColor: Colors.grey,
+                      backgroundImage:
+                          Image.network(BASE_URL + _data.user.image).image)),
+            )),
+        Padding(
+            padding: EdgeInsets.only(bottom: 25),
+            child: new Text(
+                _data.user.last_name.isEmpty && _data.user.first_name.isEmpty
+                    ? ''
+                    : '${_data.user.first_name} ${_data.user.last_name}',
+                style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white))),
+        _buildTabList(_data),
+      ],
+    ));
   }
 
   _buildTabList(ProjectData _data) {
-    return new Expanded(
-        child: ListView(
-          children: [
-            Divider(color: Colors.black87),
-            ListTile(
-              leading: Icon(Icons.music_note, color: Colors.white),
-              title: Text(
-                'VK Music',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.of(_scaffoldKey.currentContext).push(
-                    MaterialPageRoute(builder: (context) =>
-                    ChangeNotifierProvider<ProjectData>.value(
-                        value: _data, child: MusicListRequest())));
-              },
-            ),
-            Divider(color: Colors.black87),
-            ListTile(
-                leading: Icon(Icons.update, color: Colors.white),
-                title: Text(
-                  'Update music',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  try {
-                    final listNewSong = await requestMusicListPost();
-                    if (listNewSong != null) {
-                      infoDialog(_scaffoldKey.currentContext, "New songs",
-                          "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
-                    } else {
-                      infoDialog(
-                          _scaffoldKey.currentContext, "Something went wrong",
-                          "Unable to get Music List.");
-                    }
-                  } catch (e) {
-                    print(e);
-                  } finally {}
-                }),
-            Divider(color: Colors.black87),
-            ListTile(
-              leading: Icon(Icons.people, color: Colors.white),
-              title: Text(
-                'Friends',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            Divider(color: Colors.black87),
-            ListTile(
-              leading: Icon(Icons.search, color: Colors.white),
-              title: Text(
-                'Search',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            Divider(color: Colors.black87),
-            ListTile(
-              leading: Icon(Icons.file_download, color: Colors.white),
-              title: Text(
-                'Download all',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            Divider(color: Colors.black87),
-          ],
-        ));
+    return Expanded(
+        child: Padding(
+            padding: EdgeInsets.all(10),
+            child: ListView(
+              children: [
+                Card(
+                    child: ListTile(
+                  leading: Icon(Icons.music_note, color: Colors.white),
+                  title: Text(
+                    'VK Music',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    Navigator.of(_scaffoldKey.currentContext).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChangeNotifierProvider<ProjectData>.value(
+                                    value: _data, child: MusicListRequest())));
+                  },
+                )),
+                Card(
+                    child: ListTile(
+                        leading: Icon(Icons.update, color: Colors.white),
+                        title: Text(
+                          'Update music',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onTap: () async {
+                          try {
+                            final listNewSong = await requestMusicListPost();
+                            if (listNewSong != null) {
+                              infoDialog(
+                                  _scaffoldKey.currentContext,
+                                  "New songs",
+                                  "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                            } else {
+                              infoDialog(
+                                  _scaffoldKey.currentContext,
+                                  "Something went wrong",
+                                  "Unable to get Music List.");
+                            }
+                          } catch (e) {
+                            print(e);
+                          } finally {}
+                        })),
+                Card(
+                    child: ListTile(
+                  leading: Icon(Icons.people, color: Colors.white),
+                  onTap: () {
+                    Navigator.of(_scaffoldKey.currentContext).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChangeNotifierProvider<ProjectData>.value(
+                                    value: _data, child: FriendList())));
+                  },
+                  title: Text(
+                    'Friends',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )),
+                Card(
+                    child: ListTile(
+                  leading: Icon(Icons.search, color: Colors.white),
+                  title: Text(
+                    'Search',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )),
+                Card(
+                    child: ListTile(
+                  leading: Icon(Icons.file_download, color: Colors.white),
+                  title: Text(
+                    'Download all',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ))
+              ],
+            )));
   }
 
   _changeAreaForm() {
@@ -368,12 +378,9 @@ class Account extends StatelessWidget {
                               radius: 100,
                               backgroundColor: Colors.grey,
                               backgroundImage: _data.newImage != null
-                                  ? Image
-                                  .file(_data.newImage)
-                                  .image
-                                  : Image
-                                  .network(BASE_URL + _data.user.image)
-                                  .image)),
+                                  ? Image.file(_data.newImage).image
+                                  : Image.network(BASE_URL + _data.user.image)
+                                      .image)),
                     )),
                 Divider(height: 10),
                 Text(

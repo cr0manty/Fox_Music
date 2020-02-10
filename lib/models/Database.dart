@@ -34,12 +34,12 @@ class DBProvider {
           "duration INTEGER,"
           "download TEXT,"
           "path TEXT,"
-          "image TEXT"
+          "image BLOB"
           ")");
       await db.execute("CREATE TABLE Playlist ("
           "id INTEGER PRIMARY KEY,"
           "title INTEGER,"
-          "image text,"
+          "image BLOB,"
           "song_list TEXT"
           ")");
     });

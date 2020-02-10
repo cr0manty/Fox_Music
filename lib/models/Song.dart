@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 Song songFromJson(String str) {
-  if (str != null) {
+  if (str != null && str.isNotEmpty) {
     final data = json.decode(str);
     return Song.fromJson(data);
   }

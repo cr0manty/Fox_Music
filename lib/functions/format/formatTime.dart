@@ -14,6 +14,6 @@ String timeFormat(Duration time) {
 
 int durToInt(Duration time) {
   if (time != null)
-    return time.inSeconds + time.inMinutes;
+    return time.inSeconds;
   return 0;
 }

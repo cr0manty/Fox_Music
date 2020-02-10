@@ -1,17 +1,39 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/models/ProjectData.dart';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vk_parse/widgets/BottomPicker.dart';
 
 class Player extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new PlayerState();
 }
 
+
+
 class PlayerState extends State<Player> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  List<Widget> list = [
+    Text('asd'), Text('ads')
+  ];
+  int selectItem = 1;
+
+  _addToPlaylistShowDialog() async {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext builder) {
+          return BottomPicker(
+              child: CupertinoPicker(
+              children: list,
+              itemExtent: 25,
+              onSelectedItemChanged: (int index) {
+                selectItem = index;
+              }));
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +101,9 @@ class PlayerState extends State<Player> {
                                     onChangeEnd: (double value) {
                                       _data.seek(duration: value);
                                     },
-                                    value: _data.songPosition != null
+                                    value: _data.songPosition != null &&
+                                            sliderValue > 0.0 &&
+                                            sliderValue < 1.0
                                         ? sliderValue
                                         : 0,
                                   ),
@@ -92,7 +116,9 @@ class PlayerState extends State<Player> {
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Text(
-                                      _data.songPosition != null
+                                      _data.songPosition != null &&
+                                              sliderValue > 0.0 &&
+                                              sliderValue < 1.0
                                           ? timeFormat(_data.songPosition)
                                           : '0:00',
                                       style: TextStyle(
@@ -108,7 +134,6 @@ class PlayerState extends State<Player> {
                               ),
                             ),
                             Container(
-                                margin: const EdgeInsets.all(10),
                                 height: screenHeight * 0.1,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -117,6 +142,7 @@ class PlayerState extends State<Player> {
                                       _data.currentSong != null
                                           ? _data.currentSong.title
                                           : '',
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontSize: screenHeight * 0.03,
                                           color:
@@ -126,6 +152,7 @@ class PlayerState extends State<Player> {
                                       _data.currentSong != null
                                           ? _data.currentSong.artist
                                           : '',
+                                      textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontSize: screenHeight * 0.025,
                                           color:
@@ -134,9 +161,11 @@ class PlayerState extends State<Player> {
                                   ],
                                 )),
                             Padding(
-                                padding: EdgeInsets.only(bottom: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     IconButton(
                                         onPressed: _data.currentSong != null
@@ -149,32 +178,28 @@ class PlayerState extends State<Player> {
                                               }
                                             : null,
                                         icon: Icon(
-                                          Icons.fast_rewind,
+                                          Icons.skip_previous,
                                           color: Colors.grey,
                                           size: screenHeight * 0.07,
                                         )),
-                                    Padding(
-                                      padding:
-                                          EdgeInsets.only(left: 25, right: 25),
-                                      child: IconButton(
-                                        onPressed: _data.currentSong != null
-                                            ? () async {
-                                                if (_data.playerState ==
-                                                    AudioPlayerState.PLAYING) {
-                                                  await _data.playerPause();
-                                                } else {
-                                                  _data.playerResume();
-                                                }
+                                    IconButton(
+                                      onPressed: _data.currentSong != null
+                                          ? () async {
+                                              if (_data.playerState ==
+                                                  AudioPlayerState.PLAYING) {
+                                                await _data.playerPause();
+                                              } else {
+                                                _data.playerResume();
                                               }
-                                            : null,
-                                        icon: Icon(
-                                          _data.playerState ==
-                                                  AudioPlayerState.PLAYING
-                                              ? Icons.pause
-                                              : Icons.play_arrow,
-                                          color: Colors.grey,
-                                          size: screenHeight * 0.07,
-                                        ),
+                                            }
+                                          : null,
+                                      icon: Icon(
+                                        _data.playerState ==
+                                                AudioPlayerState.PLAYING
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.grey,
+                                        size: screenHeight * 0.07,
                                       ),
                                     ),
                                     IconButton(
@@ -184,45 +209,44 @@ class PlayerState extends State<Player> {
                                               }
                                             : null,
                                         icon: Icon(
-                                          Icons.fast_forward,
+                                          Icons.skip_next,
                                           color: Colors.grey,
                                           size: screenHeight * 0.07,
                                         )),
                                   ],
                                 )),
-                            new Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    IconButton(
-                                      padding: EdgeInsets.only(top: 20),
-                                      onPressed: _data.repeatClick,
-                                      icon: Icon(Icons.repeat,
-                                          size: screenHeight * 0.03,
-                                          color: _data.repeat
-                                              ? Colors.redAccent
-                                              : Colors.grey),
-                                    ),
-                                    IconButton(
-                                      padding: EdgeInsets.only(top: 20),
-                                      onPressed: _data.playlistAddClick,
-                                      icon: Icon(Icons.playlist_add,
-                                          size: screenHeight * 0.03,
-                                          color: Colors.grey),
-                                    ),
-                                    IconButton(
-                                      padding:
-                                          EdgeInsets.only(top: 20, right: 15),
-                                      onPressed: _data.mixClick,
-                                      icon: Icon(Icons.shuffle,
-                                          size: screenHeight * 0.03,
-                                          color: _data.mix
-                                              ? Colors.redAccent
-                                              : Colors.grey),
-                                    )
-                                  ],
-                                ))
+                            Expanded(
+                                child: Align(
+                                    alignment: FractionalOffset.bottomCenter,
+                                    child: Padding(
+                                        padding: EdgeInsets.only(bottom: 10),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            IconButton(
+                                              onPressed: _data.repeatClick,
+                                              icon: Icon(Icons.repeat,
+                                                  size: screenHeight * 0.03,
+                                                  color: _data.repeat
+                                                      ? Colors.redAccent
+                                                      : Colors.grey),
+                                            ),
+                                            IconButton(
+                                              onPressed:
+                                                  _addToPlaylistShowDialog,
+                                              icon: Icon(Icons.playlist_add,
+                                                  size: screenHeight * 0.03,
+                                                  color: Colors.grey),
+                                            ),
+                                            IconButton(
+                                              onPressed: _data.mixClick,
+                                              icon: Icon(Icons.shuffle,
+                                                  size: screenHeight * 0.03,
+                                                  color: Colors.grey),
+                                            )
+                                          ],
+                                        ))))
                           ]),
                         ))
                   ],

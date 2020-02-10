@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:path_provider/path_provider.dart';
+import 'package:vk_parse/functions/format/fromatSongName.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:vk_parse/api/requestAuthCheck.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
@@ -20,12 +22,12 @@ class ProjectData with ChangeNotifier {
   Song currentSong;
   User user;
   bool repeat = false;
-  bool mix = false;
   File newImage;
   bool offlineMode = false;
   AccountType accountType;
-  List<Song> forPlaySong;
-  List<Song> localSongs;
+  List<Song> forPlaySong = [];
+  List<Song> playlist = [];
+  List<Song> localSongs = [];
 
   Duration songPosition;
   Duration songDuration;
@@ -44,7 +46,10 @@ class ProjectData with ChangeNotifier {
 
   init(thisPlatform) async {
     platform = thisPlatform;
-    initPlayer();
+    await initPlayer();
+    await _setPlaylist();
+    await loadSavedMusic();
+
     if (!await requestAuthCheck()) {
       await makeLogout();
     } else {
@@ -91,20 +96,45 @@ class ProjectData with ChangeNotifier {
           title: currentSong.title,
           artist: currentSong.artist,
           imageUrl: '',
-          forwardSkipInterval: const Duration(seconds: 15),
-          backwardSkipInterval: const Duration(seconds: 15),
+          forwardSkipInterval: const Duration(seconds: 5),
+          backwardSkipInterval: const Duration(seconds: 5),
           duration: songDuration,
           elapsedTime: Duration(seconds: 0));
     }
   }
 
+  loadSavedMusic() async {
+    final String directory = (await getApplicationDocumentsDirectory()).path;
+    final documentDir = new Directory("$directory/songs/");
+    if (!documentDir.existsSync()) {
+      documentDir.createSync();
+    }
+
+    final fileList = Directory("$directory/songs/").listSync();
+    fileList.forEach((songPath) {
+      final song = formatSong(songPath.path);
+      if (song != null) localSongs.add(song);
+    });
+  }
+
+  _setPlaylist() {
+    if (forPlaySong == null) {
+      forPlaySong = (playlist != null ? playlist : localSongs);
+    }
+  }
+
   mixClick() {
-    mix = !mix;
+    forPlaySong..shuffle();
     notifyListeners();
   }
 
-  repeatClick() {
+  repeatClick() async {
     repeat = !repeat;
+    if (repeat) {
+      await audioPlayer.setReleaseMode(ReleaseMode.LOOP);
+    } else {
+      await audioPlayer.setReleaseMode(ReleaseMode.STOP);
+    }
     notifyListeners();
   }
 
@@ -179,9 +209,11 @@ class ProjectData with ChangeNotifier {
   }
 
   seek({duration}) {
-    if (currentSong != null && duration < 1) {
-      int value =
-          (duration != null ? durToInt(songDuration) * duration : 0).toInt();
+    if (currentSong != null) {
+      int value = (duration != null && duration < 1
+              ? durToInt(songDuration) * duration
+              : 0)
+          .toInt();
       audioPlayer.seek(Duration(seconds: value));
       notifyListeners();
     }

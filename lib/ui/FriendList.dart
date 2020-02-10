@@ -1,45 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/api/requestProfile.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/widgets/AppBarDrawer.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/api/requestFriendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class FriendList extends StatefulWidget {
-  final AudioPlayer _audioPlayer;
-  final User _user;
-
-  FriendList(this._audioPlayer, this._user);
+  List<User> _friendList = [];
 
   @override
-  State<StatefulWidget> createState() =>
-      new FriendListState(_audioPlayer, _user);
+  State<StatefulWidget> createState() => new FriendListState();
 }
 
 class FriendListState extends State<FriendList> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
-  List<User> _data = [];
-  final AudioPlayer _audioPlayer;
-  final User _user;
-
-  FriendListState(this._audioPlayer, this._user);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: AppBarDrawer(_audioPlayer, _user),
-      appBar: makeAppBar('Friends', _scaffoldKey),
+      appBar: new AppBar(title: Text('Friends'), centerTitle: true),
       body: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () async => await _loadFriends(),
-          child: ListView(
-            children: _buildList(),
+          child: ListView.builder(
+            itemCount: widget._friendList.length,
+            itemBuilder: (context, index) => _buildUserCard(index),
           )),
     );
   }
@@ -54,7 +43,7 @@ class FriendListState extends State<FriendList> {
     final friendList = await requestFriendList();
     if (friendList != null) {
       setState(() {
-        _data = friendList;
+        widget._friendList = friendList;
       });
     } else {
       infoDialog(
@@ -62,33 +51,36 @@ class FriendListState extends State<FriendList> {
     }
   }
 
-  List<Widget> _buildList() {
-    if (_data == null) {
-      return null;
-    }
-    return _data
-        .map((User user) => new ListTile(
-            title:
-                new Text(user.last_name.isEmpty ? 'Unknown' : user.last_name),
-            subtitle: new Text(
-                user.first_name.isEmpty ? 'Unknown' : user.first_name,
-                style: new TextStyle(color: Colors.black54)),
-            onTap: () async {
-              final friend = await requestProfileGet(friendId: user.id);
-              await Navigator.of(context).pop();
-//              await Navigator.of(context).push(MaterialPageRoute(
-//                  builder: (BuildContext context) =>
-//                      switchRoutes(_audioPlayer, route: 2, user: user, friend: friend)));
-            },
-            trailing: new IconButton(
-                onPressed: () {},
-                icon: new Icon(Icons.more_vert,
-                    size: 35, color: Color.fromRGBO(100, 100, 100, 1))),
-            leading: new CircleAvatar(
-                radius: 25,
-                backgroundColor: Colors.grey,
-                backgroundImage:
-                    new Image.network(BASE_URL + user.image).image)))
-        .toList();
+  _buildUserCard(int index) {
+    User user = widget._friendList[index];
+
+    return Column(children: [
+      Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 0.25,
+        child: Container(
+            child: ListTile(
+                title: Text(user.last_name.isEmpty ? 'Unknown' : user.last_name,
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+                subtitle: Text(
+                    user.first_name.isEmpty ? 'Unknown' : user.first_name,
+                    style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+                onTap: null,
+                leading: CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.grey,
+                    backgroundImage:
+                        Image.network(BASE_URL + user.image).image))),
+        secondaryActions: <Widget>[
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: null,
+          ),
+        ],
+      ),
+      Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+    ]);
   }
 }

@@ -36,4 +36,8 @@ class Playlist {
         'image': image,
         'songList': songList,
       };
+
+  getImage() {
+    return base64.decode(image);
+  }
 }

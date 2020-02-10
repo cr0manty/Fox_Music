@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
@@ -214,8 +215,10 @@ class LoginState extends State<Login> {
   Widget _buildButtons(data) {
     return Column(children: <Widget>[
       Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: RaisedButton(
+        padding: const EdgeInsets.only(top: 30, bottom: 5),
+        child: CupertinoButton(
+          borderRadius: BorderRadius.all(Radius.circular(50)),
+          minSize:  MediaQuery.of(context).size.height * 0.001,
           color: Colors.redAccent,
           onPressed: () {
             if (_formKey.currentState.validate()) {
@@ -232,7 +235,7 @@ class LoginState extends State<Login> {
       FlatButton(
         child: Text(_form == FormType.login
             ? 'Dont have an account? Tap here to register.'
-            : 'Have an account? Click here to login.'),
+            : 'Have an account? Click here to login.', style: TextStyle(color: Colors.grey),),
         onPressed: _disabled ? null : () => _formChange(),
       ),
     ]);

@@ -1,32 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/ui/Login.dart';
 import 'package:vk_parse/ui/Player.dart';
-import 'package:vk_parse/ui/Playlists.dart';
+import 'package:vk_parse/ui/PlaylistPage.dart';
 
 import 'package:provider/provider.dart';
 import 'package:vk_parse/models/ProjectData.dart';
 
-import 'package:vk_parse/widgets/MusicListSaved.dart';
+import 'package:vk_parse/ui/MusicList.dart';
 import 'package:vk_parse/ui/Account.dart';
 
 class MainPage extends StatelessWidget {
   _buildView(ProjectData data, child) {
-    return ChangeNotifierProvider<ProjectData>.value(
-        value: data, child: child);
+    return ChangeNotifierProvider<ProjectData>.value(value: data, child: child);
   }
 
   @override
   Widget build(BuildContext context) {
     final _sharedData = Provider.of<ProjectData>(context);
+
     return DefaultTabController(
         length: 5,
         child: new Scaffold(
           body: TabBarView(
             children: [
               _buildView(_sharedData, PlaylistPage()),
-              _buildView(_sharedData, MusicListSaved()),
+              _buildView(_sharedData, MusicList(_sharedData.localSongs)),
               _buildView(_sharedData, Player()),
-              _buildView(_sharedData, _sharedData.user != null ? Account() : Login()),
+              _buildView(
+                  _sharedData, _sharedData.user != null ? Account() : Login()),
               Container(
                 color: Color.fromRGBO(35, 35, 35, 1),
               ),
