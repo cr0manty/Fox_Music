@@ -42,10 +42,13 @@ class MusicListPageState extends State<MusicListPage> {
             title: Text(widget._pageType == PageType.PLAYLIST
                 ? widget.playlist.title
                 : 'Media'),
-            actions: [
-              IconButton(
-                  icon: Icon(Icons.add), onPressed: _addTrackToPlaylistDialog)
-            ],
+            actions: widget._pageType == PageType.PLAYLIST
+                ? [
+                    IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: _addTrackToPlaylistDialog)
+                  ]
+                : null,
             centerTitle: true),
         body: ListView.builder(
           itemCount: widget._musicList.length,
@@ -175,9 +178,9 @@ class MusicListPageState extends State<MusicListPage> {
           onTap: () async {
             bool stopped = false;
             if (sharedData.playerState == AudioPlayerState.PLAYING) {
-              stopped = true;
               if (sharedData.currentSong.song_id == song.song_id) {
                 await sharedData.playerPause();
+                stopped = true;
               } else {
                 await sharedData.playerStop();
               }

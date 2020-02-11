@@ -8,31 +8,34 @@ import 'package:vk_parse/ui/MusicListPage.dart';
 import 'package:vk_parse/utils/Database.dart';
 
 class PlaylistPage extends StatefulWidget {
-  List<Playlist> _playlistList = [];
-
   @override
   State<StatefulWidget> createState() => PlaylistPageState();
 }
 
 class PlaylistPageState extends State<PlaylistPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  List<Playlist> _playlistList = [];
 
   _createPlaylist(String playlistName) async {
     Playlist playlist = new Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
-      widget._playlistList.add(playlist);
+      _playlistList.add(playlist);
     });
   }
 
   _loadPlaylist() async {
     List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
 
-    if (mounted) {
-      setState(() {
-        widget._playlistList = playlistList;
-      });
-    }
+    setState(() {
+      _playlistList = playlistList;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPlaylist();
   }
 
   _createPlaylistShowDialog() async {
@@ -78,8 +81,6 @@ class PlaylistPageState extends State<PlaylistPage> {
   @override
   Widget build(BuildContext context) {
     final sharedData = Provider.of<MusicData>(context);
-    _loadPlaylist();
-
     return new Scaffold(
         key: _scaffoldKey,
         appBar:
@@ -89,7 +90,7 @@ class PlaylistPageState extends State<PlaylistPage> {
               onPressed: _createPlaylistShowDialog)
         ]),
         body: ListView.builder(
-          itemCount: widget._playlistList.length,
+          itemCount: _playlistList.length,
           physics: ScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (context, index) =>
@@ -98,7 +99,7 @@ class PlaylistPageState extends State<PlaylistPage> {
   }
 
   _buildPlaylistList(MusicData data, int index) {
-    Playlist playlist = widget._playlistList[index];
+    Playlist playlist = _playlistList[index];
 
     return Column(children: [
       Slidable(

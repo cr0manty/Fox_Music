@@ -10,7 +10,6 @@ import 'package:vk_parse/functions/format/formatTime.dart';
 
 import 'package:vk_parse/models/Song.dart';
 
-
 class MusicData with ChangeNotifier {
   AudioPlayer audioPlayer;
   Song currentSong;
@@ -123,8 +122,10 @@ class MusicData with ChangeNotifier {
   playlistAddClick() {
     notifyListeners();
   }
+
   playerPlay(Song song) async {
     audioPlayer.play(song.path);
+    playerState = AudioPlayerState.PLAYING;
     currentSong = song;
     setCCData();
     notifyListeners();
