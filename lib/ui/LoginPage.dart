@@ -20,12 +20,10 @@ class LoginPageState extends State<LoginPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _firstNameFilter = new TextEditingController();
   final TextEditingController _lastNameFilter = new TextEditingController();
-  final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   String _firstName = "";
   String _lastName = "";
-  String _email = "";
   String _username = "";
   String _password = "";
   FormType _form = FormType.login;
@@ -34,7 +32,6 @@ class LoginPageState extends State<LoginPage> {
   LoginPageState() {
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
-    _emailFilter.addListener(_emailListen);
     _usernameFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
   }
@@ -71,18 +68,9 @@ class LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _emailListen() {
-    if (_emailFilter.text.isEmpty) {
-      _email = "";
-    } else {
-      _email = _emailFilter.text;
-    }
-  }
-
   _clearFiller() {
     _usernameFilter.text = "";
     _passwordFilter.text = "";
-    _emailFilter.text = "";
     _firstNameFilter.text = "";
     _lastNameFilter.text = "";
   }
@@ -122,16 +110,16 @@ class LoginPageState extends State<LoginPage> {
             inAsyncCall: _disabled));
   }
 
-  _loginAreaForm() {
-    return [
+  List<Widget> _loginAreaForm() {
+    return <Widget>[
       TextFormField(
         controller: _usernameFilter,
         decoration: InputDecoration(
-          labelText: 'Username',
+          labelText: _form == FormType.login ? 'Login' : 'VK Login',
         ),
         validator: (value) {
           if (value.isEmpty) {
-            return "Username can't be empty";
+            return "Login can't be empty";
           }
           return null;
         },
@@ -139,7 +127,7 @@ class LoginPageState extends State<LoginPage> {
       TextFormField(
         controller: _passwordFilter,
         decoration: InputDecoration(
-          labelText: 'Password',
+          labelText: _form == FormType.login ? 'Password' : 'VK Password',
         ),
         obscureText: true,
         validator: (value) {
@@ -154,8 +142,8 @@ class LoginPageState extends State<LoginPage> {
     ];
   }
 
-  _registrationAreaForm() {
-    return [
+  List<Widget> _registrationAreaForm() {
+    return <Widget>[
           TextFormField(
             controller: _firstNameFilter,
             decoration: InputDecoration(
@@ -180,18 +168,6 @@ class LoginPageState extends State<LoginPage> {
               return null;
             },
           ),
-          TextFormField(
-            controller: _emailFilter,
-            decoration: InputDecoration(
-              labelText: 'Email',
-            ),
-            validator: (value) {
-              if (value.isEmpty) {
-                return "Email can't be empty";
-              }
-              return null;
-            },
-          ),
         ] +
         _loginAreaForm();
   }
@@ -203,7 +179,17 @@ class LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _form == FormType.login
               ? _loginAreaForm()
-              : _registrationAreaForm()),
+              : _registrationAreaForm() +
+                  <Widget>[
+                    Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: Center(
+                          child: Text(
+                              'Login and Password must match your VK account',
+                              style:
+                                  TextStyle(color: Colors.red, fontSize: 12)),
+                        ))
+                  ]),
     );
   }
 
@@ -218,8 +204,6 @@ class LoginPageState extends State<LoginPage> {
       Padding(
         padding: const EdgeInsets.only(top: 30, bottom: 5),
         child: CupertinoButton(
-          borderRadius: BorderRadius.all(Radius.circular(50)),
-          minSize:  MediaQuery.of(context).size.height * 0.001,
           color: Colors.redAccent,
           onPressed: () {
             if (_formKey.currentState.validate()) {
@@ -234,9 +218,12 @@ class LoginPageState extends State<LoginPage> {
         ),
       ),
       FlatButton(
-        child: Text(_form == FormType.login
-            ? 'Dont have an account? Tap here to register.'
-            : 'Have an account? Click here to login.', style: TextStyle(color: Colors.grey),),
+        child: Text(
+          _form == FormType.login
+              ? "Don't have an account? Tap here to register."
+              : 'Have an account? Click here to login.',
+          style: TextStyle(color: Colors.grey),
+        ),
         onPressed: _disabled ? null : () => _formChange(),
       ),
     ]);
@@ -254,10 +241,10 @@ class LoginPageState extends State<LoginPage> {
     _setButtonStatus();
   }
 
- _createAccountPressed() async {
+  _createAccountPressed() async {
     _setButtonStatus();
-    final reg = await registrationPost(
-        _username, _password, _email, _firstName, _lastName);
+    final reg =
+        await registrationPost(_username, _password, _firstName, _lastName);
     if (reg != null) {
       infoDialog(context, "You have successfully registered!",
           "Now you need to log in.");

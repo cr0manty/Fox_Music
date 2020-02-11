@@ -278,7 +278,7 @@ class AccountPage extends StatelessWidget {
       TextFormField(
         controller: _usernameFilter,
         decoration: InputDecoration(
-          labelText: 'Username',
+          labelText: 'Login',
         ),
       ),
       TextFormField(
