@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/models/AccountData.dart';
 import 'package:vk_parse/models/MusicData.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/ui/FriendListPage.dart';
-import 'package:vk_parse/ui/SearchPage.dart';
+import 'package:vk_parse/ui/Account/FriendListPage.dart';
+import 'package:vk_parse/ui/Music/SearchPage.dart';
 import 'package:vk_parse/utils/urls.dart';
 
 class AccountPage extends StatelessWidget {

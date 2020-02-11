@@ -18,6 +18,7 @@ class SearchPage extends StatefulWidget {
 
 class SearchPageState extends State<SearchPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final TextEditingController _searchInput = new TextEditingController();
   SearchType _searchType = SearchType.MUSIC;
   List<User> _userList = [];
   List<Song> _songList = [];
@@ -42,6 +43,7 @@ class SearchPageState extends State<SearchPage> {
                   FocusScope.of(context).requestFocus(FocusNode());
                   setState(() {
                     _searchType = result;
+                    _searchInput.text = '';
                   });
                 },
                 itemBuilder: (BuildContext context) =>
@@ -67,6 +69,7 @@ class SearchPageState extends State<SearchPage> {
                   child: Container(
                       padding: EdgeInsets.all(10),
                       child: TextField(
+                          controller: _searchInput,
                           onChanged: (value) async {
                             if (_searchType == SearchType.MUSIC) {
                               List<Song> songList = await musicSearchGet(value);
@@ -157,8 +160,7 @@ class SearchPageState extends State<SearchPage> {
                 leading: CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.grey,
-                    backgroundImage:
-                        Image.network(user.image).image))),
+                    backgroundImage: Image.network(user.image).image))),
         actions: <Widget>[
           new IconSlideAction(
             caption: 'Add to friend',

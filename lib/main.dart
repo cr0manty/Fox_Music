@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vk_parse/ui/IntroPage.dart';
+import 'package:vk_parse/ui/Account/IntroPage.dart';
 
 void main() => runApp(MyApp());
 

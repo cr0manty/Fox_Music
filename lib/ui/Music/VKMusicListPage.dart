@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/models/AccountData.dart';
 import 'package:vk_parse/models/MusicData.dart';
 
 import 'package:vk_parse/models/Song.dart';
@@ -23,7 +24,9 @@ class VKMusicListPageState extends State<VKMusicListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final sharedData = Provider.of<MusicData>(context);
+    MusicData musicData = Provider.of<MusicData>(context);
+    AccountData accountData = Provider.of<AccountData>(context);
+
     return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(

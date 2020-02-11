@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:vk_parse/models/AccountData.dart';
-import 'package:vk_parse/ui/LoginPage.dart';
-import 'package:vk_parse/ui/PlayerPage.dart';
-import 'package:vk_parse/ui/PlaylistPage.dart';
+import 'package:vk_parse/ui/Account/LoginPage.dart';
+import 'package:vk_parse/ui/Music/PlayerPage.dart';
+import 'package:vk_parse/ui/Music/PlaylistPage.dart';
 
 import 'package:provider/provider.dart';
 import 'package:vk_parse/models/MusicData.dart';
 
-import 'package:vk_parse/ui/MusicListPage.dart';
-import 'package:vk_parse/ui/AccountPage.dart';
-import 'package:vk_parse/ui/VKMusicListPage.dart';
+import 'package:vk_parse/ui/Music/MusicListPage.dart';
+import 'package:vk_parse/ui/Account/AccountPage.dart';
+import 'package:vk_parse/ui/Music/VKMusicListPage.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -31,8 +31,6 @@ class MainPageState extends State<MainPage> {
     ], child: child);
   }
 
-  MainPageState() {}
-
   _switchPages(MusicData musicData, AccountData accountData, int index) {
     switch (index) {
       case 0:
@@ -48,8 +46,7 @@ class MainPageState extends State<MainPage> {
             value: musicData, child: PlayerPage());
         break;
       case 3:
-        return ChangeNotifierProvider<MusicData>.value(
-            value: musicData, child: VKMusicListPage());
+        return _buildView(musicData, accountData, VKMusicListPage());
         break;
       case 4:
         return _buildView(musicData, accountData,
@@ -63,11 +60,9 @@ class MainPageState extends State<MainPage> {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
 
-    if (_currentPage == null) {
-      setState(() {
-        _currentPage = _switchPages(musicData, accountData, currentIndex);
-      });
-    }
+    setState(() {
+      _currentPage = _switchPages(musicData, accountData, currentIndex);
+    });
 
     return Scaffold(
         body: _currentPage,

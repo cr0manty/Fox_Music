@@ -4,7 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:vk_parse/models/Playlist.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/models/MusicData.dart';
-import 'package:vk_parse/ui/MusicListPage.dart';
+import 'package:vk_parse/ui/Music/MusicListPage.dart';
 import 'package:vk_parse/utils/Database.dart';
 
 class PlaylistPage extends StatefulWidget {
