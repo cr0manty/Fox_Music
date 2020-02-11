@@ -11,53 +11,92 @@ import 'package:vk_parse/ui/MusicListPage.dart';
 import 'package:vk_parse/ui/AccountPage.dart';
 import 'package:vk_parse/ui/VKMusicListPage.dart';
 
-class MainPage extends StatelessWidget {
-  _buildView(MusicData data, child) {
-    return ChangeNotifierProvider<MusicData>.value(value: data, child: child);
+class MainPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new MainPageState();
+}
+
+class MainPageState extends State<MainPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  Widget _currentPage;
+  MusicData musicData;
+  AccountData accountData;
+  int currentIndex = 0;
+
+  _buildView(MusicData musicData, AccountData accountData, Widget child) {
+    return MultiProvider(providers: [
+      ChangeNotifierProvider<MusicData>.value(value: musicData),
+      ChangeNotifierProvider<AccountData>.value(value: accountData),
+    ], child: child);
+  }
+
+  MainPageState() {}
+
+  _switchPages(MusicData musicData, AccountData accountData, int index) {
+    switch (index) {
+      case 0:
+        return ChangeNotifierProvider<MusicData>.value(
+            value: musicData, child: PlaylistPage());
+        break;
+      case 1:
+        return ChangeNotifierProvider<MusicData>.value(
+            value: musicData, child: MusicListPage(musicData.localSongs));
+        break;
+      case 2:
+        return ChangeNotifierProvider<MusicData>.value(
+            value: musicData, child: PlayerPage());
+        break;
+      case 3:
+        return ChangeNotifierProvider<MusicData>.value(
+            value: musicData, child: VKMusicListPage());
+        break;
+      case 4:
+        return _buildView(musicData, accountData,
+            accountData.user != null ? AccountPage() : LoginPage());
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final _sharedData = Provider.of<MusicData>(context);
-    final _accountData = Provider.of<AccountData>(context);
+    MusicData musicData = Provider.of<MusicData>(context);
+    AccountData accountData = Provider.of<AccountData>(context);
 
-    return DefaultTabController(
-        length: 5,
-        child: new Scaffold(
-          body: TabBarView(
-            children: [
-              _buildView(_sharedData, PlaylistPage()),
-              _buildView(_sharedData, MusicListPage(_sharedData.localSongs)),
-              _buildView(_sharedData, PlayerPage()),
-              _buildView(_sharedData, VKMusicListPage()),
-              _buildView(
-                  _sharedData,
-                  _accountData.user != null ? AccountPage() : LoginPage())
-            ],
-          ),
-          bottomNavigationBar: Container(
-              child: new TabBar(
-                  tabs: [
-                    Tab(
-                      icon: new Icon(Icons.playlist_play, size: 35),
-                    ),
-                    Tab(
-                      icon: new Icon(Icons.folder, size: 35),
-                    ),
-                    Tab(
-                      icon: new Icon(Icons.play_circle_outline, size: 45),
-                    ),
-                    Tab(
-                      icon: new Icon(Icons.music_note, size: 35),
-                    ),
-                    Tab(
-                      icon: new Icon(Icons.perm_identity, size: 35),
-                    )
-                  ],
-                  labelColor: Colors.redAccent,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorWeight: 0.1)),
-          backgroundColor: Color.fromRGBO(25, 25, 25, 0.8),
+    if (_currentPage == null) {
+      setState(() {
+        _currentPage = _switchPages(musicData, accountData, currentIndex);
+      });
+    }
+
+    return Scaffold(
+        body: _currentPage,
+        key: _scaffoldKey,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: currentIndex,
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+              _currentPage = _switchPages(musicData, accountData, currentIndex);
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+                icon: new Icon(Icons.playlist_play, size: 40),
+                title: Text('Playlist')),
+            BottomNavigationBarItem(
+                icon: new Icon(Icons.folder, size: 40), title: Text('Media')),
+            BottomNavigationBarItem(
+                icon: new Icon(Icons.play_circle_outline, size: 50),
+                title: Text('Player')),
+            BottomNavigationBarItem(
+                icon: new Icon(Icons.music_note, size: 40),
+                title: Text('Music')),
+            BottomNavigationBarItem(
+                icon: new Icon(Icons.perm_identity, size: 40),
+                title: Text('Account'))
+          ],
+          selectedIconTheme: IconThemeData(color: Colors.redAccent),
         ));
   }
 }

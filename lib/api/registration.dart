@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:vk_parse/utils/urls.dart';
 
-requestRegistration(String username, String password, String email,
+registrationPost(String username, String password, String email,
     String firstName, String lastName) async {
   Map<String, dynamic> body = {
     'username': username,

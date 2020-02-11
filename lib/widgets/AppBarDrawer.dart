@@ -4,7 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:vk_parse/models/Song.dart';
 
 import 'package:vk_parse/functions/save/logout.dart';
-import 'package:vk_parse/api/requestMusicList.dart';
+import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/utils/downloadAll.dart';
 import 'package:vk_parse/models/User.dart';
@@ -259,7 +259,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
           : () async {
               try {
                 _setUpdating();
-                final listNewSong = await requestMusicListPost();
+                final listNewSong = await musicListPost();
                 if (listNewSong != null) {
                   infoDialog(_scaffoldKey.currentContext, "New songs",
                       "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");

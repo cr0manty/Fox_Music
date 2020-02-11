@@ -68,7 +68,7 @@ class PlayerPageState extends State<PlayerPage> {
   @override
   Widget build(BuildContext context) {
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
-    double screenHeight = MediaQuery.of(context).size.height - 46.1;
+    double screenHeight = MediaQuery.of(context).size.height - 80;
     MusicData _data = Provider.of<MusicData>(context);
     double sliderValue =
         durToInt(_data.songPosition) / durToInt(_data.songDuration);
@@ -108,7 +108,7 @@ class PlayerPageState extends State<PlayerPage> {
                         child: Container(
                           height: screenHeight - pictureHeight,
                           decoration: BoxDecoration(
-                              color: Color.fromRGBO(35, 35, 35, 0.9)),
+                              color: Color.fromRGBO(50, 50, 50, 0.9)),
                           child: Column(children: <Widget>[
                             Padding(
                                 padding: EdgeInsets.only(top: 5),

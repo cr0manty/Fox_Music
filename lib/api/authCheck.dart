@@ -6,7 +6,7 @@ import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/functions/format/headersToken.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 
-requestAuthCheck() async {
+authCheckGet() async {
   try {
     final token = await getToken();
     final response = await http.get(AUTH_CHECK, headers: formatToken(token)).timeout(Duration(seconds: 30));

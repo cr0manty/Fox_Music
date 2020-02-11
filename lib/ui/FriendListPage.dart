@@ -3,7 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:vk_parse/utils/urls.dart';
 import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/api/requestFriendList.dart';
+import 'package:vk_parse/api/friendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class FriendListPage extends StatefulWidget {
@@ -22,7 +22,7 @@ class FriendListPageState extends State<FriendListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(title: Text('Friends'), centerTitle: true),
+      appBar: AppBar(title: Text('Friends'), centerTitle: true),
       body: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () async => await _loadFriends(),
@@ -40,7 +40,7 @@ class FriendListPageState extends State<FriendListPage> {
   }
 
   _loadFriends() async {
-    final friendList = await requestFriendList();
+    final friendList = await friendListGet();
     if (friendList != null) {
       setState(() {
         widget._friendList = friendList;

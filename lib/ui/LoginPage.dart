@@ -4,8 +4,8 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/models/AccountData.dart';
 import 'package:vk_parse/models/MusicData.dart';
-import 'package:vk_parse/api/requestLogin.dart';
-import 'package:vk_parse/api/requestRegistration.dart';
+import 'package:vk_parse/api/login.dart';
+import 'package:vk_parse/api/registration.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class LoginPage extends StatefulWidget {
@@ -244,7 +244,7 @@ class LoginPageState extends State<LoginPage> {
 
   _loginPressed(AccountData data) async {
     _setButtonStatus();
-    final user = await requestLogin(_username, _password);
+    final user = await loginPost(_username, _password);
     if (user != null) {
       data.setUser(user);
     } else {
@@ -256,7 +256,7 @@ class LoginPageState extends State<LoginPage> {
 
  _createAccountPressed() async {
     _setButtonStatus();
-    final reg = await requestRegistration(
+    final reg = await registrationPost(
         _username, _password, _email, _firstName, _lastName);
     if (reg != null) {
       infoDialog(context, "You have successfully registered!",

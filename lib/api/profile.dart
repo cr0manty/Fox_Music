@@ -7,7 +7,7 @@ import 'package:vk_parse/functions/format/headersToken.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 
-requestProfileGet({int friendId}) async {
+profileGet({int friendId}) async {
   try {
     final String token = await getToken();
     final String profileUrl =
@@ -32,7 +32,7 @@ requestProfileGet({int friendId}) async {
   }
 }
 
-requestProfilePost({body}) async {
+profilePost({body}) async {
   try {
     final String token = await getToken();
     final uri = Uri.parse(PROFILE_URL);

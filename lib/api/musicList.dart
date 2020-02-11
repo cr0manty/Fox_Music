@@ -6,7 +6,7 @@ import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/headersToken.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 
-requestMusicListGet() async {
+musicListGet() async {
   try {
     final token = await getToken();
     final response = await http.get(SONG_LIST_URL, headers: formatToken(token));
@@ -27,7 +27,7 @@ requestMusicListGet() async {
   }
 }
 
-requestMusicListPost() async {
+musicListPost() async {
   try {
     final token = await getToken();
     final response =

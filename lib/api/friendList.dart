@@ -6,7 +6,7 @@ import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/functions/format/headersToken.dart';
 import 'package:vk_parse/functions/get/getToken.dart';
 
-requestFriendList() async {
+friendListGet() async {
   try {
     final token = await getToken();
     final response = await http.get(FRIEND_LIST_URL, headers: formatToken(token));

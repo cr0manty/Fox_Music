@@ -10,7 +10,7 @@ import 'package:vk_parse/models/AccountData.dart';
 import 'package:vk_parse/models/MusicData.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/ui/FriendListPage.dart';
-import 'package:vk_parse/ui/VKMusicListPage.dart';
+import 'package:vk_parse/ui/SearchPage.dart';
 import 'package:vk_parse/utils/urls.dart';
 
 class AccountPage extends StatelessWidget {
@@ -100,6 +100,7 @@ class AccountPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final _data = Provider.of<AccountData>(context);
     final musicData = Provider.of<MusicData>(context);
+
     if (_data.accountType == AccountType.SELF_EDIT) {
       _setFilter(_data);
     }
@@ -213,6 +214,14 @@ class AccountPage extends StatelessWidget {
                 Card(
                     child: ListTile(
                   leading: Icon(Icons.search, color: Colors.white),
+                  onTap: () {
+                    Navigator.of(_scaffoldKey.currentContext).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChangeNotifierProvider<MusicData>.value(
+                                    value: musicData,
+                                    child: SearchPage())));
+                  },
                   title: Text(
                     'Search',
                     style: TextStyle(color: Colors.white),

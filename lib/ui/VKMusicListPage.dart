@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/models/MusicData.dart';
 
 import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/api/requestMusicList.dart';
+import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
@@ -20,7 +20,6 @@ class VKMusicListPageState extends State<VKMusicListPage> {
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
   Song playedSong;
-  bool _loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
               icon: Icon(Icons.refresh),
               onPressed: () async {
                 try {
-                  final listNewSong = await requestMusicListPost();
+                  final listNewSong = await musicListPost();
                   if (listNewSong != null) {
                     infoDialog(_scaffoldKey.currentContext, "New songs",
                         "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
@@ -57,15 +56,8 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             onRefresh: () async => await _loadSongs(),
             child: ListView.builder(
               itemCount: _data.length,
-              itemBuilder: (context, index) =>
-                  _buildSongListTile(index, sharedData),
+              itemBuilder: (context, index) => _buildSongListTile(index),
             )));
-  }
-
-  _setUpdatingStatus() {
-    setState(() {
-      _loading = !_loading;
-    });
   }
 
   @override
@@ -75,8 +67,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   }
 
   _loadSongs() async {
-    _setUpdatingStatus();
-    final listSong = await requestMusicListGet();
+    final listSong = await musicListGet();
     if (listSong != null) {
       setState(() {
         if (_data.isEmpty) {
@@ -86,10 +77,9 @@ class VKMusicListPageState extends State<VKMusicListPage> {
     } else {
       infoDialog(context, "Unable to get Music List", "Something went wrong.");
     }
-    _setUpdatingStatus();
   }
 
-  _buildSongListTile(int index, MusicData sharedData) {
+  _buildSongListTile(int index) {
     Song song = _data[index];
     if (song == null) {
       return null;
