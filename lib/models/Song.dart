@@ -30,6 +30,16 @@ class Song {
       this.path,
       this.image});
 
+   @override
+  int get hashCode => song_id.hashCode;
+
+  bool operator ==(o) => song_id == o.song_id;
+
+  @override
+  toString() {
+    return '$artist-$title';
+  }
+
   factory Song.fromJson(Map<String, dynamic> json) => new Song(
       title: json['name'],
       artist: json['artist'],

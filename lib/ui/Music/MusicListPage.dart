@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/models/Playlist.dart';
+import 'package:vk_parse/utils/testDownload.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/MusicData.dart';
@@ -10,7 +12,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 enum ButtonState { SHARE, DELETE }
 enum PageType { SAVED, PLAYLIST }
@@ -33,7 +34,6 @@ class MusicListPageState extends State<MusicListPage> {
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _musicList = [];
   bool init = true;
-  bool currentPlayPlaylist;
 
   _addTrackToPlaylistDialog() {}
 
@@ -41,8 +41,8 @@ class MusicListPageState extends State<MusicListPage> {
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
     if (init) {
-      _loadSaved(musicData);
       init = false;
+      _loadPlaylist(musicData, null);
     }
     return Scaffold(
         key: _scaffoldKey,
@@ -56,26 +56,63 @@ class MusicListPageState extends State<MusicListPage> {
                         icon: Icon(Icons.add),
                         onPressed: _addTrackToPlaylistDialog)
                   ]
-                : null,
+                : musicData.localSongs == null
+                    ? [
+                        IconButton(
+                            icon: Icon(Icons.file_download),
+                            onPressed: () => _loadTest(musicData))
+                      ]
+                    : null,
             centerTitle: true),
-        body: RefreshIndicator(
+        body: _buildBody(musicData));
+  }
+
+  _loadTest(MusicData musicData) async {
+    await testSongs.forEach((Song song) async {
+      await downloadSong(song);
+    });
+    setState(() {
+      _musicList = musicData.localSongs;
+    });
+  }
+
+  _buildBody(MusicData musicData) {
+    return _musicList.length > 0
+        ? RefreshIndicator(
             key: _refreshKey,
-            onRefresh: () => _loadSaved(musicData),
+            onRefresh: () => _loadPlaylist(musicData, null),
             child: ListView.builder(
               itemCount: _musicList.length,
               itemBuilder: (context, index) =>
                   _buildSongListTile(index, musicData),
-            )));
+            ))
+        : Center(
+            child: Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height * 0.2),
+                height: MediaQuery.of(context).size.height * 0.3,
+                child: Column(children: <Widget>[
+                  Padding(
+                      padding: EdgeInsets.only(bottom: 40),
+                      child: Text(
+                        'No saved songs',
+                        style: TextStyle(color: Colors.grey, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ))
+                ])));
   }
 
-  _loadSaved(MusicData musicData) async {
+  _loadPlaylist(MusicData musicData, Song song) async {
     if (widget._pageType == PageType.SAVED) {
       await musicData.loadSavedMusic();
       await setState(() {
         _musicList = musicData.localSongs;
       });
     } else {}
-    musicData.setPlaylistSongs(_musicList);
+    if (song != null) {
+      musicData.setPlaylistSongs(_musicList, song);
+    }
   }
 
   _deleteSong(Song song) {
@@ -102,16 +139,8 @@ class MusicListPageState extends State<MusicListPage> {
                           setState(() {
                             _musicList.remove(song);
                           });
-                          infoDialog(
-                              _scaffoldKey.currentContext,
-                              'File deleted',
-                              'Song ${song.artist} - ${song.title} successfully deleted');
                         } catch (e) {
                           print(e);
-                          infoDialog(
-                              _scaffoldKey.currentContext,
-                              'File deleted error',
-                              'Something went wrong while deleting the file');
                         }
                       })
                 ]));
@@ -195,6 +224,7 @@ class MusicListPageState extends State<MusicListPage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () async {
+            _loadPlaylist(sharedData, song);
             bool stopped = false;
             if (sharedData.playerState == AudioPlayerState.PLAYING) {
               if (sharedData.currentSong.song_id == song.song_id) {

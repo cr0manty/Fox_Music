@@ -104,6 +104,17 @@ class PlayerPageState extends State<PlayerPage> {
                       ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
                     ),
                     Align(
+                        alignment: Alignment.topCenter,
+                        child: Container(
+                          height: pictureHeight,
+                          width: MediaQuery.of(context).size.width,
+                          child: OutlineButton(
+                            onPressed: () {
+                              print('asd');
+                            },
+                          ),
+                        )),
+                    Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
                           height: screenHeight - pictureHeight,
@@ -201,7 +212,8 @@ class PlayerPageState extends State<PlayerPage> {
                                     IconButton(
                                         onPressed: _data.currentSong != null
                                             ? () {
-                                                if (sliderValue < 0.3 && sliderValue > 0.05) {
+                                                if (sliderValue < 0.3 &&
+                                                    sliderValue > 0.05) {
                                                   _data.seek();
                                                 } else {
                                                   _data.prev();

@@ -42,6 +42,16 @@ class User {
       this.last_login,
       this.can_use_vk});
 
+  @override
+  int get hashCode => id.hashCode;
+
+  bool operator ==(o) => id == o.id;
+
+  @override
+  toString() {
+    return username;
+  }
+
   factory User.fromJson(Map<String, dynamic> json) => new User(
       username: json['username'],
       token: json['token'],

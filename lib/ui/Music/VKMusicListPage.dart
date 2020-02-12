@@ -34,7 +34,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
         appBar: new AppBar(
           title: Text('Music'),
           centerTitle: true,
-          actions: accountData.user.can_use_vk
+          actions: accountData.user != null && accountData.user.can_use_vk
               ? <Widget>[
                   IconButton(
                     icon: Icon(Icons.refresh),
@@ -64,7 +64,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   }
 
   _buildBody(AccountData accountData) {
-    return accountData.user.can_use_vk
+    return accountData.user != null  && accountData.user.can_use_vk
         ? RefreshIndicator(
             key: _refreshKey,
             onRefresh: () async => await _loadSongs(),

@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/ui/Account/LoginPage.dart';
@@ -82,7 +83,11 @@ class MainPageState extends State<MainPage> {
             BottomNavigationBarItem(
                 icon: new Icon(Icons.folder, size: 40), title: Text('Media')),
             BottomNavigationBarItem(
-                icon: new Icon(Icons.play_circle_outline, size: 50),
+                icon: new Icon(
+                    musicData.playerState == AudioPlayerState.PLAYING
+                        ? Icons.pause_circle_outline
+                        : Icons.play_circle_outline,
+                    size: 50),
                 title: Text('Player')),
             BottomNavigationBarItem(
                 icon: new Icon(Icons.music_note, size: 40),

@@ -46,11 +46,11 @@ class MusicData with ChangeNotifier {
   initPlayer() {
     audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
 
-    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
+     audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
       notifyListeners();
     });
-    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
+    audioPlayer.onAudioPositionChanged.listen((p) {
       songPosition = p;
       notifyListeners();
     });
@@ -59,6 +59,10 @@ class MusicData with ChangeNotifier {
       songPosition = null;
       playerState = AudioPlayerState.STOPPED;
       notifyListeners();
+    });
+
+    audioPlayer.onPlayerError.listen((error) {
+      print(error);
     });
 
     audioPlayer.onPlayerStateChanged.listen((state) {
@@ -90,14 +94,17 @@ class MusicData with ChangeNotifier {
           imageUrl: '',
           forwardSkipInterval: const Duration(seconds: 5),
           backwardSkipInterval: const Duration(seconds: 5),
-          duration: songDuration,
-          elapsedTime: Duration(seconds: 0));
+          duration: songDuration);
     }
   }
 
-  setPlaylistSongs(List<Song> songList) {
-    playlist = songList;
-    notifyListeners();
+  setPlaylistSongs(List<Song> songList, Song song) {
+    if (songList != playlist) {
+      playlist = songList;
+
+      currentIndexPlaylist = playlist.indexOf(song);
+      notifyListeners();
+    }
   }
 
   loadSavedMusic() async {
@@ -119,6 +126,8 @@ class MusicData with ChangeNotifier {
     if (mix) {
       withoutMix = playlist;
       playlist..shuffle();
+      playlist.remove(currentSong);
+      playlist.insert(0, currentSong);
     } else {
       playlist = withoutMix;
     }

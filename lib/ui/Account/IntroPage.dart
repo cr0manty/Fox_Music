@@ -21,8 +21,8 @@ class _IntroPageState extends State<IntroPage> {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       final musicData = new MusicData();
       final userData = new AccountData();
-      await musicData.init(Theme.of(context).platform);
-      await userData.init();
+      musicData.init(Theme.of(context).platform);
+      userData.init();
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator.of(context).pushAndRemoveUntil(

@@ -63,12 +63,4 @@ class AccountData with ChangeNotifier {
     newImage = image;
     notifyListeners();
   }
-
-  prev() {
-    notifyListeners();
-  }
-
-  next() {
-    notifyListeners();
-  }
 }
