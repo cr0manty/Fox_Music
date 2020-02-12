@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:vk_parse/functions/format/fromatSongName.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/functions/get/getPlayerState.dart';
+import 'package:vk_parse/functions/save/savePlayerState.dart';
 
 import 'package:vk_parse/models/Song.dart';
 
@@ -14,10 +16,12 @@ class MusicData with ChangeNotifier {
   AudioPlayer audioPlayer;
   Song currentSong;
   bool repeat = false;
+  bool mix = false;
   bool offlineMode = false;
-  List<Song> forPlaySong = [];
   List<Song> playlist = [];
+  List<Song> withoutMix = [];
   List<Song> localSongs = [];
+  int currentIndexPlaylist = 0;
 
   Duration songPosition;
   Duration songDuration;
@@ -36,7 +40,6 @@ class MusicData with ChangeNotifier {
   init(thisPlatform) async {
     platform = thisPlatform;
     await initPlayer();
-    await _setPlaylist();
     await loadSavedMusic();
   }
 
@@ -67,6 +70,14 @@ class MusicData with ChangeNotifier {
       playerState = state;
       notifyListeners();
     });
+    _getState();
+  }
+
+  _getState() async {
+    var repeated = await getPlayerState();
+    if (repeated) {
+      repeatClick();
+    }
   }
 
   setCCData() {
@@ -84,13 +95,18 @@ class MusicData with ChangeNotifier {
     }
   }
 
+  setPlaylistSongs(List<Song> songList) {
+    playlist = songList;
+    notifyListeners();
+  }
+
   loadSavedMusic() async {
     final String directory = (await getApplicationDocumentsDirectory()).path;
     final documentDir = new Directory("$directory/songs/");
     if (!documentDir.existsSync()) {
       documentDir.createSync();
     }
-
+    localSongs = [];
     final fileList = Directory("$directory/songs/").listSync();
     fileList.forEach((songPath) {
       final song = formatSong(songPath.path);
@@ -98,14 +114,15 @@ class MusicData with ChangeNotifier {
     });
   }
 
-  _setPlaylist() {
-    if (forPlaySong == null) {
-      forPlaySong = (playlist != null ? playlist : localSongs);
-    }
-  }
-
   mixClick() {
-    forPlaySong..shuffle();
+    mix = !mix;
+    if (mix) {
+      withoutMix = playlist;
+      playlist..shuffle();
+    } else {
+      playlist = withoutMix;
+    }
+    currentIndexPlaylist = playlist.indexOf(currentSong);
     notifyListeners();
   }
 
@@ -116,10 +133,16 @@ class MusicData with ChangeNotifier {
     } else {
       await audioPlayer.setReleaseMode(ReleaseMode.STOP);
     }
+    savePlayerState(repeat);
     notifyListeners();
   }
 
   playlistAddClick() {
+    notifyListeners();
+  }
+
+  loadPlaylist(List<Song> songList) {
+    playlist = songList;
     notifyListeners();
   }
 
@@ -150,10 +173,14 @@ class MusicData with ChangeNotifier {
   }
 
   prev() {
+    if (currentIndexPlaylist > 0) --currentIndexPlaylist;
+    playerPlay(playlist[currentIndexPlaylist]);
     notifyListeners();
   }
 
   next() {
+    if (currentIndexPlaylist < playlist.length) ++currentIndexPlaylist;
+    playerPlay(playlist[currentIndexPlaylist]);
     notifyListeners();
   }
 

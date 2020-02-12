@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:vk_parse/models/Playlist.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:vk_parse/models/Song.dart';
@@ -13,15 +13,14 @@ import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 enum ButtonState { SHARE, DELETE }
-enum PageType { MAIN, PLAYLIST }
+enum PageType { SAVED, PLAYLIST }
 
 class MusicListPage extends StatefulWidget {
-  final List<Song> _musicList;
   PageType _pageType;
   Playlist playlist;
 
-  MusicListPage(this._musicList, {this.playlist}) {
-    _pageType = playlist != null ? PageType.PLAYLIST : PageType.MAIN;
+  MusicListPage({this.playlist}) {
+    _pageType = playlist != null ? PageType.PLAYLIST : PageType.SAVED;
   }
 
   @override
@@ -30,12 +29,21 @@ class MusicListPage extends StatefulWidget {
 
 class MusicListPageState extends State<MusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  GlobalKey<RefreshIndicatorState> _refreshKey =
+      new GlobalKey<RefreshIndicatorState>();
+  List<Song> _musicList = [];
+  bool init = true;
+  bool currentPlayPlaylist;
 
   _addTrackToPlaylistDialog() {}
 
   @override
   Widget build(BuildContext context) {
-    final sharedData = Provider.of<MusicData>(context);
+    MusicData musicData = Provider.of<MusicData>(context);
+    if (init) {
+      _loadSaved(musicData);
+      init = false;
+    }
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -50,13 +58,24 @@ class MusicListPageState extends State<MusicListPage> {
                   ]
                 : null,
             centerTitle: true),
-        body: ListView.builder(
-          itemCount: widget._musicList.length,
-          physics: ScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) =>
-              _buildSongListTile(index, sharedData),
-        ));
+        body: RefreshIndicator(
+            key: _refreshKey,
+            onRefresh: () => _loadSaved(musicData),
+            child: ListView.builder(
+              itemCount: _musicList.length,
+              itemBuilder: (context, index) =>
+                  _buildSongListTile(index, musicData),
+            )));
+  }
+
+  _loadSaved(MusicData musicData) async {
+    if (widget._pageType == PageType.SAVED) {
+      await musicData.loadSavedMusic();
+      await setState(() {
+        _musicList = musicData.localSongs;
+      });
+    } else {}
+    musicData.setPlaylistSongs(_musicList);
   }
 
   _deleteSong(Song song) {
@@ -81,7 +100,7 @@ class MusicListPageState extends State<MusicListPage> {
                         try {
                           File(song.path).deleteSync();
                           setState(() {
-                            widget._musicList.remove(song);
+                            _musicList.remove(song);
                           });
                           infoDialog(
                               _scaffoldKey.currentContext,
@@ -160,7 +179,7 @@ class MusicListPageState extends State<MusicListPage> {
   }
 
   _buildSongListTile(int index, MusicData sharedData) {
-    Song song = widget._musicList[index];
+    Song song = _musicList[index];
     if (song == null) {
       return null;
     }

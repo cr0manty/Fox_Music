@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/models/Song.dart';
 
 import 'package:vk_parse/functions/save/logout.dart';
@@ -147,7 +148,7 @@ class _AppBarDrawerState extends State<AppBarDrawer> {
               radius: 50,
               backgroundColor: Colors.grey,
               backgroundImage:
-                  new Image.network(BASE_URL + _user.image).image)),
+                  new Image.network(formatImage(_user.image)).image)),
       new Center(
           child: new Column(
         children: <Widget>[

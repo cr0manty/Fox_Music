@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/AccountData.dart';
+import 'package:vk_parse/provider/AccountData.dart';
 
-import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/ui/MainPage.dart';
 
 class IntroPage extends StatefulWidget {

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/utils/pickDialog.dart';
 import 'package:vk_parse/models/Playlist.dart';
-import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vk_parse/utils/Database.dart';
@@ -201,7 +201,7 @@ class PlayerPageState extends State<PlayerPage> {
                                     IconButton(
                                         onPressed: _data.currentSong != null
                                             ? () {
-                                                if (sliderValue < 0.2) {
+                                                if (sliderValue < 0.3 && sliderValue > 0.05) {
                                                   _data.seek();
                                                 } else {
                                                   _data.prev();
@@ -279,7 +279,9 @@ class PlayerPageState extends State<PlayerPage> {
                                               onPressed: _data.mixClick,
                                               icon: Icon(Icons.shuffle,
                                                   size: screenHeight * 0.03,
-                                                  color: Colors.grey),
+                                                  color: _data.mix
+                                                      ? Colors.redAccent
+                                                      : Colors.grey),
                                             )
                                           ],
                                         ))))

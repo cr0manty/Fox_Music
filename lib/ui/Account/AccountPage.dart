@@ -5,13 +5,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/functions/format/formatImage.dart';
 
-import 'package:vk_parse/models/AccountData.dart';
-import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/ui/Account/FriendListPage.dart';
+import 'package:vk_parse/ui/Account/VKAuthPage.dart';
 import 'package:vk_parse/ui/Music/SearchPage.dart';
-import 'package:vk_parse/utils/urls.dart';
 
 class AccountPage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -98,21 +99,21 @@ class AccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _data = Provider.of<AccountData>(context);
-    final musicData = Provider.of<MusicData>(context);
+    AccountData accountData = Provider.of<AccountData>(context);
+    MusicData musicData = Provider.of<MusicData>(context);
 
-    if (_data.accountType == AccountType.SELF_EDIT) {
-      _setFilter(_data);
+    if (accountData.accountType == AccountType.SELF_EDIT) {
+      _setFilter(accountData);
     }
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       key: _scaffoldKey,
       appBar: new AppBar(
-          title: Text(_data.accountType == AccountType.SELF_EDIT
+          title: Text(accountData.accountType == AccountType.SELF_EDIT
               ? 'Profile edit'
               : 'Profile'),
           centerTitle: true,
-          actions: _data.accountType == AccountType.SELF_EDIT
+          actions: accountData.accountType == AccountType.SELF_EDIT
               ? [
                   IconButton(
                     icon: Icon(Icons.done),
@@ -133,7 +134,7 @@ class AccountPage extends StatelessWidget {
                           'password': _password,
                           'username': _username
                         };
-                        _data.updateUserData(data);
+                        accountData.updateUserData(data);
                       }
                     },
                   ),
@@ -141,16 +142,16 @@ class AccountPage extends StatelessWidget {
                       icon: Icon(Icons.clear),
                       onPressed: () {
                         FocusScope.of(context).requestFocus(FocusNode());
-                        _data.setNewImage(null);
-                        _data.changeAccountState();
+                        accountData.setNewImage(null);
+                        accountData.changeAccountState();
                       })
                 ]
               : null),
-      body: _switchBuilders(_data, musicData),
+      body: _switchBuilders(accountData, musicData),
     );
   }
 
-  _buildSelfShow(AccountData _data, MusicData musicData) {
+  _buildSelfShow(AccountData accountData, MusicData musicData) {
     return Container(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -166,13 +167,13 @@ class AccountPage extends StatelessWidget {
                         actions: <Widget>[
                           CupertinoActionSheetAction(
                               onPressed: () {
-                                _data.changeAccountState();
+                                accountData.changeAccountState();
                                 Navigator.pop(context);
                               },
                               child: Text('Edit')),
                           CupertinoActionSheetAction(
                               onPressed: () async {
-                                await _data.makeLogout();
+                                await accountData.makeLogout();
                                 Navigator.pop(context);
                               },
                               child: Text(
@@ -188,24 +189,58 @@ class AccountPage extends StatelessWidget {
                       radius: 70,
                       backgroundColor: Colors.grey,
                       backgroundImage:
-                          Image.network(BASE_URL + _data.user.image).image)),
+                          Image.network(formatImage(accountData.user.image))
+                              .image)),
             )),
         Padding(
             padding: EdgeInsets.only(bottom: 25),
             child: new Text(
-                _data.user.last_name.isEmpty && _data.user.first_name.isEmpty
+                accountData.user.last_name.isEmpty &&
+                        accountData.user.first_name.isEmpty
                     ? ''
-                    : '${_data.user.first_name} ${_data.user.last_name}',
+                    : '${accountData.user.first_name} ${accountData.user.last_name}',
                 style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.white))),
-        _buildTabList(_data, musicData),
+        _buildTabList(accountData, musicData),
       ],
     ));
   }
 
-  _buildTabList(AccountData _data, MusicData musicData) {
+  _downloadAll(AccountData accountData) {
+    if (accountData.user.can_use_vk) {
+    } else {
+      showDialog(
+          context: _scaffoldKey.currentContext,
+          builder: (BuildContext context) => new CupertinoAlertDialog(
+                  title: Text('Error'),
+                  content: Text(
+                      'In order to download, you have to allow access to your account details'),
+                  actions: [
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: Text("Later"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        }),
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: Text("Submit"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.of(_scaffoldKey.currentContext).push(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      ChangeNotifierProvider<AccountData>.value(
+                                          value: accountData,
+                                          child: VKAuthPage(accountData))));
+                        })
+                  ]));
+    }
+  }
+
+  _buildTabList(AccountData accountData, MusicData musicData) {
     return Expanded(
         child: Padding(
             padding: EdgeInsets.all(10),
@@ -218,9 +253,8 @@ class AccountPage extends StatelessWidget {
                     Navigator.of(_scaffoldKey.currentContext).push(
                         MaterialPageRoute(
                             builder: (context) =>
-                                ChangeNotifierProvider<MusicData>.value(
-                                    value: musicData,
-                                    child: SearchPage())));
+                                ChangeNotifierProvider<AccountData>.value(
+                                    value: accountData, child: SearchPage())));
                   },
                   title: Text(
                     'Search',
@@ -234,8 +268,8 @@ class AccountPage extends StatelessWidget {
                     Navigator.of(_scaffoldKey.currentContext).push(
                         MaterialPageRoute(
                             builder: (context) =>
-                                ChangeNotifierProvider<MusicData>.value(
-                                    value: musicData,
+                                ChangeNotifierProvider<AccountData>.value(
+                                    value: accountData,
                                     child: FriendListPage())));
                   },
                   title: Text(
@@ -246,6 +280,7 @@ class AccountPage extends StatelessWidget {
                 Card(
                     child: ListTile(
                   leading: Icon(Icons.file_download, color: Colors.white),
+                  onTap: () => _downloadAll(accountData),
                   title: Text(
                     'Download all',
                     style: TextStyle(color: Colors.white),
@@ -350,7 +385,7 @@ class AccountPage extends StatelessWidget {
                               backgroundColor: Colors.grey,
                               backgroundImage: _data.newImage != null
                                   ? Image.file(_data.newImage).image
-                                  : Image.network(BASE_URL + _data.user.image)
+                                  : Image.network(formatImage(_data.user.image))
                                       .image)),
                     )),
                 Divider(height: 10),

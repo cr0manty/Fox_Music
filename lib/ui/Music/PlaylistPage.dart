@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vk_parse/models/Playlist.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/ui/Music/MusicListPage.dart';
 import 'package:vk_parse/utils/Database.dart';
 
@@ -98,6 +102,16 @@ class PlaylistPageState extends State<PlaylistPage> {
         ));
   }
 
+  _setImage(Playlist playlist, File image) async {
+    if (image != null) {
+      List<int> imageBytes = await image.readAsBytes();
+      await setState(() {
+        playlist.image = base64Encode(imageBytes);
+      });
+      await DBProvider.db.updatePlaylist(playlist);
+    }
+  }
+
   _buildPlaylistList(MusicData data, int index) {
     Playlist playlist = _playlistList[index];
 
@@ -120,7 +134,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                               ChangeNotifierProvider<MusicData>.value(
                                   value: data,
                                   child: MusicListPage(
-                                    [],
                                     playlist: playlist,
                                   ))));
                 },
@@ -148,7 +161,35 @@ class PlaylistPageState extends State<PlaylistPage> {
             caption: 'Set image',
             color: Colors.pinkAccent,
             icon: Icons.image,
-            onTap: null,
+            onTap: () {
+              FocusScope.of(_scaffoldKey.currentContext)
+                  .requestFocus(FocusNode());
+              showCupertinoModalPopup(
+                  context: _scaffoldKey.currentContext,
+                  builder: (context) {
+                    return CupertinoActionSheet(
+                      title: Text('Choose image from...'),
+                      actions: <Widget>[
+                        CupertinoActionSheetAction(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              File _image = await ImagePicker.pickImage(
+                                  source: ImageSource.camera);
+                              _setImage(playlist, _image);
+                            },
+                            child: Text('Camera')),
+                        CupertinoActionSheetAction(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              File _image = await ImagePicker.pickImage(
+                                  source: ImageSource.gallery);
+                              _setImage(playlist, _image);
+                            },
+                            child: Text('Gallery'))
+                      ],
+                    );
+                  });
+            },
           ),
         ],
         secondaryActions: <Widget>[
@@ -157,6 +198,9 @@ class PlaylistPageState extends State<PlaylistPage> {
             color: Colors.red,
             icon: Icons.delete,
             onTap: () {
+              setState(() {
+                _playlistList.remove(playlist);
+              });
               DBProvider.db.deletePlaylist(playlist.id);
             },
           ),

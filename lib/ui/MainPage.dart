@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:vk_parse/models/AccountData.dart';
+import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/ui/Account/LoginPage.dart';
 import 'package:vk_parse/ui/Music/PlayerPage.dart';
 import 'package:vk_parse/ui/Music/PlaylistPage.dart';
 
 import 'package:provider/provider.dart';
-import 'package:vk_parse/models/MusicData.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 
 import 'package:vk_parse/ui/Music/MusicListPage.dart';
 import 'package:vk_parse/ui/Account/AccountPage.dart';
@@ -39,7 +39,7 @@ class MainPageState extends State<MainPage> {
         break;
       case 1:
         return ChangeNotifierProvider<MusicData>.value(
-            value: musicData, child: MusicListPage(musicData.localSongs));
+            value: musicData, child: MusicListPage());
         break;
       case 2:
         return ChangeNotifierProvider<MusicData>.value(

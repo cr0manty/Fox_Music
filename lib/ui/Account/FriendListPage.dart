@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
+import 'package:vk_parse/functions/format/formatImage.dart';
+import 'package:vk_parse/models/Relationship.dart';
+import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/ui/Account/PeoplePage.dart';
 
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/api/friendList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class FriendListPage extends StatefulWidget {
-  List<User> _friendList = [];
+  List<Relationship> _friendList = [];
 
   @override
   State<StatefulWidget> createState() => new FriendListPageState();
@@ -20,6 +24,7 @@ class FriendListPageState extends State<FriendListPage> {
 
   @override
   Widget build(BuildContext context) {
+        AccountData accountData = Provider.of<AccountData>(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(title: Text('Friends'), centerTitle: true),
@@ -28,7 +33,7 @@ class FriendListPageState extends State<FriendListPage> {
           onRefresh: () async => await _loadFriends(),
           child: ListView.builder(
             itemCount: widget._friendList.length,
-            itemBuilder: (context, index) => _buildUserCard(index),
+            itemBuilder: (context, index) => _buildUserCard(accountData, index),
           )),
     );
   }
@@ -51,8 +56,8 @@ class FriendListPageState extends State<FriendListPage> {
     }
   }
 
-  _buildUserCard(int index) {
-    User user = widget._friendList[index];
+  _buildUserCard(AccountData accountData, int index) {
+    Relationship relationship = widget._friendList[index];
 
     return Column(children: [
       Slidable(
@@ -60,18 +65,30 @@ class FriendListPageState extends State<FriendListPage> {
         actionExtentRatio: 0.25,
         child: Container(
             child: ListTile(
-                title: Text(user.last_name.isEmpty ? 'Unknown' : user.last_name,
+                title: Text(relationship.user.last_name.isEmpty ? 'Unknown' : relationship.user.last_name,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(
-                    user.first_name.isEmpty ? 'Unknown' : user.first_name,
+                    relationship.user.first_name.isEmpty ? 'Unknown' : relationship.user.first_name,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-                onTap: null,
+                onTap: () {
+                  Navigator.of(_scaffoldKey.currentContext).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChangeNotifierProvider<AccountData>.value(
+                                    value: accountData, child: PeoplePage(relationship))));
+                },
                 leading: CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.grey,
                     backgroundImage:
-                        Image.network(BASE_URL + user.image).image))),
+                        Image.network(formatImage(relationship.user.image)).image))),
         secondaryActions: <Widget>[
+          IconSlideAction(
+            caption: 'Block',
+            color: Colors.indigo,
+            icon: Icons.block,
+            onTap: null,
+          ),
           IconSlideAction(
             caption: 'Delete',
             color: Colors.red,

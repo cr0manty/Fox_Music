@@ -24,5 +24,5 @@ musicSearchGet(String search) async {
   } catch (e) {
     print(e);
   }
-  return songList.toList();
+  return songList;
 }

@@ -25,5 +25,5 @@ userSearchGet(String search) async {
   } catch (e) {
     print(e);
   }
-  return userList.toList();
+  return userList;
 }
