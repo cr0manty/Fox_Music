@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/utils/downloadSong.dart';
@@ -137,19 +138,44 @@ class PeoplePageState extends State<PeoplePage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () {
-            downloadSong(song, context: context);
+//            saveSong(song, context); TODO
           },
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
-        actions: <Widget>[
-          new IconSlideAction(
-            caption: 'Add',
-            color: Colors.blue,
-            icon: Icons.add,
-            onTap: null,
-          ),
-        ],
+        actions: !song.in_my_list
+            ? <Widget>[
+                new IconSlideAction(
+                    caption: 'Add',
+                    color: Colors.blue,
+                    icon: Icons.add,
+                    onTap: () async {
+                      bool isAdded = await addMusic(song.song_id);
+                      if (isAdded) {
+                        setState(() {
+                          song.in_my_list = true;
+                        });
+                      }
+                    }),
+              ]
+            : [],
+        secondaryActions: song.in_my_list
+            ? <Widget>[
+                new IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () async {
+                    bool isDeleted = await hideMusic(song.song_id);
+                    if (isDeleted) {
+                      setState(() {
+                        song.in_my_list = false;
+                      });
+                    }
+                  },
+                ),
+              ]
+            : [],
       ),
       Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
     ]);

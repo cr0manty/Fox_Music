@@ -14,7 +14,12 @@ import 'package:vk_parse/ui/Account/FriendListPage.dart';
 import 'package:vk_parse/ui/Account/VKAuthPage.dart';
 import 'package:vk_parse/ui/Music/SearchPage.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => AccountPageState();
+}
+
+class AccountPageState extends State<AccountPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameFilter = new TextEditingController();
@@ -97,6 +102,10 @@ class AccountPage extends StatelessWidget {
     _lastNameFilter.text = data.user.last_name;
   }
 
+  _openMessagePage(AccountData accountData) {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
@@ -146,7 +155,44 @@ class AccountPage extends StatelessWidget {
                         accountData.changeAccountState();
                       })
                 ]
-              : null),
+              : [
+                  new Stack(
+                    children: <Widget>[
+                      new IconButton(
+                          icon: Icon(Icons.mail_outline),
+                          onPressed: () {
+                            setState(() {
+                              _openMessagePage(accountData);
+                            });
+                          }),
+                      accountData.messageCount != 0
+                          ? new Positioned(
+                              right: 11,
+                              top: 11,
+                              child: new Container(
+                                padding: EdgeInsets.all(2),
+                                decoration: new BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                constraints: BoxConstraints(
+                                  minWidth: 14,
+                                  minHeight: 14,
+                                ),
+                                child: Text(
+                                  '${accountData.messageCount}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 8,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            )
+                          : new Container()
+                    ],
+                  ),
+                ]),
       body: _switchBuilders(accountData, musicData),
     );
   }

@@ -104,12 +104,33 @@ class PlaylistPageState extends State<PlaylistPage> {
 
   _setImage(Playlist playlist, File image) async {
     if (image != null) {
-      List<int> imageBytes = await image.readAsBytes();
       await setState(() {
-        playlist.image = base64Encode(imageBytes);
+        playlist.image = image.path;
       });
       await DBProvider.db.updatePlaylist(playlist);
     }
+  }
+
+  _showImage(Playlist playlist) {
+    if (playlist.image != null) {
+      File file = File(playlist.image);
+      if (file.existsSync()) {
+        return CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.grey,
+            backgroundImage: Image.file(file).image);
+      } else {
+        playlist.image = null;
+        DBProvider.db.updatePlaylist(playlist);
+      }
+    }
+    return CircleAvatar(
+        radius: 25,
+        child: Text(
+          playlist.title[0].toUpperCase(),
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+        backgroundColor: Colors.redAccent);
   }
 
   _buildPlaylistList(MusicData data, int index) {
@@ -137,19 +158,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                     playlist: playlist,
                                   ))));
                 },
-                leading: playlist.image != null
-                    ? CircleAvatar(
-                        radius: 25,
-                        backgroundColor: Colors.grey,
-                        backgroundImage:
-                            Image.memory(playlist.getImage()).image)
-                    : CircleAvatar(
-                        radius: 25,
-                        child: Text(
-                          playlist.title[0].toUpperCase(),
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                        backgroundColor: Colors.redAccent))),
+                leading: _showImage(playlist))),
         actions: <Widget>[
           new IconSlideAction(
             caption: 'Play',

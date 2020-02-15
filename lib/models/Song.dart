@@ -20,6 +20,7 @@ class Song {
   String path;
   int duration;
   int song_id;
+  bool in_my_list;
 
   Song(
       {this.song_id,
@@ -28,16 +29,23 @@ class Song {
       this.duration,
       this.download,
       this.path,
-      this.image});
+      this.image,
+      this.in_my_list});
 
-   @override
+  @override
   int get hashCode => song_id.hashCode;
 
   bool operator ==(o) => song_id == o.song_id;
 
   @override
   toString() {
-    return '$artist-$title';
+    return '$artist - $title';
+  }
+
+  toFileName() {
+    String formatArtist = artist.replaceAll(' ', '_');
+    String formatTitle = title.replaceAll(' ', '_');
+    return '$formatArtist-$formatTitle';
   }
 
   factory Song.fromJson(Map<String, dynamic> json) => new Song(
@@ -47,7 +55,8 @@ class Song {
       download: json['download'],
       song_id: json['song_id'],
       image: json['image'],
-      path: json['path']);
+      path: json['path'],
+      in_my_list: json['in_my_list']);
 
   Map<String, dynamic> toJson() => {
         'name': title,
@@ -57,5 +66,6 @@ class Song {
         'song_id': song_id,
         'image': image,
         'path': path ?? "",
+        'in_my_list': in_my_list ?? false
       };
 }

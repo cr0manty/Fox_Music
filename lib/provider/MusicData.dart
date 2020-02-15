@@ -32,6 +32,9 @@ class MusicData with ChangeNotifier {
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
+  StreamSubscription _playerError;
+  StreamSubscription _playerState;
+  StreamSubscription _playerNotifyState;
 
   MusicData() {
     playerState = AudioPlayerState.STOPPED;
@@ -46,11 +49,11 @@ class MusicData with ChangeNotifier {
   initPlayer() {
     audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
 
-     audioPlayer.onDurationChanged.listen((duration) {
+    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
       notifyListeners();
     });
-    audioPlayer.onAudioPositionChanged.listen((p) {
+    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
       songPosition = p;
       notifyListeners();
     });
@@ -61,16 +64,17 @@ class MusicData with ChangeNotifier {
       notifyListeners();
     });
 
-    audioPlayer.onPlayerError.listen((error) {
+    _playerError = audioPlayer.onPlayerError.listen((error) {
       print(error);
     });
 
-    audioPlayer.onPlayerStateChanged.listen((state) {
+    _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
       playerState = state;
       notifyListeners();
     });
 
-    audioPlayer.onNotificationPlayerStateChanged.listen((state) {
+    _playerNotifyState =
+        audioPlayer.onNotificationPlayerStateChanged.listen((state) {
       playerState = state;
       notifyListeners();
     });
@@ -210,6 +214,9 @@ class MusicData with ChangeNotifier {
     _positionSubscription?.cancel();
     _playerCompleteSubscription?.cancel();
     _durationSubscription?.cancel();
+    _playerError?.cancel();
+    _playerState?.cancel();
+    _playerNotifyState?.cancel();
     super.dispose();
   }
 }

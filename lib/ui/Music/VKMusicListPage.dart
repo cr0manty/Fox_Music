@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:vk_parse/functions/utils/downloadSong.dart';
+
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicData.dart';
-
+import 'package:vk_parse/utils/MultipartRequest.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/api/musicList.dart';
-import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/ui/Account/VKAuthPage.dart';
@@ -23,6 +25,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
   Song playedSong;
+  double progress = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +67,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   }
 
   _buildBody(AccountData accountData) {
-    return accountData.user != null  && accountData.user.can_use_vk
+    return accountData.user != null && accountData.user.can_use_vk
         ? RefreshIndicator(
             key: _refreshKey,
             onRefresh: () async => await _loadSongs(),
@@ -121,6 +124,62 @@ class VKMusicListPageState extends State<VKMusicListPage> {
     }
   }
 
+  downloadProgress(Song song) async {
+    if (song.download.isEmpty) {
+      final snackBar = SnackBar(
+        backgroundColor: Color.fromRGBO(20, 20, 20, 0.9),
+        content:
+            Text('Empty download url', style: TextStyle(color: Colors.grey)),
+        duration: Duration(seconds: 5),
+        action: SnackBarAction(
+          textColor: Colors.grey,
+          label: 'OK',
+          onPressed: () {},
+        ),
+      );
+
+      Scaffold.of(context).showSnackBar(snackBar);
+    } else {
+      final uri = Uri.parse(song.download); // TODO
+      final request = MultipartRequest(
+        'GET',
+        uri,
+        onProgress: (int bytes, int total) {
+          setState(() {
+            progress = bytes / total * 0.8;
+            print('progress: $progress ($bytes/$total)');
+          });
+        },
+      );
+      final snackBar = SnackBar(
+        backgroundColor: Color.fromRGBO(20, 20, 20, 0.9),
+        content: Row(
+          children: <Widget>[
+            CircularPercentIndicator(
+              percent: progress,
+              radius: 30,
+            ),
+            Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text('Downloading song...',
+                    style: TextStyle(color: Colors.grey)))
+          ],
+        ),
+        action: SnackBarAction(
+          textColor: Colors.grey,
+          label: 'Undo',
+          onPressed: () {},
+        ),
+      );
+
+      Scaffold.of(context).showSnackBar(snackBar);
+      request.send().then((response) async {
+        final bytes = await response.stream.toBytes();
+        await saveSong(song, context, bytes);
+      });
+    }
+  }
+
   _buildSongListTile(int index) {
     Song song = _data[index];
     if (song == null) {
@@ -130,7 +189,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
       Slidable(
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 0.25,
-        child: new Container(
+        child: Container(
             child: ListTile(
           contentPadding: EdgeInsets.only(left: 30, right: 20),
           title: Text(song.title,
@@ -138,25 +197,24 @@ class VKMusicListPageState extends State<VKMusicListPage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () {
-            downloadSong(song, context: context);
+            downloadProgress(song);
           },
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
-        actions: <Widget>[
-          new IconSlideAction(
-            caption: 'Add',
-            color: Colors.blue,
-            icon: Icons.add,
-            onTap: null,
-          ),
-        ],
         secondaryActions: <Widget>[
-          new IconSlideAction(
+          IconSlideAction(
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: null,
+            onTap: () async {
+              bool isDeleted = await hideMusic(song.song_id);
+              if (isDeleted) {
+                setState(() {
+                  _data.removeAt(index);
+                });
+              }
+            },
           ),
         ],
       ),

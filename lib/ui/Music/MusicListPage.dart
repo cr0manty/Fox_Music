@@ -2,9 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/models/Playlist.dart';
-import 'package:vk_parse/utils/testDownload.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/MusicData.dart';
@@ -56,51 +54,34 @@ class MusicListPageState extends State<MusicListPage> {
                         icon: Icon(Icons.add),
                         onPressed: _addTrackToPlaylistDialog)
                   ]
-                : musicData.localSongs == null
-                    ? [
-                        IconButton(
-                            icon: Icon(Icons.file_download),
-                            onPressed: () => _loadTest(musicData))
-                      ]
-                    : null,
+                : null,
             centerTitle: true),
         body: _buildBody(musicData));
   }
 
-  _loadTest(MusicData musicData) async {
-    await testSongs.forEach((Song song) async {
-      await downloadSong(song);
-    });
-    setState(() {
-      _musicList = musicData.localSongs;
-    });
-  }
-
   _buildBody(MusicData musicData) {
-    return _musicList.length > 0
-        ? RefreshIndicator(
-            key: _refreshKey,
-            onRefresh: () => _loadPlaylist(musicData, null),
-            child: ListView.builder(
-              itemCount: _musicList.length,
-              itemBuilder: (context, index) =>
-                  _buildSongListTile(index, musicData),
-            ))
-        : Center(
-            child: Container(
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height * 0.2),
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: Column(children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.only(bottom: 40),
-                      child: Text(
-                        'No saved songs',
-                        style: TextStyle(color: Colors.grey, fontSize: 20),
-                        textAlign: TextAlign.center,
-                      ))
-                ])));
+    return RefreshIndicator(
+        key: _refreshKey,
+        onRefresh: () => _loadPlaylist(musicData, null),
+        child: _musicList.length > 0
+            ? ListView.builder(
+                itemCount: _musicList.length,
+                itemBuilder: (context, index) =>
+                    _buildSongListTile(index, musicData),
+              )
+            : ListView(children: <Widget>[
+                Padding(
+                    padding: EdgeInsets.only(bottom: 40),
+                    child: Padding(
+                        padding: EdgeInsets.only(top: 30),
+                        child: Text(
+                          widget._pageType == PageType.SAVED
+                              ? 'No saved songs'
+                              : 'Empty playlist',
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        )))
+              ]));
   }
 
   _loadPlaylist(MusicData musicData, Song song) async {
@@ -114,6 +95,8 @@ class MusicListPageState extends State<MusicListPage> {
       musicData.setPlaylistSongs(_musicList, song);
     }
   }
+
+  _deleteSongFromPlaylist(Song song) {}
 
   _deleteSong(Song song) {
     showDialog(
@@ -201,10 +184,28 @@ class MusicListPageState extends State<MusicListPage> {
     final File bytes = await File(song.path);
     await WcFlutterShare.share(
         sharePopupTitle: 'Share',
-        fileName:
-            '${song.artist}-${song.title}-${song.duration}-${song.song_id}.mp3',
+        fileName: song.toFileName() + '.mp3',
         mimeType: 'song/mp3',
         bytesOfFile: bytes.readAsBytesSync());
+  }
+
+  List<Widget> _actionsPane(Song song) {
+    List<Widget> actions = [];
+    if (widget._pageType == PageType.SAVED) {
+      actions.add(IconSlideAction(
+        caption: 'Add to playlist',
+        color: Colors.pinkAccent,
+        icon: Icons.playlist_add,
+        onTap: null,
+      ));
+    }
+    actions.add(IconSlideAction(
+      caption: 'Rename',
+      color: Colors.blue,
+      icon: Icons.edit,
+      onTap: () => _renameSongDialog(song),
+    ));
+    return actions;
   }
 
   _buildSongListTile(int index, MusicData sharedData) {
@@ -242,32 +243,21 @@ class MusicListPageState extends State<MusicListPage> {
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
-        actions: <Widget>[
-          new IconSlideAction(
-            caption: 'Add to playlist',
-            color: Colors.pinkAccent,
-            icon: Icons.playlist_add,
-            onTap: null,
-          ),
-          new IconSlideAction(
-            caption: 'Rename',
-            color: Colors.blue,
-            icon: Icons.edit,
-            onTap: () => _renameSongDialog(song),
-          ),
-        ],
+        actions: _actionsPane(song),
         secondaryActions: <Widget>[
-          new IconSlideAction(
+          IconSlideAction(
             caption: 'Share',
             color: Colors.indigo,
             icon: Icons.share,
             onTap: () => _shareSong(song),
           ),
-          new IconSlideAction(
+          IconSlideAction(
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: () => _deleteSong(song),
+            onTap: () => widget._pageType == PageType.SAVED
+                ? _deleteSong(song)
+                : _deleteSongFromPlaylist(song),
           ),
         ],
       ),

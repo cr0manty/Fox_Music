@@ -9,6 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'VK Music',
       theme: ThemeData(
           brightness: Brightness.dark,

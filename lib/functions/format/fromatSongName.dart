@@ -1,7 +1,7 @@
 import 'package:vk_parse/models/Song.dart';
 
 splitStringToFile(String str) {
-  return str.split('/').join(' ').split(' ').join('_');
+  return str.replaceAll('/', ' ').replaceAll(' ', '_');
 }
 
 formatFileName(Song song) {
@@ -9,7 +9,7 @@ formatFileName(Song song) {
 }
 
 splitStringFromFile(String str) {
-  return str.split('_').join(' ');
+  return str.replaceAll('_', ' ');
 }
 
 formatSong(String path) {

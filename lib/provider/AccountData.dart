@@ -16,6 +16,8 @@ class AccountData with ChangeNotifier {
   File newImage;
   bool offlineMode = false;
   AccountType accountType;
+  int messageCount = 0;
+
 
   AccountData() {
     accountType = AccountType.SELF_SHOW;

@@ -4,7 +4,6 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/api/login.dart';
-import 'package:vk_parse/api/registration.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 
 class LoginPage extends StatefulWidget {

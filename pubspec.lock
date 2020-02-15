@@ -191,6 +191,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0+1"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.1+1"
   petitparser:
     dependency: transitive
     description:
@@ -211,7 +218,7 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.3"
+    version: "4.0.4"
   quiver:
     dependency: transitive
     description:
@@ -232,7 +239,7 @@ packages:
       name: shared_preferences_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1+4"
+    version: "0.0.1+5"
   shared_preferences_platform_interface:
     dependency: transitive
     description:

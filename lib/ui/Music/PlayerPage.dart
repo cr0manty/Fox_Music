@@ -65,15 +65,28 @@ class PlayerPageState extends State<PlayerPage> {
     ]);
   }
 
+  _play(MusicData musicData) {
+    return musicData.currentSong != null
+        ? () async {
+            if (musicData.playerState == AudioPlayerState.PLAYING) {
+              await musicData.playerPause();
+            } else {
+              musicData.playerResume();
+            }
+          }
+        : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
     double screenHeight = MediaQuery.of(context).size.height - 80;
-    MusicData _data = Provider.of<MusicData>(context);
+    MusicData musicData = Provider.of<MusicData>(context);
     double sliderValue =
-        durToInt(_data.songPosition) / durToInt(_data.songDuration);
+        durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
     FocusScope.of(context).requestFocus(FocusNode());
-    if (_data.currentSong != null) _loadPlaylist(_data.currentSong.song_id);
+    if (musicData.currentSong != null)
+      _loadPlaylist(musicData.currentSong.song_id);
 
     return Scaffold(
         key: _scaffoldKey,
@@ -106,14 +119,11 @@ class PlayerPageState extends State<PlayerPage> {
                     Align(
                         alignment: Alignment.topCenter,
                         child: Container(
-                          height: pictureHeight,
-                          width: MediaQuery.of(context).size.width,
-                          child: OutlineButton(
-                            onPressed: () {
-                              print('asd');
-                            },
-                          ),
-                        )),
+                            height: pictureHeight,
+                            width: MediaQuery.of(context).size.width,
+                            child: GestureDetector(
+                              onTap: _play(musicData),
+                            ))),
                     Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
@@ -141,9 +151,9 @@ class PlayerPageState extends State<PlayerPage> {
                                   child: Slider(
                                     onChanged: (value) {},
                                     onChangeEnd: (double value) {
-                                      _data.seek(duration: value);
+                                      musicData.seek(duration: value);
                                     },
-                                    value: _data.songPosition != null &&
+                                    value: musicData.songPosition != null &&
                                             sliderValue > 0.0 &&
                                             sliderValue < 1.0
                                         ? sliderValue
@@ -158,18 +168,18 @@ class PlayerPageState extends State<PlayerPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Text(
-                                      _data.songPosition != null &&
+                                      musicData.songPosition != null &&
                                               sliderValue > 0.0 &&
                                               sliderValue < 1.0
-                                          ? timeFormat(_data.songPosition)
-                                          : '0:00',
+                                          ? timeFormat(musicData.songPosition)
+                                          : '00:00',
                                       style: TextStyle(
                                           color:
                                               Colors.white.withOpacity(0.7))),
                                   Text(
-                                      _data.songDuration != null
-                                          ? timeFormat(_data.songDuration)
-                                          : '0:00',
+                                      musicData.songDuration != null
+                                          ? timeFormat(musicData.songDuration)
+                                          : '00:00',
                                       style: TextStyle(
                                           color: Colors.white.withOpacity(0.7)))
                                 ],
@@ -181,8 +191,8 @@ class PlayerPageState extends State<PlayerPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      _data.currentSong != null
-                                          ? _data.currentSong.title
+                                      musicData.currentSong != null
+                                          ? musicData.currentSong.title
                                           : '',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
@@ -191,8 +201,8 @@ class PlayerPageState extends State<PlayerPage> {
                                               Color.fromRGBO(200, 200, 200, 1)),
                                     ),
                                     Text(
-                                      _data.currentSong != null
-                                          ? _data.currentSong.artist
+                                      musicData.currentSong != null
+                                          ? musicData.currentSong.artist
                                           : '',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
@@ -210,13 +220,13 @@ class PlayerPageState extends State<PlayerPage> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     IconButton(
-                                        onPressed: _data.currentSong != null
+                                        onPressed: musicData.currentSong != null
                                             ? () {
                                                 if (sliderValue < 0.3 &&
                                                     sliderValue > 0.05) {
-                                                  _data.seek();
+                                                  musicData.seek();
                                                 } else {
-                                                  _data.prev();
+                                                  musicData.prev();
                                                 }
                                               }
                                             : null,
@@ -226,18 +236,9 @@ class PlayerPageState extends State<PlayerPage> {
                                           size: screenHeight * 0.07,
                                         )),
                                     IconButton(
-                                      onPressed: _data.currentSong != null
-                                          ? () async {
-                                              if (_data.playerState ==
-                                                  AudioPlayerState.PLAYING) {
-                                                await _data.playerPause();
-                                              } else {
-                                                _data.playerResume();
-                                              }
-                                            }
-                                          : null,
+                                      onPressed: _play(musicData),
                                       icon: Icon(
-                                        _data.playerState ==
+                                        musicData.playerState ==
                                                 AudioPlayerState.PLAYING
                                             ? Icons.pause
                                             : Icons.play_arrow,
@@ -246,9 +247,9 @@ class PlayerPageState extends State<PlayerPage> {
                                       ),
                                     ),
                                     IconButton(
-                                        onPressed: _data.currentSong != null
+                                        onPressed: musicData.currentSong != null
                                             ? () {
-                                                _data.next();
+                                                musicData.next();
                                               }
                                             : null,
                                         icon: Icon(
@@ -268,16 +269,16 @@ class PlayerPageState extends State<PlayerPage> {
                                               MainAxisAlignment.center,
                                           children: <Widget>[
                                             IconButton(
-                                              onPressed: _data.repeatClick,
+                                              onPressed: musicData.repeatClick,
                                               icon: Icon(Icons.repeat,
                                                   size: screenHeight * 0.03,
-                                                  color: _data.repeat
+                                                  color: musicData.repeat
                                                       ? Colors.redAccent
                                                       : Colors.grey),
                                             ),
                                             IconButton(
                                               onPressed:
-                                                  _data.currentSong != null
+                                                  musicData.currentSong != null
                                                       ? () => showPickerDialog(
                                                           context,
                                                           _playlistList.length,
@@ -288,10 +289,10 @@ class PlayerPageState extends State<PlayerPage> {
                                                   color: Colors.grey),
                                             ),
                                             IconButton(
-                                              onPressed: _data.mixClick,
+                                              onPressed: musicData.mixClick,
                                               icon: Icon(Icons.shuffle,
                                                   size: screenHeight * 0.03,
-                                                  color: _data.mix
+                                                  color: musicData.mix
                                                       ? Colors.redAccent
                                                       : Colors.grey),
                                             )
