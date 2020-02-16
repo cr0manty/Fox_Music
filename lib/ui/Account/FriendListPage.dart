@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/models/Relationship.dart';
 import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/PeoplePage.dart';
 
 import 'package:vk_parse/utils/urls.dart';
@@ -24,7 +25,9 @@ class FriendListPageState extends State<FriendListPage> {
 
   @override
   Widget build(BuildContext context) {
-        AccountData accountData = Provider.of<AccountData>(context);
+    AccountData accountData = Provider.of<AccountData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(title: Text('Friends'), centerTitle: true),
@@ -33,7 +36,8 @@ class FriendListPageState extends State<FriendListPage> {
           onRefresh: () async => await _loadFriends(),
           child: ListView.builder(
             itemCount: widget._friendList.length,
-            itemBuilder: (context, index) => _buildUserCard(accountData, index),
+            itemBuilder: (context, index) =>
+                _buildUserCard(accountData, downloadData, index),
           )),
     );
   }
@@ -56,7 +60,8 @@ class FriendListPageState extends State<FriendListPage> {
     }
   }
 
-  _buildUserCard(AccountData accountData, int index) {
+  _buildUserCard(
+      AccountData accountData, MusicDownloadData downloadData, int index) {
     Relationship relationship = widget._friendList[index];
 
     return Column(children: [
@@ -65,23 +70,32 @@ class FriendListPageState extends State<FriendListPage> {
         actionExtentRatio: 0.25,
         child: Container(
             child: ListTile(
-                title: Text(relationship.user.last_name.isEmpty ? 'Unknown' : relationship.user.last_name,
+                title: Text(
+                    relationship.user.last_name.isEmpty
+                        ? 'Unknown'
+                        : relationship.user.last_name,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(
-                    relationship.user.first_name.isEmpty ? 'Unknown' : relationship.user.first_name,
+                    relationship.user.first_name.isEmpty
+                        ? 'Unknown'
+                        : relationship.user.first_name,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
+                  Navigator.of(_scaffoldKey.currentContext)
+                      .push(MaterialPageRoute(
+                          builder: (context) => MultiProvider(providers: [
+                                ChangeNotifierProvider<MusicDownloadData>.value(
+                                    value: downloadData),
                                 ChangeNotifierProvider<AccountData>.value(
-                                    value: accountData, child: PeoplePage(relationship))));
+                                    value: accountData),
+                              ], child: PeoplePage(relationship))));
                 },
                 leading: CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.grey,
                     backgroundImage:
-                        Image.network(formatImage(relationship.user.image)).image))),
+                        Image.network(formatImage(relationship.user.image))
+                            .image))),
         secondaryActions: <Widget>[
           IconSlideAction(
             caption: 'Block',
