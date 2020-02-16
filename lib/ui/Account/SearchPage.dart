@@ -132,7 +132,8 @@ class SearchPageState extends State<SearchPage>
         shrinkWrap: true,
         physics: ClampingScrollPhysics(),
         itemCount: _userList.length,
-        itemBuilder: (context, index) => _buildUserCard(accountData, index),
+        itemBuilder: (context, index) =>
+            _buildUserCard(accountData, downloadData, index),
       )
     ]));
   }
@@ -173,7 +174,8 @@ class SearchPageState extends State<SearchPage>
     ]);
   }
 
-  _buildUserCard(AccountData accountData, int index) {
+  _buildUserCard(
+      AccountData accountData, MusicDownloadData downloadData, int index) {
     Relationship relationship = _userList[index];
 
     return Column(children: [
@@ -197,10 +199,14 @@ class SearchPageState extends State<SearchPage>
                   onTap: () {
                     Navigator.of(_scaffoldKey.currentContext).push(
                         MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<AccountData>.value(
-                                    value: accountData,
-                                    child: PeoplePage(relationship))));
+                            builder: (BuildContext context) =>
+                                MultiProvider(providers: [
+                                  ChangeNotifierProvider<AccountData>.value(
+                                      value: accountData),
+                                  ChangeNotifierProvider<
+                                          MusicDownloadData>.value(
+                                      value: downloadData),
+                                ], child: PeoplePage(relationship))));
                   },
                   leading: CircleAvatar(
                       radius: 25,

@@ -113,7 +113,7 @@ class LoginPageState extends State<LoginPage> {
       TextFormField(
         controller: _usernameFilter,
         decoration: InputDecoration(
-          labelText: _form == FormType.login ? 'Login' : 'VK Login',
+          labelText: 'Login',
         ),
         validator: (value) {
           if (value.isEmpty) {
@@ -125,7 +125,7 @@ class LoginPageState extends State<LoginPage> {
       TextFormField(
         controller: _passwordFilter,
         decoration: InputDecoration(
-          labelText: _form == FormType.login ? 'Password' : 'VK Password',
+          labelText: 'Password',
         ),
         obscureText: true,
         validator: (value) {
@@ -177,17 +177,7 @@ class LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _form == FormType.login
               ? _loginAreaForm()
-              : _registrationAreaForm() +
-                  <Widget>[
-                    Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: Center(
-                          child: Text(
-                              'Login and Password must match your VK account',
-                              style:
-                                  TextStyle(color: Colors.red, fontSize: 12)),
-                        ))
-                  ]),
+              : _registrationAreaForm()),
     );
   }
 

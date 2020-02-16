@@ -59,8 +59,7 @@ class MusicData with ChangeNotifier {
     });
     _playerCompleteSubscription =
         audioPlayer.onPlayerCompletion.listen((event) {
-      songPosition = null;
-      playerState = AudioPlayerState.STOPPED;
+      next();
       notifyListeners();
     });
 
@@ -186,13 +185,19 @@ class MusicData with ChangeNotifier {
   }
 
   prev() {
-    if (currentIndexPlaylist > 0) --currentIndexPlaylist;
+    if (currentIndexPlaylist > 0)
+      --currentIndexPlaylist;
+    else
+      currentIndexPlaylist = playlist.length - 1;
     playerPlay(playlist[currentIndexPlaylist]);
     notifyListeners();
   }
 
   next() {
-    if (currentIndexPlaylist < playlist.length) ++currentIndexPlaylist;
+    if (currentIndexPlaylist < playlist.length - 1)
+      ++currentIndexPlaylist;
+    else
+      currentIndexPlaylist = 0;
     playerPlay(playlist[currentIndexPlaylist]);
     notifyListeners();
   }
