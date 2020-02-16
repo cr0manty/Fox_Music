@@ -145,7 +145,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
           actionPane: SlidableDrawerActionPane(),
           actionExtentRatio: 0.25,
           child: Container(
-              height: MediaQuery.of(context).size.height * 0.1,
+              height: 72,
               child: ListTile(
                 contentPadding: EdgeInsets.only(left: 30, right: 20),
                 title: Text(song.title,
@@ -180,7 +180,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
           ? BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 0.35, sigmaY: 0.35),
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.1,
+                height: 72,
                 width:
                     MediaQuery.of(context).size.width * downloadData.progress,
                 decoration:
