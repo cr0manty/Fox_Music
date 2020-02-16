@@ -131,7 +131,7 @@ class LoginPageState extends State<LoginPage> {
         validator: (value) {
           if (value.isEmpty) {
             return "Passwrod can't be empty";
-          } else if (value.length < 8) {
+          } else if (_form == FormType.register && value.length < 8) {
             return 'Password must be more than 8 characters';
           }
           return null;

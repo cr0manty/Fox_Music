@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 Song songFromJson(String str) {
-  if (str != null && str.isNotEmpty) {
+  if (str != null && str?.isNotEmpty) {
     final data = json.decode(str);
     return Song.fromJson(data);
   }
@@ -45,7 +45,7 @@ class Song {
   toFileName() {
     String formatArtist = artist.replaceAll(' ', '_');
     String formatTitle = title.replaceAll(' ', '_');
-    return '$formatArtist-$formatTitle';
+    return '$formatArtist-$formatTitle.mp3';
   }
 
   factory Song.fromJson(Map<String, dynamic> json) => new Song(

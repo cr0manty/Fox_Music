@@ -10,9 +10,10 @@ import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/FriendListPage.dart';
 import 'package:vk_parse/ui/Account/VKAuthPage.dart';
-import 'package:vk_parse/ui/Music/SearchPage.dart';
+import 'package:vk_parse/ui/Account/SearchPage.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -102,14 +103,13 @@ class AccountPageState extends State<AccountPage> {
     _lastNameFilter.text = data.user.last_name;
   }
 
-  _openMessagePage(AccountData accountData) {
-
-  }
+  _openMessagePage(AccountData accountData) {}
 
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicData musicData = Provider.of<MusicData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
     if (accountData.accountType == AccountType.SELF_EDIT) {
       _setFilter(accountData);
@@ -156,9 +156,9 @@ class AccountPageState extends State<AccountPage> {
                       })
                 ]
               : [
-                  new Stack(
+                  Stack(
                     children: <Widget>[
-                      new IconButton(
+                      IconButton(
                           icon: Icon(Icons.mail_outline),
                           onPressed: () {
                             setState(() {
@@ -166,12 +166,12 @@ class AccountPageState extends State<AccountPage> {
                             });
                           }),
                       accountData.messageCount != 0
-                          ? new Positioned(
+                          ? Positioned(
                               right: 11,
                               top: 11,
-                              child: new Container(
+                              child: Container(
                                 padding: EdgeInsets.all(2),
-                                decoration: new BoxDecoration(
+                                decoration: BoxDecoration(
                                   color: Colors.red,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
@@ -189,15 +189,16 @@ class AccountPageState extends State<AccountPage> {
                                 ),
                               ),
                             )
-                          : new Container()
+                          : Container()
                     ],
                   ),
                 ]),
-      body: _switchBuilders(accountData, musicData),
+      body: _switchBuilders(accountData, musicData, downloadData),
     );
   }
 
-  _buildSelfShow(AccountData accountData, MusicData musicData) {
+  _buildSelfShow(AccountData accountData, MusicData musicData,
+      MusicDownloadData downloadData) {
     return Container(
         child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -240,7 +241,7 @@ class AccountPageState extends State<AccountPage> {
             )),
         Padding(
             padding: EdgeInsets.only(bottom: 25),
-            child: new Text(
+            child: Text(
                 accountData.user.last_name.isEmpty &&
                         accountData.user.first_name.isEmpty
                     ? ''
@@ -249,17 +250,20 @@ class AccountPageState extends State<AccountPage> {
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Colors.white))),
-        _buildTabList(accountData, musicData),
+        _buildTabList(accountData, musicData, downloadData),
       ],
     ));
   }
 
-  _downloadAll(AccountData accountData) {
+  _downloadAll(AccountData accountData, MusicData musicData,
+      MusicDownloadData downloadData) async {
     if (accountData.user.can_use_vk) {
+      await musicData.loadSavedMusic();
+      downloadData.multiQuery = musicData.localSongs;
     } else {
       showDialog(
           context: _scaffoldKey.currentContext,
-          builder: (BuildContext context) => new CupertinoAlertDialog(
+          builder: (BuildContext context) => CupertinoAlertDialog(
                   title: Text('Error'),
                   content: Text(
                       'In order to download, you have to allow access to your account details'),
@@ -286,7 +290,8 @@ class AccountPageState extends State<AccountPage> {
     }
   }
 
-  _buildTabList(AccountData accountData, MusicData musicData) {
+  _buildTabList(AccountData accountData, MusicData musicData,
+      MusicDownloadData downloadData) {
     return Expanded(
         child: Padding(
             padding: EdgeInsets.all(10),
@@ -296,11 +301,15 @@ class AccountPageState extends State<AccountPage> {
                     child: ListTile(
                   leading: Icon(Icons.search, color: Colors.white),
                   onTap: () {
-                    Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<AccountData>.value(
-                                    value: accountData, child: SearchPage())));
+                    Navigator.of(_scaffoldKey.currentContext)
+                        .push(MaterialPageRoute(
+                            builder: (context) => MultiProvider(providers: [
+                                  ChangeNotifierProvider<
+                                          MusicDownloadData>.value(
+                                      value: downloadData),
+                                  ChangeNotifierProvider<AccountData>.value(
+                                      value: accountData),
+                                ], child: SearchPage())));
                   },
                   title: Text(
                     'Search',
@@ -311,12 +320,15 @@ class AccountPageState extends State<AccountPage> {
                     child: ListTile(
                   leading: Icon(Icons.people, color: Colors.white),
                   onTap: () {
-                    Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<AccountData>.value(
-                                    value: accountData,
-                                    child: FriendListPage())));
+                    Navigator.of(_scaffoldKey.currentContext)
+                        .push(MaterialPageRoute(
+                            builder: (context) => MultiProvider(providers: [
+                                  ChangeNotifierProvider<
+                                          MusicDownloadData>.value(
+                                      value: downloadData),
+                                  ChangeNotifierProvider<AccountData>.value(
+                                      value: accountData),
+                                ], child: FriendListPage())));
                   },
                   title: Text(
                     'Friends',
@@ -326,7 +338,8 @@ class AccountPageState extends State<AccountPage> {
                 Card(
                     child: ListTile(
                   leading: Icon(Icons.file_download, color: Colors.white),
-                  onTap: () => _downloadAll(accountData),
+                  onTap: () =>
+                      _downloadAll(accountData, musicData, downloadData),
                   title: Text(
                     'Download all',
                     style: TextStyle(color: Colors.white),
@@ -385,7 +398,7 @@ class AccountPageState extends State<AccountPage> {
     ];
   }
 
-  _buildSelfEdit(AccountData _data) {
+  _buildSelfEdit(AccountData accountData) {
     return Container(
         child: SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
@@ -409,7 +422,7 @@ class AccountPageState extends State<AccountPage> {
                                         Navigator.pop(context);
                                         _image = await ImagePicker.pickImage(
                                             source: ImageSource.camera);
-                                        _data.setNewImage(_image);
+                                        accountData.setNewImage(_image);
                                       },
                                       child: Text('Camera')),
                                   CupertinoActionSheetAction(
@@ -417,6 +430,7 @@ class AccountPageState extends State<AccountPage> {
                                         Navigator.pop(context);
                                         _image = await ImagePicker.pickImage(
                                             source: ImageSource.gallery);
+                                        accountData.setNewImage(_image);
                                       },
                                       child: Text(
                                         'Gallery',
@@ -429,9 +443,10 @@ class AccountPageState extends State<AccountPage> {
                           child: CircleAvatar(
                               radius: 100,
                               backgroundColor: Colors.grey,
-                              backgroundImage: _data.newImage != null
-                                  ? Image.file(_data.newImage).image
-                                  : Image.network(formatImage(_data.user.image))
+                              backgroundImage: accountData.newImage != null
+                                  ? Image.file(accountData.newImage).image
+                                  : Image.network(
+                                          formatImage(accountData.user.image))
                                       .image)),
                     )),
                 Divider(height: 10),
@@ -454,12 +469,13 @@ class AccountPageState extends State<AccountPage> {
             )));
   }
 
-  _switchBuilders(AccountData _data, MusicData musicData) {
-    switch (_data.accountType) {
+  _switchBuilders(AccountData accountData, MusicData musicData,
+      MusicDownloadData downloadData) {
+    switch (accountData.accountType) {
       case AccountType.SELF_EDIT:
-        return _buildSelfEdit(_data);
+        return _buildSelfEdit(accountData);
       default:
-        return _buildSelfShow(_data, musicData);
+        return _buildSelfShow(accountData, musicData, downloadData);
     }
   }
 }

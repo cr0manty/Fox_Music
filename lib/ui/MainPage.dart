@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/LoginPage.dart';
 import 'package:vk_parse/ui/Music/PlayerPage.dart';
 import 'package:vk_parse/ui/Music/PlaylistPage.dart';
@@ -25,14 +26,17 @@ class MainPageState extends State<MainPage> {
   AccountData accountData;
   int currentIndex = 0;
 
-  _buildView(MusicData musicData, AccountData accountData, Widget child) {
+  _buildView(MusicData musicData, AccountData accountData,
+      MusicDownloadData downloadData, Widget child) {
     return MultiProvider(providers: [
       ChangeNotifierProvider<MusicData>.value(value: musicData),
+      ChangeNotifierProvider<MusicDownloadData>.value(value: downloadData),
       ChangeNotifierProvider<AccountData>.value(value: accountData),
     ], child: child);
   }
 
-  _switchPages(MusicData musicData, AccountData accountData, int index) {
+  _switchPages(MusicData musicData, AccountData accountData,
+      MusicDownloadData downloadData, int index) {
     switch (index) {
       case 0:
         return ChangeNotifierProvider<MusicData>.value(
@@ -47,10 +51,11 @@ class MainPageState extends State<MainPage> {
             value: musicData, child: PlayerPage());
         break;
       case 3:
-        return _buildView(musicData, accountData, VKMusicListPage());
+        return _buildView(
+            musicData, accountData, downloadData, VKMusicListPage());
         break;
       case 4:
-        return _buildView(musicData, accountData,
+        return _buildView(musicData, accountData, downloadData,
             accountData.user != null ? AccountPage() : LoginPage());
         break;
     }
@@ -59,10 +64,12 @@ class MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
 
     setState(() {
-      _currentPage = _switchPages(musicData, accountData, currentIndex);
+      _currentPage =
+          _switchPages(musicData, accountData, downloadData, currentIndex);
     });
 
     return Scaffold(
@@ -73,7 +80,8 @@ class MainPageState extends State<MainPage> {
           onTap: (index) {
             setState(() {
               currentIndex = index;
-              _currentPage = _switchPages(musicData, accountData, currentIndex);
+              _currentPage = _switchPages(
+                  musicData, accountData, downloadData, currentIndex);
             });
           },
           items: [

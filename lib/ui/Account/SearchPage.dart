@@ -2,16 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+
 import 'package:vk_parse/api/friendList.dart';
 import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/api/userSearch.dart';
 import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/models/Relationship.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/models/User.dart';
 import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/PeoplePage.dart';
 
 class SearchPage extends StatefulWidget {
@@ -56,6 +57,8 @@ class SearchPageState extends State<SearchPage>
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+
     return DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -111,18 +114,19 @@ class SearchPageState extends State<SearchPage>
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(25.0))))))),
                   Divider(),
-                  _buildTabView(accountData)
+                  _buildTabView(accountData, downloadData)
                 ]))));
   }
 
-  _buildTabView(AccountData accountData) {
+  _buildTabView(AccountData accountData, MusicDownloadData downloadData) {
     return Flexible(
         child: TabBarView(children: <Widget>[
       ListView.builder(
         shrinkWrap: true,
         physics: ClampingScrollPhysics(),
         itemCount: _songList.length,
-        itemBuilder: (context, index) => _buildSongListTile(index),
+        itemBuilder: (context, index) =>
+            _buildSongListTile(downloadData, index),
       ),
       ListView.builder(
         shrinkWrap: true,
@@ -133,7 +137,7 @@ class SearchPageState extends State<SearchPage>
     ]));
   }
 
-  _buildSongListTile(int index) {
+  _buildSongListTile(MusicDownloadData downloadData, int index) {
     Song song = _songList[index];
     if (song == null) {
       return null;
@@ -159,7 +163,7 @@ class SearchPageState extends State<SearchPage>
             color: Colors.blue,
             icon: Icons.file_download,
             onTap: () {
-//              saveSong(song, context: context); TODO
+              downloadData.query = song;
             },
           ),
         ],
@@ -174,45 +178,54 @@ class SearchPageState extends State<SearchPage>
 
     return Column(children: [
       Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: Container(
-            child: ListTile(
-                title: Text(relationship.user.last_name.isEmpty ? 'Unknown' : relationship.user.last_name,
-                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-                subtitle: Text(
-                    relationship.user.first_name.isEmpty ? 'Unknown' : relationship.user.first_name,
-                    style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-                onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext).push(
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ChangeNotifierProvider<AccountData>.value(
-                                  value: accountData,
-                                  child: PeoplePage(relationship))));
-                },
-                leading: CircleAvatar(
-                    radius: 25,
-                    backgroundColor: Colors.grey,
-                    backgroundImage:
-                        Image.network(formatImage(relationship.user.image)).image))),
-        actions: <Widget>[
-          new IconSlideAction(
-            caption: relationship.buttonName(),
-            color: Colors.blue,
-            icon: Icons.perm_identity,
-            onTap: () => relationship.sendRequest(),
-          ),
-        ],
-        secondaryActions: relationship.status != RelationshipStatus.BLOCK ? <Widget>[
-          new IconSlideAction(
-            caption: 'Block',
-            color: Colors.red,
-            icon: Icons.block,
-            onTap: () => relationship.sendBlock(),
-          ),
-        ]: null
-      ),
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          child: Container(
+              child: ListTile(
+                  title: Text(
+                      relationship.user.last_name.isEmpty
+                          ? 'Unknown'
+                          : relationship.user.last_name,
+                      style:
+                          TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+                  subtitle: Text(
+                      relationship.user.first_name.isEmpty
+                          ? 'Unknown'
+                          : relationship.user.first_name,
+                      style:
+                          TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+                  onTap: () {
+                    Navigator.of(_scaffoldKey.currentContext).push(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ChangeNotifierProvider<AccountData>.value(
+                                    value: accountData,
+                                    child: PeoplePage(relationship))));
+                  },
+                  leading: CircleAvatar(
+                      radius: 25,
+                      backgroundColor: Colors.grey,
+                      backgroundImage:
+                          Image.network(formatImage(relationship.user.image))
+                              .image))),
+          actions: <Widget>[
+            new IconSlideAction(
+              caption: relationship.buttonName(),
+              color: Colors.blue,
+              icon: Icons.perm_identity,
+              onTap: () => relationship.sendRequest(),
+            ),
+          ],
+          secondaryActions: relationship.status != RelationshipStatus.BLOCK
+              ? <Widget>[
+                  new IconSlideAction(
+                    caption: 'Block',
+                    color: Colors.red,
+                    icon: Icons.block,
+                    onTap: () => relationship.sendBlock(),
+                  ),
+                ]
+              : null),
       Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
     ]);
   }

@@ -263,7 +263,7 @@ class PlayerPageState extends State<PlayerPage> {
                                 child: Align(
                                     alignment: FractionalOffset.bottomCenter,
                                     child: Padding(
-                                        padding: EdgeInsets.only(bottom: 10),
+                                        padding: EdgeInsets.only(left: 10,bottom: 10),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,

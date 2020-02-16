@@ -1,17 +1,16 @@
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:vk_parse/functions/utils/downloadSong.dart';
 
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicData.dart';
-import 'package:vk_parse/utils/MultipartRequest.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/VKAuthPage.dart';
 
 class VKMusicListPage extends StatefulWidget {
@@ -24,13 +23,14 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _data = [];
+  bool init = true;
   Song playedSong;
-  double progress = 0;
 
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
     return new Scaffold(
         key: _scaffoldKey,
@@ -63,17 +63,19 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                 ]
               : [],
         ),
-        body: _buildBody(accountData));
+        body: _buildBody(accountData, downloadData));
   }
 
-  _buildBody(AccountData accountData) {
-    return accountData.user != null && accountData.user.can_use_vk
+  _buildBody(AccountData accountData, MusicDownloadData downloadData) {
+    return accountData.user != null &&
+            (accountData.user.can_use_vk || accountData.user.is_staff)
         ? RefreshIndicator(
             key: _refreshKey,
             onRefresh: () async => await _loadSongs(),
             child: ListView.builder(
               itemCount: _data.length,
-              itemBuilder: (context, index) => _buildSongListTile(index),
+              itemBuilder: (context, index) =>
+                  _buildSongListTile(downloadData, index),
             ))
         : Center(
             child: Container(
@@ -124,101 +126,67 @@ class VKMusicListPageState extends State<VKMusicListPage> {
     }
   }
 
-  downloadProgress(Song song) async {
-    if (song.download.isEmpty) {
-      final snackBar = SnackBar(
-        backgroundColor: Color.fromRGBO(20, 20, 20, 0.9),
-        content:
-            Text('Empty download url', style: TextStyle(color: Colors.grey)),
-        duration: Duration(seconds: 5),
-        action: SnackBarAction(
-          textColor: Colors.grey,
-          label: 'OK',
-          onPressed: () {},
-        ),
-      );
-
-      Scaffold.of(context).showSnackBar(snackBar);
-    } else {
-      final uri = Uri.parse(song.download); // TODO
-      final request = MultipartRequest(
-        'GET',
-        uri,
-        onProgress: (int bytes, int total) {
-          setState(() {
-            progress = bytes / total * 0.8;
-            print('progress: $progress ($bytes/$total)');
-          });
-        },
-      );
-      final snackBar = SnackBar(
-        backgroundColor: Color.fromRGBO(20, 20, 20, 0.9),
-        content: Row(
-          children: <Widget>[
-            CircularPercentIndicator(
-              percent: progress,
-              radius: 30,
-            ),
-            Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Text('Downloading song...',
-                    style: TextStyle(color: Colors.grey)))
-          ],
-        ),
-        action: SnackBarAction(
-          textColor: Colors.grey,
-          label: 'Undo',
-          onPressed: () {},
-        ),
-      );
-
-      Scaffold.of(context).showSnackBar(snackBar);
-      request.send().then((response) async {
-        final bytes = await response.stream.toBytes();
-        await saveSong(song, context, bytes);
-      });
-    }
+  _downloadSong(MusicDownloadData downloadData, Song song) {
+    downloadData.downloadSingle(song);
   }
 
-  _buildSongListTile(int index) {
+  _buildSongListTile(MusicDownloadData downloadData, int index) {
     Song song = _data[index];
-    if (song == null) {
-      return null;
+    if (init) {
+      downloadData.onResultChanged.listen((result) {
+          downloadData.showInfo(_scaffoldKey.currentContext, result);
+      });
+      init = false;
     }
-    return Column(children: [
-      Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: Container(
-            child: ListTile(
-          contentPadding: EdgeInsets.only(left: 30, right: 20),
-          title: Text(song.title,
-              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-          subtitle: Text(song.artist,
-              style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-          onTap: () {
-            downloadProgress(song);
-          },
-          trailing: Text(formatDuration(song.duration),
-              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-        )),
-        secondaryActions: <Widget>[
-          IconSlideAction(
-            caption: 'Delete',
-            color: Colors.red,
-            icon: Icons.delete,
-            onTap: () async {
-              bool isDeleted = await hideMusic(song.song_id);
-              if (isDeleted) {
-                setState(() {
-                  _data.removeAt(index);
-                });
-              }
-            },
-          ),
-        ],
-      ),
-      Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+
+    return Stack(children: [
+      Column(children: <Widget>[
+        Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          child: Container(
+              height: MediaQuery.of(context).size.height * 0.1,
+              child: ListTile(
+                contentPadding: EdgeInsets.only(left: 30, right: 20),
+                title: Text(song.title,
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+                subtitle: Text(song.artist,
+                    style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+                onTap: () {
+                  _downloadSong(downloadData, song);
+                },
+                trailing: Text(formatDuration(song.duration),
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+              )),
+          secondaryActions: <Widget>[
+            IconSlideAction(
+              caption: 'Delete',
+              color: Colors.red,
+              icon: Icons.delete,
+              onTap: () async {
+                bool isDeleted = await hideMusic(song.song_id);
+                if (isDeleted) {
+                  setState(() {
+                    _data.removeAt(index);
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+        Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+      ]),
+      downloadData.currentSong == song
+          ? BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 0.35, sigmaY: 0.35),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.1,
+                width:
+                    MediaQuery.of(context).size.width * downloadData.progress,
+                decoration:
+                    BoxDecoration(color: Colors.redAccent.withOpacity(0.2)),
+              ))
+          : Container(),
     ]);
   }
 }

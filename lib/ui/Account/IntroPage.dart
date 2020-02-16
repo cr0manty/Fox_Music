@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 
 import 'package:vk_parse/provider/MusicData.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/MainPage.dart';
 
 class IntroPage extends StatefulWidget {
@@ -19,17 +20,19 @@ class _IntroPageState extends State<IntroPage> {
   startTime() async {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      final musicData = new MusicData();
-      final userData = new AccountData();
+      MusicData musicData = new MusicData();
+      AccountData accountData = new AccountData();
+      MusicDownloadData downloadData = new MusicDownloadData();
       musicData.init(Theme.of(context).platform);
-      userData.init();
+      accountData.init();
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
               builder: (BuildContext context) => MultiProvider(providers: [
                     ChangeNotifierProvider<MusicData>.value(value: musicData),
-                    ChangeNotifierProvider<AccountData>.value(value: userData),
+                    ChangeNotifierProvider<AccountData>.value(value: accountData),
+                    ChangeNotifierProvider<MusicDownloadData>.value(value: downloadData),
                   ], child: MainPage())),
           (Route<dynamic> route) => false);
     });

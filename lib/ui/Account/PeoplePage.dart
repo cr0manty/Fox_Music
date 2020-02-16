@@ -5,11 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/utils/downloadSong.dart';
 import 'package:vk_parse/models/Relationship.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/utils/urls.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 
 class PeoplePage extends StatefulWidget {
   final Relationship relationship;
@@ -27,6 +26,7 @@ class PeoplePageState extends State<PeoplePage> {
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
     return Scaffold(
         key: _scaffoldKey,
@@ -43,7 +43,7 @@ class PeoplePageState extends State<PeoplePage> {
               : [],
         ),
         body: widget.relationship.status != RelationshipStatus.BLOCK
-            ? _buildPage(accountData)
+            ? _buildPage(accountData, downloadData)
             : Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
@@ -67,7 +67,7 @@ class PeoplePageState extends State<PeoplePage> {
                 )));
   }
 
-  _buildPage(AccountData accountData) {
+  _buildPage(AccountData accountData, MusicDownloadData downloadData) {
     return Container(
         alignment: Alignment.topCenter,
         child: Column(
@@ -108,7 +108,7 @@ class PeoplePageState extends State<PeoplePage> {
                         shrinkWrap: true,
                         physics: ClampingScrollPhysics(),
                         itemCount: _friendSongList.length,
-                        itemBuilder: (context, index) => _buildSong(index),
+                        itemBuilder: (context, index) => _buildSong(downloadData, index),
                       )
                     : Padding(
                         padding: EdgeInsets.all(20),
@@ -121,11 +121,8 @@ class PeoplePageState extends State<PeoplePage> {
         ));
   }
 
-  _buildSong(int index) {
+  _buildSong(MusicDownloadData downloadData, int index) {
     Song song = _friendSongList[index];
-    if (song == null) {
-      return null;
-    }
     return Column(children: [
       Slidable(
         actionPane: SlidableDrawerActionPane(),
@@ -138,7 +135,7 @@ class PeoplePageState extends State<PeoplePage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () {
-//            saveSong(song, context); TODO
+            downloadData.query = song;
           },
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
