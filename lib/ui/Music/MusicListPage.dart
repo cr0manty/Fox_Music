@@ -2,12 +2,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/models/Playlist.dart';
-import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/provider/MusicData.dart';
+import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
+import 'package:vk_parse/functions/utils/pickDialog.dart';
+import 'package:vk_parse/models/Playlist.dart';
+import 'package:vk_parse/utils/Database.dart';
+import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 
@@ -31,9 +33,25 @@ class MusicListPageState extends State<MusicListPage> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _musicList = [];
+  List<Playlist> _playlistList = [];
   bool init = true;
 
   _addTrackToPlaylistDialog() {}
+
+  _loadPlaylistList() async {
+    List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
+    if (mounted) {
+      setState(() {
+        _playlistList = playlistList;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPlaylistList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +60,7 @@ class MusicListPageState extends State<MusicListPage> {
       init = false;
       _loadPlaylist(musicData, null);
     }
+
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -196,7 +215,7 @@ class MusicListPageState extends State<MusicListPage> {
         caption: 'Add to playlist',
         color: Colors.pinkAccent,
         icon: Icons.playlist_add,
-        onTap: null,
+        onTap: () => showPickerDialog(context, _playlistList, song.song_id),
       ));
     }
     actions.add(IconSlideAction(

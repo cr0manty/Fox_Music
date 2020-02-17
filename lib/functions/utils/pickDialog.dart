@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:vk_parse/functions/utils/setPlaylistSong.dart';
+import 'package:vk_parse/models/Playlist.dart';
 import 'package:vk_parse/models/PlaylistCheckbox.dart';
 import 'package:vk_parse/utils/DialogPlaylistContent.dart';
 
-showPickerDialog(BuildContext context, List<PlaylistCheckbox> listData) async {
+showPickerDialog(BuildContext context, List<Playlist> playlist, int songId) async {
+  final List<PlaylistCheckbox> listData = await Future.wait(playlist.map((playlist) async {
+    return  PlaylistCheckbox(playlist, checked: playlist.inList(songId));
+  }));
   await showDialog<String>(
     context: context,
     builder: (BuildContext context) {
@@ -14,7 +18,7 @@ showPickerDialog(BuildContext context, List<PlaylistCheckbox> listData) async {
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () {
-              setPlaylistSong(listData);
+              setPlaylistSong(playlist, songId);
               Navigator.of(context).pop();
             },
             child: Text('Confirm'),

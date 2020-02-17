@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/utils/pickDialog.dart';
 import 'package:vk_parse/models/Playlist.dart';
-import 'package:vk_parse/models/PlaylistCheckbox.dart';
 import 'package:vk_parse/provider/MusicData.dart';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -18,20 +17,22 @@ class PlayerPage extends StatefulWidget {
 class PlayerPageState extends State<PlayerPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  List<PlaylistCheckbox> _playlistList = [];
+  List<Playlist> _playlistList = [];
   int selectItem = 1;
 
-  _loadPlaylist(int id) async {
+  _loadPlaylist() async {
     List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
     if (mounted) {
       setState(() {
-        _playlistList = [];
-        playlistList.forEach((data) {
-          _playlistList.add(
-              PlaylistCheckbox(data, checked: data.inList(id), songId: id));
-        });
+        _playlistList = playlistList;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPlaylist();
   }
 
   _play(MusicData musicData) {
@@ -54,8 +55,6 @@ class PlayerPageState extends State<PlayerPage> {
     double sliderValue =
         durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
     FocusScope.of(context).requestFocus(FocusNode());
-    if (musicData.currentSong != null)
-      _loadPlaylist(musicData.currentSong.song_id);
 
     return Scaffold(
         key: _scaffoldKey,
@@ -251,7 +250,9 @@ class PlayerPageState extends State<PlayerPage> {
                                                   musicData.currentSong != null
                                                       ? () => showPickerDialog(
                                                           context,
-                                                          _playlistList)
+                                                          _playlistList,
+                                                          musicData.currentSong
+                                                              .song_id)
                                                       : null,
                                               icon: Icon(Icons.playlist_add,
                                                   size: screenHeight * 0.03,

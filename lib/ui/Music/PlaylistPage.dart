@@ -24,8 +24,14 @@ class PlaylistPageState extends State<PlaylistPage> {
     Playlist playlist = new Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
-      _playlistList.add(playlist);
+      _playlistList.insert(0, playlist);
     });
+  }
+
+  _renamePlaylist(Playlist playlist, String playlistName) async {
+    playlist.title = playlistName;
+    await DBProvider.db.updatePlaylist(playlist);
+    setState(() {});
   }
 
   _loadPlaylist() async {
@@ -42,14 +48,18 @@ class PlaylistPageState extends State<PlaylistPage> {
     _loadPlaylist();
   }
 
-  _createPlaylistShowDialog() async {
+  _playlistDialog({Playlist playlist}) async {
     final TextEditingController playlistName = new TextEditingController();
+
+    if (playlist != null) {
+      playlistName.text = playlist.title;
+    }
 
     showDialog<bool>(
       context: _scaffoldKey.currentContext,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: Text('Create playlist'),
+          title: Text(playlist != null ? 'Create playlist' : 'Rename playlist'),
           content: Padding(
               padding: EdgeInsets.only(top: 10),
               child: Card(
@@ -63,16 +73,19 @@ class PlaylistPageState extends State<PlaylistPage> {
           actions: <Widget>[
             CupertinoDialogAction(
                 isDestructiveAction: true,
-                child: Text("Cancel"),
+                child: Text('Cancel'),
                 onPressed: () {
                   Navigator.pop(context);
                 }),
             CupertinoDialogAction(
                 isDefaultAction: true,
-                child: Text("Create"),
+                child: Text(playlist != null ? 'Create' : 'Rename'),
                 onPressed: () {
                   if (playlistName.text.isNotEmpty) {
-                    _createPlaylist(playlistName.text);
+                    if (playlist != null)
+                      _renamePlaylist(playlist, playlistName.text);
+                    else
+                      _createPlaylist(playlistName.text);
                   }
                   Navigator.pop(context);
                 }),
@@ -91,7 +104,7 @@ class PlaylistPageState extends State<PlaylistPage> {
             new AppBar(title: Text('Playlists'), centerTitle: true, actions: [
           IconButton(
               icon: Icon(Icons.add, color: Colors.white),
-              onPressed: _createPlaylistShowDialog)
+              onPressed: _playlistDialog)
         ]),
         body: ListView.builder(
           itemCount: _playlistList.length,
@@ -160,13 +173,13 @@ class PlaylistPageState extends State<PlaylistPage> {
                 },
                 leading: _showImage(playlist))),
         actions: <Widget>[
-          new IconSlideAction(
+          IconSlideAction(
             caption: 'Play',
             color: Colors.blue,
             icon: Icons.play_arrow,
             onTap: null,
           ),
-          new IconSlideAction(
+          IconSlideAction(
             caption: 'Set image',
             color: Colors.pinkAccent,
             icon: Icons.image,
@@ -202,7 +215,13 @@ class PlaylistPageState extends State<PlaylistPage> {
           ),
         ],
         secondaryActions: <Widget>[
-          new IconSlideAction(
+          IconSlideAction(
+            caption: 'Rename',
+            color: Colors.indigo,
+            icon: Icons.edit,
+            onTap: () => _playlistDialog(playlist: playlist),
+          ),
+          IconSlideAction(
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,

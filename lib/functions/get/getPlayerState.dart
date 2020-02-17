@@ -4,5 +4,5 @@ getPlayerState() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
 
   bool repeat = await preferences.getBool("RepeatState");
-  return repeat;
+  return repeat ?? false;
 }
