@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:vk_parse/functions/utils/setPlaylistSong.dart';
+import 'package:vk_parse/models/PlaylistCheckbox.dart';
+import 'package:vk_parse/utils/DialogPlaylistContent.dart';
 
-showPickerDialog(BuildContext context, int count, _builder) {
-  showDialog<bool>(
+showPickerDialog(BuildContext context, List<PlaylistCheckbox> listData) async {
+  await showDialog<String>(
     context: context,
-    builder: (context) {
+    builder: (BuildContext context) {
       return CupertinoAlertDialog(
         title: Text('Add song to playlist'),
-        content: Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Card(
-                elevation: 0,
-                color: Colors.transparent,
-                shape: const RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey),
-                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                ),
-                child: Container(
-                    height: 250,
-                    child: ListView.builder(
-                        itemCount: count,
-                        itemBuilder: (context, index) => _builder(index))))),
         actions: <Widget>[
           CupertinoDialogAction(
-              isDefaultAction: true,
-              child: Text("Confirm"),
-              onPressed: () {
-                Navigator.pop(context);
-              }),
+            isDestructiveAction: true,
+            onPressed: () {
+              setPlaylistSong(listData);
+              Navigator.of(context).pop();
+            },
+            child: Text('Confirm'),
+          ),
         ],
+        content: Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: SingleChildScrollView(
+              child: Material(
+                  color: Colors.transparent,
+                  child: Card(
+                      elevation: 0,
+                      color: Colors.transparent,
+                      shape: const RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                      ),
+                      child: Container(
+                          height: 250,
+                          child:
+                              DialogPlaylistContent(playlistList: listData))))),
+        ),
       );
     },
   );

@@ -39,10 +39,6 @@ class Playlist {
     return songList.split(',');
   }
 
-  getImage() {
-    return base64.decode(image);
-  }
-
   bool inList(int id) {
     List<String> data = _splitSongList();
     return data.indexOf(id.toString()) != -1;
@@ -59,12 +55,16 @@ class Playlist {
   }
 
   deleteSong(int id) {
+    String newList = '';
+
     if (inList(id)) {
-      _splitSongList().forEach((data) {
+      final list = _splitSongList();
+      list.forEach((data) {
         if (data != id.toString()) {
-          songList += data;
+          newList += data;
         }
       });
     }
+    songList = newList;
   }
 }

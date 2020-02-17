@@ -4,19 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 import 'package:vk_parse/functions/utils/pickDialog.dart';
 import 'package:vk_parse/models/Playlist.dart';
+import 'package:vk_parse/models/PlaylistCheckbox.dart';
 import 'package:vk_parse/provider/MusicData.dart';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vk_parse/utils/Database.dart';
-
-class PlaylistCheckbox {
-  Playlist playlist;
-  bool checked;
-
-  PlaylistCheckbox(this.playlist, {this.checked}) {
-    checked ??= false;
-  }
-}
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -35,34 +27,11 @@ class PlayerPageState extends State<PlayerPage> {
       setState(() {
         _playlistList = [];
         playlistList.forEach((data) {
-          _playlistList.add(PlaylistCheckbox(data, checked: data.inList(id)));
+          _playlistList.add(
+              PlaylistCheckbox(data, checked: data.inList(id), songId: id));
         });
       });
     }
-  }
-
-  _buildPlaylistList(int index) {
-    PlaylistCheckbox playlist = _playlistList[index];
-    return Column(children: [
-      CheckboxListTile(
-        activeColor: Colors.redAccent,
-        title: Text(
-          playlist.playlist.title,
-          style: TextStyle(color: Colors.black),
-        ),
-        value: playlist.checked,
-        onChanged: (value) {
-          setState(() {
-            playlist.checked = !playlist.checked;
-          });
-          print('checked');
-        },
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Divider(color: Colors.grey),
-      )
-    ]);
   }
 
   _play(MusicData musicData) {
@@ -263,7 +232,8 @@ class PlayerPageState extends State<PlayerPage> {
                                 child: Align(
                                     alignment: FractionalOffset.bottomCenter,
                                     child: Padding(
-                                        padding: EdgeInsets.only(left: 10,bottom: 10),
+                                        padding: EdgeInsets.only(
+                                            left: 10, bottom: 10),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -281,8 +251,7 @@ class PlayerPageState extends State<PlayerPage> {
                                                   musicData.currentSong != null
                                                       ? () => showPickerDialog(
                                                           context,
-                                                          _playlistList.length,
-                                                          _buildPlaylistList)
+                                                          _playlistList)
                                                       : null,
                                               icon: Icon(Icons.playlist_add,
                                                   size: screenHeight * 0.03,
