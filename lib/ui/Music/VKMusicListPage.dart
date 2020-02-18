@@ -22,7 +22,6 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
-  List<Song> _data = [];
   bool init = true;
   Song playedSong;
 
@@ -56,7 +55,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                       } catch (e) {
                         print(e);
                       } finally {
-                        _loadSongs();
+                        downloadData.loadMusic();
                       }
                     },
                   )
@@ -71,9 +70,9 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             (accountData.user.can_use_vk || accountData.user.is_staff)
         ? RefreshIndicator(
             key: _refreshKey,
-            onRefresh: () async => await _loadSongs(),
+            onRefresh: () => downloadData.loadMusic(),
             child: ListView.builder(
-              itemCount: _data.length,
+              itemCount: downloadData.dataSong.length,
               itemBuilder: (context, index) =>
                   _buildSongListTile(downloadData, index),
             ))
@@ -83,47 +82,31 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).size.height * 0.2),
             width: MediaQuery.of(context).size.width * 0.5,
-            height: MediaQuery.of(context).size.height * 0.3,
-            child: Column(children: <Widget>[
-              Text(
-                'In order to listen, you have to allow access to your account details',
-                style: TextStyle(color: Colors.grey, fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
+            child: Stack(children: <Widget>[
               Padding(
-                padding: EdgeInsets.only(top: 30),
-                child: CupertinoButton(
-                  child: Text('Submit'),
-                  color: Colors.redAccent,
-                  onPressed: () {
-                    Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ChangeNotifierProvider<AccountData>.value(
-                                    value: accountData,
-                                    child: VKAuthPage(accountData))));
-                  },
-                ),
-              )
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.1),
+                  child: Text(
+                    'In order to listen, you have to allow access to your account details',
+                    style: TextStyle(color: Colors.grey, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  )),
+              Center(
+                  child: CupertinoButton(
+                child: Text('Submit'),
+                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                color: Colors.redAccent,
+                onPressed: () {
+                  Navigator.of(_scaffoldKey.currentContext).push(
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ChangeNotifierProvider<AccountData>.value(
+                                  value: accountData,
+                                  child: VKAuthPage(accountData))));
+                },
+              )),
             ]),
           ));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSongs();
-  }
-
-  _loadSongs() async {
-    final listSong = await musicListGet();
-    if (mounted) {
-      if (listSong != null) {
-        setState(() {
-          _data = listSong;
-        });
-      }
-    }
   }
 
   _downloadSong(MusicDownloadData downloadData, Song song) {
@@ -131,10 +114,10 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   }
 
   _buildSongListTile(MusicDownloadData downloadData, int index) {
-    Song song = _data[index];
+    Song song = downloadData.dataSong[index];
     if (init) {
       downloadData.onResultChanged.listen((result) {
-          downloadData.showInfo(_scaffoldKey.currentContext, result);
+        downloadData.showInfo(_scaffoldKey.currentContext, result);
       });
       init = false;
     }
@@ -167,7 +150,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                 bool isDeleted = await hideMusic(song.song_id);
                 if (isDeleted) {
                   setState(() {
-                    _data.removeAt(index);
+                    downloadData.dataSong.removeAt(index);
                   });
                 }
               },
@@ -177,15 +160,12 @@ class VKMusicListPageState extends State<VKMusicListPage> {
         Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
       ]),
       downloadData.currentSong == song
-          ? BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 0.35, sigmaY: 0.35),
-              child: Container(
-                height: 72,
-                width:
-                    MediaQuery.of(context).size.width * downloadData.progress,
-                decoration:
-                    BoxDecoration(color: Colors.redAccent.withOpacity(0.2)),
-              ))
+          ? Container(
+              height: 72,
+              width: MediaQuery.of(context).size.width * downloadData.progress,
+              decoration:
+                  BoxDecoration(color: Colors.redAccent.withOpacity(0.2)),
+            )
           : Container(),
     ]);
   }

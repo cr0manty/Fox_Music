@@ -90,22 +90,19 @@ class MusicListPageState extends State<MusicListPage> {
               )
             : ListView(children: <Widget>[
                 Padding(
-                    padding: EdgeInsets.only(bottom: 40),
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 30),
-                        child: Text(
-                          widget._pageType == PageType.SAVED
-                              ? 'No saved songs'
-                              : 'Empty playlist',
-                          style: TextStyle(color: Colors.grey, fontSize: 20),
-                          textAlign: TextAlign.center,
-                        )))
+                    padding: EdgeInsets.only(top: 30),
+                    child: Text(
+                      widget._pageType == PageType.SAVED
+                          ? 'No saved songs'
+                          : 'Empty playlist',
+                      style: TextStyle(color: Colors.grey, fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ))
               ]));
   }
 
   _loadPlaylist(MusicData musicData, Song song) async {
     if (widget._pageType == PageType.SAVED) {
-      await musicData.loadSavedMusic();
       await setState(() {
         _musicList = musicData.localSongs;
       });
@@ -227,60 +224,70 @@ class MusicListPageState extends State<MusicListPage> {
     return actions;
   }
 
-  _buildSongListTile(int index, MusicData sharedData) {
+  _buildSongListTile(int index, MusicData musicData) {
     Song song = _musicList[index];
     if (song == null) {
       return null;
     }
-    return Column(children: <Widget>[
-      Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: new Container(
-            child: ListTile(
-          contentPadding: EdgeInsets.only(left: 30, right: 20),
-          title: Text(song.title,
-              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-          subtitle: Text(song.artist,
-              style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-          onTap: () async {
-            _loadPlaylist(sharedData, song);
-            bool stopped = false;
-            if (sharedData.playerState == AudioPlayerState.PLAYING) {
-              if (sharedData.currentSong.song_id == song.song_id) {
-                await sharedData.playerPause();
-                stopped = true;
-              } else {
-                await sharedData.playerStop();
-              }
-            }
-            if (sharedData.playerState != AudioPlayerState.PLAYING &&
-                !stopped) {
-              await sharedData.playerPlay(song);
-            }
-          },
-          trailing: Text(formatDuration(song.duration),
-              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-        )),
-        actions: _actionsPane(song),
-        secondaryActions: <Widget>[
-          IconSlideAction(
-            caption: 'Share',
-            color: Colors.indigo,
-            icon: Icons.share,
-            onTap: () => _shareSong(song),
-          ),
-          IconSlideAction(
-            caption: 'Delete',
-            color: Colors.red,
-            icon: Icons.delete,
-            onTap: () => widget._pageType == PageType.SAVED
-                ? _deleteSong(song)
-                : _deleteSongFromPlaylist(song),
-          ),
-        ],
-      ),
-      Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+    return Stack(children: [
+      Column(children: <Widget>[
+        Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          child: new Container(
+              height: 72,
+              child: ListTile(
+                contentPadding: EdgeInsets.only(left: 30, right: 20),
+                title: Text(song.title,
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+                subtitle: Text(song.artist,
+                    style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+                onTap: () async {
+                  _loadPlaylist(musicData, song);
+                  bool stopped = false;
+                  if (musicData.playerState == AudioPlayerState.PLAYING) {
+                    if (musicData.currentSong.song_id == song.song_id) {
+                      await musicData.playerPause();
+                      stopped = true;
+                    } else {
+                      await musicData.playerStop();
+                    }
+                  }
+                  if (musicData.playerState != AudioPlayerState.PLAYING &&
+                      !stopped) {
+                    await musicData.playerPlay(song);
+                  }
+                },
+                trailing: Text(formatDuration(song.duration),
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+              )),
+          actions: _actionsPane(song),
+          secondaryActions: <Widget>[
+            IconSlideAction(
+              caption: 'Share',
+              color: Colors.indigo,
+              icon: Icons.share,
+              onTap: () => _shareSong(song),
+            ),
+            IconSlideAction(
+              caption: 'Delete',
+              color: Colors.red,
+              icon: Icons.delete,
+              onTap: () => widget._pageType == PageType.SAVED
+                  ? _deleteSong(song)
+                  : _deleteSongFromPlaylist(song),
+            ),
+          ],
+        ),
+        Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+      ]),
+      musicData.isPlaying(song.song_id)
+          ? Container(
+              height: 72,
+              width: 3,
+              decoration: BoxDecoration(color: Colors.white),
+            )
+          : Container(),
     ]);
   }
 }

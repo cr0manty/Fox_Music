@@ -34,7 +34,6 @@ class DialogPlaylistContentState extends State<DialogPlaylistContent> {
           setState(() {
             playlist.checked = !playlist.checked;
           });
-          print('checked');
         },
       ),
       Padding(

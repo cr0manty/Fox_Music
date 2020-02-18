@@ -49,7 +49,7 @@ class PlayerPageState extends State<PlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    double pictureHeight = MediaQuery.of(context).size.height * 0.55;
+    double pictureHeight = MediaQuery.of(context).size.height * 0.52;
     double screenHeight = MediaQuery.of(context).size.height - 80;
     MusicData musicData = Provider.of<MusicData>(context);
     double sliderValue =
@@ -130,7 +130,7 @@ class PlayerPageState extends State<PlayerPage> {
                                 )),
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -153,6 +153,24 @@ class PlayerPageState extends State<PlayerPage> {
                                 ],
                               ),
                             ),
+                            musicData.currentSong != null
+                                ? Padding(
+                                    padding: EdgeInsets.only(bottom: 5),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border:
+                                              Border.all(color: Colors.grey)),
+                                      child: Padding(
+                                          padding: EdgeInsets.all(4),
+                                          child: Text(
+                                            '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
+                                            style:
+                                                TextStyle(color: Colors.grey, fontSize: 12),
+                                          )),
+                                    ))
+                                : Container(),
                             Container(
                                 height: screenHeight * 0.1,
                                 child: Column(

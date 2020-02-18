@@ -18,7 +18,7 @@ showPickerDialog(BuildContext context, List<Playlist> playlist, int songId) asyn
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () {
-              setPlaylistSong(playlist, songId);
+              setPlaylistSong(listData, songId);
               Navigator.of(context).pop();
             },
             child: Text('Confirm'),

@@ -406,7 +406,7 @@ class AccountPageState extends State<AccountPage> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Padding(
-                    padding: EdgeInsets.only(bottom: 15, top: 15),
+                    padding: EdgeInsets.only(bottom: 20, top: 15),
                     child: GestureDetector(
                       onTap: () {
                         FocusScope.of(_scaffoldKey.currentContext)
@@ -450,10 +450,6 @@ class AccountPageState extends State<AccountPage> {
                                       .image)),
                     )),
                 Divider(height: 10),
-                Text(
-                  'Login and password must match your VK account',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
                 ModalProgressHUD(
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(16.0),

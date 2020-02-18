@@ -27,7 +27,7 @@ class MusicData with ChangeNotifier {
   Duration songDuration;
   var platform;
 
-  AudioPlayerState playerState;
+  AudioPlayerState playerState = AudioPlayerState.STOPPED;
 
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
@@ -35,10 +35,6 @@ class MusicData with ChangeNotifier {
   StreamSubscription _playerError;
   StreamSubscription _playerState;
   StreamSubscription _playerNotifyState;
-
-  MusicData() {
-    playerState = AudioPlayerState.STOPPED;
-  }
 
   init(thisPlatform) async {
     platform = thisPlatform;
@@ -59,7 +55,7 @@ class MusicData with ChangeNotifier {
     });
     _playerCompleteSubscription =
         audioPlayer.onPlayerCompletion.listen((event) {
-      next();
+      if (!repeat) next();
       notifyListeners();
     });
 
@@ -159,7 +155,7 @@ class MusicData with ChangeNotifier {
   }
 
   playerPlay(Song song) async {
-    audioPlayer.play(song.path);
+    await audioPlayer.play(song.path);
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
     setCCData();
@@ -200,6 +196,10 @@ class MusicData with ChangeNotifier {
       currentIndexPlaylist = 0;
     playerPlay(playlist[currentIndexPlaylist]);
     notifyListeners();
+  }
+
+  bool isPlaying(int songId) {
+    return currentSong != null && playerState == AudioPlayerState.PLAYING && currentSong.song_id == songId;
   }
 
   seek({duration}) {

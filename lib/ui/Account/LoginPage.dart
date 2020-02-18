@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/api/login.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/provider/MusicDownloadData.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -87,7 +88,9 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _data = Provider.of<AccountData>(context);
+    AccountData accountData = Provider.of<AccountData>(context);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
@@ -100,8 +103,15 @@ class LoginPageState extends State<LoginPage> {
               padding: EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
+                  Center(
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Icon(
+                            Icons.music_note,
+                            size: 100,
+                          ))),
                   _buildForm(),
-                  _buildButtons(_data),
+                  _buildButtons(accountData, downloadData),
                 ],
               ),
             ),
@@ -112,9 +122,7 @@ class LoginPageState extends State<LoginPage> {
     return <Widget>[
       TextFormField(
         controller: _usernameFilter,
-        decoration: InputDecoration(
-          labelText: 'Login',
-        ),
+        decoration: InputDecoration(labelText: 'Login'),
         validator: (value) {
           if (value.isEmpty) {
             return "Login can't be empty";
@@ -124,9 +132,7 @@ class LoginPageState extends State<LoginPage> {
       ),
       TextFormField(
         controller: _passwordFilter,
-        decoration: InputDecoration(
-          labelText: 'Password',
-        ),
+        decoration: InputDecoration(labelText: 'Password'),
         obscureText: true,
         validator: (value) {
           if (value.isEmpty) {
@@ -144,9 +150,7 @@ class LoginPageState extends State<LoginPage> {
     return <Widget>[
           TextFormField(
             controller: _firstNameFilter,
-            decoration: InputDecoration(
-              labelText: 'First name',
-            ),
+            decoration: InputDecoration(labelText: "First name"),
             validator: (value) {
               if (value.isEmpty) {
                 return "First name can't be empty";
@@ -156,16 +160,14 @@ class LoginPageState extends State<LoginPage> {
           ),
           TextFormField(
             controller: _lastNameFilter,
-            decoration: InputDecoration(
-              labelText: 'Last name',
-            ),
+            decoration: InputDecoration(labelText: 'Last name'),
             validator: (value) {
               if (value.isEmpty) {
                 return "Last name can't be empty";
               }
               return null;
             },
-          ),
+          )
         ] +
         _loginAreaForm();
   }
@@ -187,22 +189,23 @@ class LoginPageState extends State<LoginPage> {
     });
   }
 
-  Widget _buildButtons(data) {
+  Widget _buildButtons(AccountData accountData, MusicDownloadData downloadData) {
     return Column(children: <Widget>[
       Padding(
         padding: const EdgeInsets.only(top: 30, bottom: 5),
         child: CupertinoButton(
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
           color: Colors.redAccent,
           onPressed: () {
             if (_formKey.currentState.validate()) {
               if (_form == FormType.login) {
-                _loginPressed(data);
+                _loginPressed(accountData, downloadData);
               } else {
                 _createAccountPressed();
               }
             }
           },
-          child: Text(_form == FormType.login ? 'Login' : 'Create an Account'),
+          child: Text(_form == FormType.login ? 'Login' : 'Create'),
         ),
       ),
       FlatButton(
@@ -210,18 +213,19 @@ class LoginPageState extends State<LoginPage> {
           _form == FormType.login
               ? "Don't have an account? Tap here to register."
               : 'Have an account? Click here to login.',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: Colors.white),
         ),
         onPressed: _disabled ? null : () => _formChange(),
       ),
     ]);
   }
 
-  _loginPressed(AccountData data) async {
+  _loginPressed(AccountData accountData, MusicDownloadData downloadData) async {
     _setButtonStatus();
     final user = await loginPost(_username, _password);
     if (user != null) {
-      data.setUser(user);
+      await downloadData.loadMusic();
+      accountData.setUser(user);
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");

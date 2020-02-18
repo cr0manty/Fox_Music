@@ -59,7 +59,7 @@ class PlaylistPageState extends State<PlaylistPage> {
       context: _scaffoldKey.currentContext,
       builder: (context) {
         return CupertinoAlertDialog(
-          title: Text(playlist != null ? 'Create playlist' : 'Rename playlist'),
+          title: Text(playlist == null ? 'Create playlist' : 'Rename playlist'),
           content: Padding(
               padding: EdgeInsets.only(top: 10),
               child: Card(
@@ -79,7 +79,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 }),
             CupertinoDialogAction(
                 isDefaultAction: true,
-                child: Text(playlist != null ? 'Create' : 'Rename'),
+                child: Text(playlist == null ? 'Create' : 'Rename'),
                 onPressed: () {
                   if (playlistName.text.isNotEmpty) {
                     if (playlist != null)
@@ -101,7 +101,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     return new Scaffold(
         key: _scaffoldKey,
         appBar:
-            new AppBar(title: Text('Playlists'), centerTitle: true, actions: [
+        new AppBar(title: Text('Playlists'), centerTitle: true, actions: [
           IconButton(
               icon: Icon(Icons.add, color: Colors.white),
               onPressed: _playlistDialog)
@@ -131,7 +131,9 @@ class PlaylistPageState extends State<PlaylistPage> {
         return CircleAvatar(
             radius: 25,
             backgroundColor: Colors.grey,
-            backgroundImage: Image.file(file).image);
+            backgroundImage: Image
+                .file(file)
+                .image);
       } else {
         playlist.image = null;
         DBProvider.db.updatePlaylist(playlist);
@@ -165,11 +167,11 @@ class PlaylistPageState extends State<PlaylistPage> {
                   Navigator.of(_scaffoldKey.currentContext).push(
                       MaterialPageRoute(
                           builder: (context) =>
-                              ChangeNotifierProvider<MusicData>.value(
-                                  value: data,
-                                  child: MusicListPage(
-                                    playlist: playlist,
-                                  ))));
+                          ChangeNotifierProvider<MusicData>.value(
+                              value: data,
+                              child: MusicListPage(
+                                playlist: playlist,
+                              ))));
                 },
                 leading: _showImage(playlist))),
         actions: <Widget>[
@@ -207,7 +209,17 @@ class PlaylistPageState extends State<PlaylistPage> {
                                   source: ImageSource.gallery);
                               _setImage(playlist, _image);
                             },
-                            child: Text('Gallery'))
+                            child: Text('Gallery')),
+                        CupertinoActionSheetAction(
+                            isDestructiveAction: true,
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              await setState(() {
+                                playlist.image = null;
+                              });
+                              await DBProvider.db.updatePlaylist(playlist);
+                            },
+                            child: Text('Delete'))
                       ],
                     );
                   });

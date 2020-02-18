@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/functions/format/fromatSongName.dart';
 
 import 'package:vk_parse/functions/utils/infoDialog.dart';
@@ -15,6 +16,7 @@ enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 
 class MusicDownloadData with ChangeNotifier {
   List<Song> _query = [];
+  List<Song> dataSong = [];
   Song currentSong;
   double progress = 0;
   StreamSubscription _downloadSubscription;
@@ -40,6 +42,15 @@ class MusicDownloadData with ChangeNotifier {
 
   MusicDownloadData() {
     _state = DownloadState.COMPLETED;
+  }
+
+  init() async {
+    loadMusic();
+  }
+
+  loadMusic() async {
+    dataSong = await musicListGet();
+    notifyListeners();
   }
 
   downloadSingle(Song song) async {

@@ -1,12 +1,12 @@
-import 'package:vk_parse/models/Playlist.dart';
+import 'package:vk_parse/models/PlaylistCheckbox.dart';
 import 'package:vk_parse/utils/Database.dart';
 
-setPlaylistSong(List<Playlist> list, int songId) async {
-  await Future.wait(list.map((playlist) async {
-    if (playlist.notInList(songId))
-      await playlist.addSong(songId);
+setPlaylistSong(List<PlaylistCheckbox> list, int songId) async {
+  await Future.wait(list.map((playlistChecked) async {
+    if (playlistChecked.checked)
+      await playlistChecked.playlist.addSong(songId);
     else
-      await playlist.deleteSong(songId);
-    await DBProvider.db.updatePlaylist(playlist);
+      await playlistChecked.playlist.deleteSong(songId);
+    await DBProvider.db.updatePlaylist(playlistChecked.playlist);
   }));
 }
