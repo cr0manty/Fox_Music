@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
@@ -11,15 +12,15 @@ import 'package:vk_parse/functions/get/getPlayerState.dart';
 import 'package:vk_parse/functions/save/savePlayerState.dart';
 
 import 'package:vk_parse/models/Song.dart';
+import 'package:vk_parse/utils/Database.dart';
 
 class MusicData with ChangeNotifier {
   AudioPlayer audioPlayer;
   Song currentSong;
   bool repeat = false;
   bool mix = false;
-  bool offlineMode = false;
+  bool initCC = false;
   List<Song> playlist = [];
-  List<Song> withoutMix = [];
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
 
@@ -47,6 +48,10 @@ class MusicData with ChangeNotifier {
 
     _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
+      if (initCC) {
+        setCCData();
+        initCC = false;
+      }
       notifyListeners();
     });
     _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
@@ -55,9 +60,12 @@ class MusicData with ChangeNotifier {
     });
     _playerCompleteSubscription =
         audioPlayer.onPlayerCompletion.listen((event) {
-      if (!repeat) next();
-      notifyListeners();
-    });
+          if (!repeat) {
+            next();
+            initCC = true;
+          }
+          notifyListeners();
+        });
 
     _playerError = audioPlayer.onPlayerError.listen((error) {
       print(error);
@@ -70,16 +78,19 @@ class MusicData with ChangeNotifier {
 
     _playerNotifyState =
         audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      playerState = state;
-      notifyListeners();
-    });
+          playerState = state;
+          notifyListeners();
+        });
     _getState();
   }
 
   _getState() async {
-    var repeated = await getPlayerState();
-    if (repeated) {
+    var data = await getPlayerState();
+    if (data['repeat']) {
       repeatClick();
+    }
+    if (data['mix']) {
+      mix = true;
     }
   }
 
@@ -116,21 +127,15 @@ class MusicData with ChangeNotifier {
     final fileList = Directory("$directory/songs/").listSync();
     fileList.forEach((songPath) {
       final song = formatSong(songPath.path);
+//      DBProvider.db.newSong(song);
       if (song != null) localSongs.add(song);
     });
   }
 
   mixClick() {
     mix = !mix;
-    if (mix) {
-      withoutMix = playlist;
-      playlist..shuffle();
-      playlist.remove(currentSong);
-      playlist.insert(0, currentSong);
-    } else {
-      playlist = withoutMix;
-    }
     currentIndexPlaylist = playlist.indexOf(currentSong);
+    savePlayerState(repeat, mix);
     notifyListeners();
   }
 
@@ -141,7 +146,7 @@ class MusicData with ChangeNotifier {
     } else {
       await audioPlayer.setReleaseMode(ReleaseMode.STOP);
     }
-    savePlayerState(repeat);
+    savePlayerState(repeat, mix);
     notifyListeners();
   }
 
@@ -158,7 +163,7 @@ class MusicData with ChangeNotifier {
     await audioPlayer.play(song.path);
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
-    setCCData();
+    initCC = true;
     notifyListeners();
   }
 
@@ -190,23 +195,32 @@ class MusicData with ChangeNotifier {
   }
 
   next() {
-    if (currentIndexPlaylist < playlist.length - 1)
-      ++currentIndexPlaylist;
-    else
-      currentIndexPlaylist = 0;
+    if (!mix) {
+      if (currentIndexPlaylist < playlist.length - 1)
+        ++currentIndexPlaylist;
+      else
+        currentIndexPlaylist = 0;
+    } else {
+      Random rnd = new Random();
+      int rand = -1;
+      do {
+        rand = rnd.nextInt(playlist.length - 1);
+      } while (rand == currentIndexPlaylist);
+      currentIndexPlaylist = rand;
+    }
     playerPlay(playlist[currentIndexPlaylist]);
     notifyListeners();
   }
 
   bool isPlaying(int songId) {
-    return currentSong != null && playerState == AudioPlayerState.PLAYING && currentSong.song_id == songId;
+    return currentSong != null && currentSong.song_id == songId;
   }
 
   seek({duration}) {
     if (currentSong != null) {
       int value = (duration != null && duration < 1
-              ? durToInt(songDuration) * duration
-              : 0)
+          ? durToInt(songDuration) * duration
+          : 0)
           .toInt();
       audioPlayer.seek(Duration(seconds: value));
       notifyListeners();

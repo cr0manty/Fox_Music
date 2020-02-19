@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
+  StreamSubscription _playerNotifyState;
   bool init = true;
   Song playedSong;
 
@@ -62,10 +64,11 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                 ]
               : [],
         ),
-        body: _buildBody(accountData, downloadData));
+        body: _buildBody(accountData, downloadData, musicData));
   }
 
-  _buildBody(AccountData accountData, MusicDownloadData downloadData) {
+  _buildBody(AccountData accountData, MusicDownloadData downloadData,
+      MusicData musicData) {
     return accountData.user != null &&
             (accountData.user.can_use_vk || accountData.user.is_staff)
         ? RefreshIndicator(
@@ -74,7 +77,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             child: ListView.builder(
               itemCount: downloadData.dataSong.length,
               itemBuilder: (context, index) =>
-                  _buildSongListTile(downloadData, index),
+                  _buildSongListTile(downloadData, musicData, index),
             ))
         : Center(
             child: Container(
@@ -109,14 +112,11 @@ class VKMusicListPageState extends State<VKMusicListPage> {
           ));
   }
 
-  _downloadSong(MusicDownloadData downloadData, Song song) {
-    downloadData.downloadSingle(song);
-  }
-
-  _buildSongListTile(MusicDownloadData downloadData, int index) {
+  _buildSongListTile(
+      MusicDownloadData downloadData, MusicData musicData, int index) {
     Song song = downloadData.dataSong[index];
     if (init) {
-      downloadData.onResultChanged.listen((result) {
+      _playerNotifyState = downloadData.onResultChanged.listen((result) {
         downloadData.showInfo(_scaffoldKey.currentContext, result);
       });
       init = false;
@@ -135,8 +135,8 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-                onTap: () {
-                  _downloadSong(downloadData, song);
+                onTap: () async {
+                  downloadData.query = song;
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
@@ -166,7 +166,19 @@ class VKMusicListPageState extends State<VKMusicListPage> {
               decoration:
                   BoxDecoration(color: Colors.redAccent.withOpacity(0.2)),
             )
-          : Container(),
+          : downloadData.inQuery(song)
+              ? Container(
+                  height: 72,
+                  width: 3,
+                  decoration: BoxDecoration(color: Colors.grey),
+                )
+              : Container(),
     ]);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _playerNotifyState?.cancel();
   }
 }

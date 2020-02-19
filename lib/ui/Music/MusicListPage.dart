@@ -81,7 +81,7 @@ class MusicListPageState extends State<MusicListPage> {
   _buildBody(MusicData musicData) {
     return RefreshIndicator(
         key: _refreshKey,
-        onRefresh: () => _loadPlaylist(musicData, null),
+        onRefresh: () => _loadPlaylist(musicData, null, update: true),
         child: _musicList.length > 0
             ? ListView.builder(
                 itemCount: _musicList.length,
@@ -101,9 +101,10 @@ class MusicListPageState extends State<MusicListPage> {
               ]));
   }
 
-  _loadPlaylist(MusicData musicData, Song song) async {
+  _loadPlaylist(MusicData musicData, Song song, {bool update = false}) async {
     if (widget._pageType == PageType.SAVED) {
-      await setState(() {
+      if (update) musicData.loadSavedMusic();
+      setState(() {
         _musicList = musicData.localSongs;
       });
     } else {}

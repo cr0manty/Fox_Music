@@ -9,7 +9,7 @@ import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/models/Playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music4.db';
+  static const dbName = 'vk_music5.db';
 
   DBProvider._();
 
@@ -48,8 +48,12 @@ class DBProvider {
 
   newSong(Song song) async {
     final db = await database;
-    var res = await db.insert("Song", song.toJson());
-    return res;
+    var exist = await db.query("Song", where: "song_id = ?", whereArgs: [song.song_id]);
+
+    if (exist.isEmpty) {
+      var res = await db.insert("Song", song.toJson());
+      return res;
+    }
   }
 
   newPlaylist(Playlist playlist) async {
@@ -67,8 +71,8 @@ class DBProvider {
 
   getPlaylist(int id) async {
     final db = await database;
-    var res = await db.query("Playlist", where: "song_id = ?", whereArgs: [id]);
-    return res.isNotEmpty ? Song.fromJson(res.first) : null;
+    var res = await db.query("Playlist", where: "id = ?", whereArgs: [id]);
+    return res.isNotEmpty ? Playlist.fromJson(res.first) : null;
   }
 
   getAllSong() async {
@@ -94,7 +98,7 @@ class DBProvider {
     return res;
   }
 
-   updatePlaylist(Playlist playlist) async {
+  updatePlaylist(Playlist playlist) async {
     final db = await database;
     var res = await db.update("Playlist", playlist.toJson(),
         where: "id = ?", whereArgs: [playlist.id]);
@@ -106,7 +110,7 @@ class DBProvider {
     db.rawDelete("Delete * from Song");
   }
 
-   deleteAllPlaylist() async {
+  deleteAllPlaylist() async {
     final db = await database;
     db.rawDelete("Delete * from Playlist");
   }

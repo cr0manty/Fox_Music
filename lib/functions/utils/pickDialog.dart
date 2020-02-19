@@ -16,7 +16,6 @@ showPickerDialog(BuildContext context, List<Playlist> playlist, int songId) asyn
         title: Text('Add song to playlist'),
         actions: <Widget>[
           CupertinoDialogAction(
-            isDestructiveAction: true,
             onPressed: () {
               setPlaylistSong(listData, songId);
               Navigator.of(context).pop();

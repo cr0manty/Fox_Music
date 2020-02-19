@@ -19,33 +19,60 @@ class MusicDownloadData with ChangeNotifier {
   List<Song> dataSong = [];
   Song currentSong;
   double progress = 0;
+  DownloadState _downloadState;
   StreamSubscription _downloadSubscription;
+  StreamSubscription _queryChange;
+  StreamSubscription _stateChange;
 
   final StreamController<DownloadState> _resultController =
       StreamController<DownloadState>.broadcast();
-  final StreamController<List<Song>> _queryController =
-      StreamController<List<Song>>.broadcast();
+  final StreamController<Song> _queryController =
+      StreamController<Song>.broadcast();
 
   set _state(DownloadState state) {
     _resultController.add(state);
   }
 
   set query(Song song) {
-    _query.add(song);
-    _queryController.add(_query);
+    _queryController.add(song);
   }
 
   set multiQuery(List<Song> songList) {
-    _query.addAll(songList);
-    _queryController.add(_query);
+    songList.forEach((Song song) {
+      _queryController.add(song);
+    });
   }
 
   MusicDownloadData() {
-    _state = DownloadState.COMPLETED;
+    _downloadState = DownloadState.COMPLETED;
   }
 
-  init() async {
+  init() {
     loadMusic();
+
+    _queryChange = onQueryChanged.listen((Song song) {
+      _query.add(song);
+      _prosesDownloadQuery();
+    });
+
+    _stateChange = onResultChanged.listen((DownloadState state) {
+      _downloadState = state;
+      if (state == DownloadState.COMPLETED) {
+        _prosesDownloadQuery();
+      }
+    });
+  }
+
+  inQuery(Song song) {
+    return _query.indexOf(song) != -1;
+  }
+
+  _prosesDownloadQuery() async {
+    if (_downloadState != DownloadState.STARTED && _query.length > 0) {
+      await downloadSong(_query[0]).then((res) async {
+        await _query.removeAt(0);
+      });
+    }
   }
 
   loadMusic() async {
@@ -53,7 +80,7 @@ class MusicDownloadData with ChangeNotifier {
     notifyListeners();
   }
 
-  downloadSingle(Song song) async {
+  downloadSong(Song song) async {
     if (song.download.isEmpty) {
       _state = DownloadState.EMPTY;
     } else if ((await _songExist(song)) != null) {
@@ -68,8 +95,8 @@ class MusicDownloadData with ChangeNotifier {
       notifyListeners();
 
       _downloadSubscription =
-          response.asStream().listen((http.StreamedResponse r) {
-        r.stream.listen((List<int> chunk) {
+          await response.asStream().listen((http.StreamedResponse r) async {
+        await r.stream.listen((List<int> chunk) {
           progress = downloaded / r.contentLength;
           chunks.add(chunk);
           downloaded += chunk.length;
@@ -109,7 +136,7 @@ class MusicDownloadData with ChangeNotifier {
 
   Stream<DownloadState> get onResultChanged => _resultController.stream;
 
-  Stream<List<Song>> get onQueryChanged => _queryController.stream;
+  Stream<Song> get onQueryChanged => _queryController.stream;
 
   downloadMulti(BuildContext context, List<Song> songList) async {}
 
@@ -159,7 +186,11 @@ class MusicDownloadData with ChangeNotifier {
   @override
   void dispose() {
     _downloadSubscription?.cancel();
+    _queryChange?.cancel();
+    _stateChange?.cancel();
+
     _resultController?.close();
+    _queryController?.close();
     super.dispose();
   }
 }
