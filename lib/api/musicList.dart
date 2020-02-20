@@ -13,7 +13,7 @@ musicListGet() async {
 
     if (response.statusCode == 200) {
       var songsData =
-          (json.decode(response.body) as Map)['result'] as List<dynamic>;
+      (json.decode(response.body) as Map)['result'] as List<dynamic>;
 
       var songList = List<Song>();
       songsData.forEach((dynamic value) async {
@@ -32,11 +32,11 @@ musicListPost() async {
   try {
     final token = await getToken();
     final response =
-        await http.post(SONG_LIST_URL, headers: formatToken(token));
+    await http.post(SONG_LIST_URL, headers: formatToken(token));
 
     if (response.statusCode == 201) {
       var songsData =
-          (json.decode(response.body) as Map) as Map<String, dynamic>;
+      (json.decode(response.body) as Map) as Map<String, dynamic>;
       return songsData ?? {'added': 0, 'updated': 0};
     }
   } catch (e) {
@@ -70,7 +70,7 @@ hideMusic(int id) async {
   try {
     String token = await getToken();
     final response =
-        await http.post(SONG_DELETE_URL + '$id', headers: formatToken(token));
+    await http.post(SONG_DELETE_URL + '$id', headers: formatToken(token));
     return response.statusCode == 201;
   } catch (e) {
     print(e);
@@ -82,7 +82,8 @@ addMusic(int id) async {
   try {
     String token = await getToken();
     final response =
-        await http.post(SONG_ADD_URL + '$id', headers: formatToken(token));
+    await http.post(SONG_ADD_URL + '$id', headers: formatToken(token));
+    if (response.statusCode == 409) return null;
     return response.statusCode == 201;
   } catch (e) {
     print(e);

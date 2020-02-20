@@ -49,7 +49,7 @@ class MusicData with ChangeNotifier {
     _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
       if (initCC) {
-        setCCData();
+        setCCData(duration);
         initCC = false;
       }
       notifyListeners();
@@ -94,17 +94,17 @@ class MusicData with ChangeNotifier {
     }
   }
 
-  setCCData() {
+  setCCData(Duration duration) {
     if (platform == TargetPlatform.iOS) {
       audioPlayer.startHeadlessService();
 
       audioPlayer.setNotification(
           title: currentSong.title,
           artist: currentSong.artist,
-          imageUrl: '',
+          imageUrl: 'https://i.pinimg.com/originals/3a/9a/7f/3a9a7f353249cf827d31f3b022890b78.jpg',
           forwardSkipInterval: const Duration(seconds: 5),
           backwardSkipInterval: const Duration(seconds: 5),
-          duration: songDuration);
+          duration: duration);
     }
   }
 

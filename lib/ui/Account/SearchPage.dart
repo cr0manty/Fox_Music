@@ -8,6 +8,7 @@ import 'package:vk_parse/api/musicList.dart';
 import 'package:vk_parse/api/userSearch.dart';
 import 'package:vk_parse/functions/format/formatImage.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
+import 'package:vk_parse/functions/utils/showShackbar.dart';
 import 'package:vk_parse/models/Relationship.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/models/User.dart';
@@ -154,21 +155,48 @@ class SearchPageState extends State<SearchPage>
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-          onTap: () {},
+          onTap: () {
+            downloadData.query = song;
+          },
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
-        actions: <Widget>[
-          new IconSlideAction(
-            caption: 'Download',
-            color: Colors.blue,
-            icon: Icons.file_download,
-            onTap: () {
-              downloadData.query = song;
-            },
-          ),
-        ],
-        secondaryActions: <Widget>[],
+        actions: !song.in_my_list
+            ? <Widget>[
+                new IconSlideAction(
+                  caption: 'Add',
+                  color: Colors.blue,
+                  icon: Icons.add,
+                  onTap: () async {
+                    bool isAdded = await addMusic(song.song_id);
+                    if (isAdded == null) {
+                      showSnackBar(context, 'Song alredy in your list');
+                    } else if (isAdded) {
+                      setState(() {
+                        song.in_my_list = true;
+                      });
+                    }
+                  },
+                ),
+              ]
+            : [],
+        secondaryActions: song.in_my_list
+            ? <Widget>[
+                IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () async {
+                    bool isDeleted = await hideMusic(song.song_id);
+                    if (isDeleted) {
+                      setState(() {
+                        song.in_my_list = false;
+                      });
+                    }
+                  },
+                ),
+              ]
+            : [],
       ),
       Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
     ]);

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/functions/utils/showShackbar.dart';
 
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicData.dart';
@@ -136,7 +137,15 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
-                  downloadData.query = song;
+                  if (downloadData.inQuery(song)) {
+                    if(downloadData.currentSong == song) {
+                      showSnackBar(context, 'Unable to remove from queue', seconds: 3);
+                    } else {
+                      downloadData.deleteFromQuery(song);
+                    }
+                  } else {
+                    downloadData.query = song;
+                  }
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),

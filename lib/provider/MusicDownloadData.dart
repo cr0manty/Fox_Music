@@ -75,6 +75,11 @@ class MusicDownloadData with ChangeNotifier {
     }
   }
 
+  deleteFromQuery(Song song) {
+    _query.remove(song);
+    notifyListeners();
+  }
+
   loadMusic() async {
     dataSong = await musicListGet();
     notifyListeners();
