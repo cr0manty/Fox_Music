@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           brightness: Brightness.dark,
           unselectedWidgetColor: Colors.grey,
-          fontFamily: 'Georgia',
+          fontFamily: 'San Francisco',
           textSelectionHandleColor: Colors.redAccent,
           accentColor: Colors.redAccent),
       home: IntroPage(),

@@ -154,22 +154,15 @@ class PlayerPageState extends State<PlayerPage> {
                               ),
                             ),
                             musicData.currentSong != null
-                                ? Padding(
-                                    padding: EdgeInsets.only(bottom: 5),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border:
-                                              Border.all(color: Colors.grey)),
-                                      child: Padding(
-                                          padding: EdgeInsets.all(4),
-                                          child: Text(
-                                            '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
-                                            style:
-                                                TextStyle(color: Colors.grey, fontSize: 12),
-                                          )),
-                                    ))
+                                ? Container(
+                                    child: Padding(
+                                    padding: EdgeInsets.all(4),
+                                    child: Text(
+                                      '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 12),
+                                    ),
+                                  ))
                                 : Container(),
                             Container(
                                 height: screenHeight * 0.1,

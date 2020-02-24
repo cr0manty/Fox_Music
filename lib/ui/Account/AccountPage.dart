@@ -118,81 +118,45 @@ class AccountPageState extends State<AccountPage> {
       resizeToAvoidBottomPadding: false,
       key: _scaffoldKey,
       appBar: new AppBar(
-          title: Text(accountData.accountType == AccountType.SELF_EDIT
-              ? 'Profile edit'
-              : 'Profile'),
-          centerTitle: true,
-          actions: accountData.accountType == AccountType.SELF_EDIT
-              ? [
-                  IconButton(
-                    icon: Icon(Icons.done),
+        title: Text(accountData.accountType == AccountType.SELF_EDIT
+            ? 'Profile edit'
+            : 'Profile'),
+        centerTitle: true,
+        actions: accountData.accountType == AccountType.SELF_EDIT
+            ? [
+                IconButton(
+                  icon: Icon(Icons.done),
+                  onPressed: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    if (_formKey.currentState.validate()) {
+                      if (_password.isNotEmpty) {
+                        if (_password != _passwordConfirm) {
+                          infoDialog(
+                              context, 'Oops...', 'Passwords do not match');
+                        }
+                      }
+                      var data = {
+                        'image': _image,
+                        'first_name': _firstName,
+                        'last_name': _lastName,
+                        'email': _email,
+                        'password': _password,
+                        'username': _username
+                      };
+                      accountData.updateUserData(data);
+                    }
+                  },
+                ),
+                IconButton(
+                    icon: Icon(Icons.clear),
                     onPressed: () {
                       FocusScope.of(context).requestFocus(FocusNode());
-                      if (_formKey.currentState.validate()) {
-                        if (_password.isNotEmpty) {
-                          if (_password != _passwordConfirm) {
-                            infoDialog(
-                                context, 'Oops...', 'Passwords do not match');
-                          }
-                        }
-                        var data = {
-                          'image': _image,
-                          'first_name': _firstName,
-                          'last_name': _lastName,
-                          'email': _email,
-                          'password': _password,
-                          'username': _username
-                        };
-                        accountData.updateUserData(data);
-                      }
-                    },
-                  ),
-                  IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: () {
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        accountData.setNewImage(null);
-                        accountData.changeAccountState();
-                      })
-                ]
-              : [
-                  Stack(
-                    children: <Widget>[
-                      IconButton(
-                          icon: Icon(Icons.mail_outline),
-                          onPressed: () {
-                            setState(() {
-                              _openMessagePage(accountData);
-                            });
-                          }),
-                      accountData.messageCount != 0
-                          ? Positioned(
-                              right: 11,
-                              top: 11,
-                              child: Container(
-                                padding: EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                constraints: BoxConstraints(
-                                  minWidth: 14,
-                                  minHeight: 14,
-                                ),
-                                child: Text(
-                                  '${accountData.messageCount}',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 8,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            )
-                          : Container()
-                    ],
-                  ),
-                ]),
+                      accountData.setNewImage(null);
+                      accountData.changeAccountState();
+                    })
+              ]
+            : [],
+      ),
       body: _switchBuilders(accountData, musicData, downloadData),
     );
   }
