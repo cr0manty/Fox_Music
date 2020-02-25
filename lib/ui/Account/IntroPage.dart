@@ -32,8 +32,10 @@ class _IntroPageState extends State<IntroPage> {
           MaterialPageRoute(
               builder: (BuildContext context) => MultiProvider(providers: [
                     ChangeNotifierProvider<MusicData>.value(value: musicData),
-                    ChangeNotifierProvider<AccountData>.value(value: accountData),
-                    ChangeNotifierProvider<MusicDownloadData>.value(value: downloadData),
+                    ChangeNotifierProvider<AccountData>.value(
+                        value: accountData),
+                    ChangeNotifierProvider<MusicDownloadData>.value(
+                        value: downloadData),
                   ], child: MainPage())),
           (Route<dynamic> route) => false);
     });
@@ -47,9 +49,7 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    var drawer = Drawer();
     return Scaffold(
-        drawer: drawer,
         body: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -61,15 +61,22 @@ class _IntroPageState extends State<IntroPage> {
               children: <Widget>[
                 Expanded(
                   child: Container(
-                    alignment: FractionalOffset(0.5, 0.3),
-                    child: Text(
-                      "VK Music",
-                      style: TextStyle(fontSize: 40.0, color: Colors.white),
-                    ),
-                  ),
+                      child: Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width / 5),
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  colorFilter: ColorFilter.mode(
+                                      Colors.black.withOpacity(0.7),
+                                      BlendMode.dstIn),
+                                  image:
+                                      AssetImage('assets/images/app-logo.png'),
+                                  fit: BoxFit.fitWidth)))),
                 ),
                 Center(
-                    child: new Padding(
+                    child: Padding(
                         padding: const EdgeInsets.only(bottom: 100),
                         child: SpinKitCircle(
                           color: Colors.white,
