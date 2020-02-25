@@ -60,27 +60,29 @@ class MusicData with ChangeNotifier {
     });
     _playerCompleteSubscription =
         audioPlayer.onPlayerCompletion.listen((event) {
-          if (!repeat) {
-            next();
-            initCC = true;
-          }
-          notifyListeners();
-        });
+      if (!repeat) {
+        next();
+        initCC = true;
+      }
+      notifyListeners();
+    });
 
     _playerError = audioPlayer.onPlayerError.listen((error) {
       print(error);
     });
 
     _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
-      playerState = state;
-      notifyListeners();
+      if (!repeat) {
+        playerState = state;
+        notifyListeners();
+      }
     });
 
     _playerNotifyState =
         audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-          playerState = state;
-          notifyListeners();
-        });
+      playerState = state;
+      notifyListeners();
+    });
     _getState();
   }
 
@@ -101,7 +103,8 @@ class MusicData with ChangeNotifier {
       audioPlayer.setNotification(
           title: currentSong.title,
           artist: currentSong.artist,
-          imageUrl: 'https://i.pinimg.com/originals/3a/9a/7f/3a9a7f353249cf827d31f3b022890b78.jpg',
+          imageUrl:
+              'https://i.pinimg.com/originals/3a/9a/7f/3a9a7f353249cf827d31f3b022890b78.jpg',
           forwardSkipInterval: const Duration(seconds: 5),
           backwardSkipInterval: const Duration(seconds: 5),
           duration: duration);
@@ -219,8 +222,8 @@ class MusicData with ChangeNotifier {
   seek({duration}) {
     if (currentSong != null) {
       int value = (duration != null && duration < 1
-          ? durToInt(songDuration) * duration
-          : 0)
+              ? durToInt(songDuration) * duration
+              : 0)
           .toInt();
       audioPlayer.seek(Duration(seconds: value));
       notifyListeners();
