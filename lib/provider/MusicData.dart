@@ -104,7 +104,7 @@ class MusicData with ChangeNotifier {
           title: currentSong.title,
           artist: currentSong.artist,
           imageUrl:
-              'https://i.pinimg.com/originals/3a/9a/7f/3a9a7f353249cf827d31f3b022890b78.jpg',
+              'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
           forwardSkipInterval: const Duration(seconds: 5),
           backwardSkipInterval: const Duration(seconds: 5),
           duration: duration);
