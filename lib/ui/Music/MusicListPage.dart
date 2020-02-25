@@ -254,8 +254,8 @@ class MusicListPageState extends State<MusicListPage> {
                       await musicData.playerStop();
                     }
                   }
-                  if (musicData.playerState != AudioPlayerState.PLAYING) {
-                    if (stopped) {
+                  if (musicData.playerState != AudioPlayerState.PLAYING && !stopped) {
+                    if (musicData.currentSong.song_id == song.song_id) {
                       await musicData.playerResume();
                     } else {
                       await musicData.playerPlay(song);
