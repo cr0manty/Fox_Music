@@ -18,7 +18,6 @@ enum FormType { login, register }
 
 class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final TextEditingController _firstNameFilter = new TextEditingController();
   final TextEditingController _lastNameFilter = new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
@@ -31,47 +30,8 @@ class LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
   bool _disabled = false;
 
-  LoginPageState() {
-    _lastNameFilter.addListener(_lastNameListen);
-    _firstNameFilter.addListener(_firstNameListen);
-    _usernameFilter.addListener(_usernameListen);
-    _passwordFilter.addListener(_passwordListen);
-  }
-
-  void _lastNameListen() {
-    if (_lastNameFilter.text.isEmpty) {
-      _lastName = "";
-    } else {
-      _lastName = _lastNameFilter.text;
-    }
-  }
-
-  void _firstNameListen() {
-    if (_firstNameFilter.text.isEmpty) {
-      _firstName = "";
-    } else {
-      _firstName = _firstNameFilter.text;
-    }
-  }
-
-  void _usernameListen() {
-    if (_usernameFilter.text.isEmpty) {
-      _username = "";
-    } else {
-      _username = _usernameFilter.text;
-    }
-  }
-
-  void _passwordListen() {
-    if (_passwordFilter.text.isEmpty) {
-      _password = "";
-    } else {
-      _password = _passwordFilter.text;
-    }
-  }
 
   _clearFiller() {
-    setState(() {
       _usernameFilter.text = "";
       _passwordFilter.text = "";
       _firstNameFilter.text = "";
@@ -80,11 +40,11 @@ class LoginPageState extends State<LoginPage> {
       _lastName = "";
       _username = "";
       _password = "";
-    });
   }
 
   void _formChange() async {
     setState(() {
+      _clearFiller();
       _formKey.currentState.reset();
       if (_form == FormType.register) {
         _form = FormType.login;
@@ -101,7 +61,6 @@ class LoginPageState extends State<LoginPage> {
 
     return new Scaffold(
         resizeToAvoidBottomPadding: false,
-        key: _scaffoldKey,
         appBar: AppBar(
           title: Text("Auth"),
           centerTitle: true,
@@ -110,6 +69,7 @@ class LoginPageState extends State<LoginPage> {
             child: SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Column(
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
@@ -155,7 +115,7 @@ class LoginPageState extends State<LoginPage> {
         labelText: 'Password',
         onChanged: (text) {
           setState(() {
-            _username = text;
+            _password = text;
           });
         },
         validator: (value) {

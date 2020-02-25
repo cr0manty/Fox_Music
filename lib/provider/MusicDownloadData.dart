@@ -156,7 +156,7 @@ class MusicDownloadData with ChangeNotifier {
     return false;
   }
 
-  Future<File> _songExist(Song song) async {
+  _songExist(Song song) async {
     String dir = (await getApplicationDocumentsDirectory()).path;
     String filename = await formatFileName(song);
     File file = new File('$dir/songs/$filename');

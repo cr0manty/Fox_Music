@@ -254,9 +254,12 @@ class MusicListPageState extends State<MusicListPage> {
                       await musicData.playerStop();
                     }
                   }
-                  if (musicData.playerState != AudioPlayerState.PLAYING &&
-                      !stopped) {
-                    await musicData.playerPlay(song);
+                  if (musicData.playerState != AudioPlayerState.PLAYING) {
+                    if (stopped) {
+                      await musicData.playerResume();
+                    } else {
+                      await musicData.playerPlay(song);
+                    }
                   }
                 },
                 trailing: Text(formatDuration(song.duration),
@@ -267,7 +270,7 @@ class MusicListPageState extends State<MusicListPage> {
             IconSlideAction(
               caption: 'Share',
               color: Colors.indigo,
-              icon: Icons.share,
+              icon: CupertinoIcons.share,
               onTap: () => _shareSong(song),
             ),
             IconSlideAction(

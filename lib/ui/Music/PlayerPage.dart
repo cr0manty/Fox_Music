@@ -98,39 +98,38 @@ class PlayerPageState extends State<PlayerPage> {
                           height: screenHeight - pictureHeight,
                           decoration: BoxDecoration(
                               color: Color.fromRGBO(50, 50, 50, 0.9)),
-                          child: Column(children: <Widget>[
-                            Padding(
-                                padding: EdgeInsets.only(top: 5),
-                                child: SliderTheme(
-                                  data: SliderTheme.of(context).copyWith(
-                                    activeTrackColor:
-                                        Colors.redAccent.withOpacity(0.6),
-                                    inactiveTrackColor:
-                                        Color.fromRGBO(100, 100, 100, 0.6),
-                                    trackHeight: 2.0,
-                                    thumbColor:
-                                        Colors.redAccent.withOpacity(0.6),
-                                    thumbShape: RoundSliderThumbShape(
-                                        enabledThumbRadius: 4.0),
-                                    overlayColor: Colors.red.withAlpha(12),
-                                    overlayShape: RoundSliderOverlayShape(
-                                        overlayRadius: 17.0),
-                                  ),
-                                  child: Slider(
-                                    onChanged: (value) {},
-                                    onChangeEnd: (double value) {
-                                      musicData.seek(duration: value);
-                                    },
-                                    value: musicData.songPosition != null &&
-                                            sliderValue > 0.0 &&
-                                            sliderValue < 1.0
-                                        ? sliderValue
-                                        : 0,
-                                  ),
-                                )),
+                          child:
+                              Column(mainAxisSize: MainAxisSize.min, children: <
+                                  Widget>[
+                            SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                activeTrackColor:
+                                    Colors.redAccent.withOpacity(0.6),
+                                inactiveTrackColor:
+                                    Color.fromRGBO(100, 100, 100, 0.6),
+                                trackHeight: 2.0,
+                                thumbColor: Colors.redAccent.withOpacity(0.6),
+                                thumbShape: RoundSliderThumbShape(
+                                    enabledThumbRadius: 4.0),
+                                overlayColor: Colors.red.withAlpha(12),
+                                overlayShape: RoundSliderOverlayShape(
+                                    overlayRadius: 17.0),
+                              ),
+                              child: Slider(
+                                onChanged: (value) {},
+                                onChangeEnd: (double value) {
+                                  musicData.seek(duration: value);
+                                },
+                                value: musicData.songPosition != null &&
+                                        sliderValue > 0.0 &&
+                                        sliderValue < 1.0
+                                    ? sliderValue
+                                    : 0,
+                              ),
+                            ),
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
+                                  EdgeInsets.symmetric(horizontal: 16),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -155,18 +154,17 @@ class PlayerPageState extends State<PlayerPage> {
                             ),
                             musicData.currentSong != null
                                 ? Container(
-                                    child: Padding(
-                                    padding: EdgeInsets.all(4),
                                     child: Text(
                                       '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
                                       style: TextStyle(
                                           color: Colors.grey, fontSize: 12),
                                     ),
-                                  ))
+                                  )
                                 : Container(),
                             Container(
                                 height: screenHeight * 0.1,
                                 child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
@@ -271,7 +269,8 @@ class PlayerPageState extends State<PlayerPage> {
                                             ),
                                             IconButton(
                                               onPressed: musicData.mixClick,
-                                              icon: Icon(Icons.shuffle,
+                                              icon: Icon(
+                                                  CupertinoIcons.shuffle_medium,
                                                   size: screenHeight * 0.03,
                                                   color: musicData.mix
                                                       ? Colors.redAccent
