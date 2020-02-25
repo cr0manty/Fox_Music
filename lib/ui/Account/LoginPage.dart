@@ -6,6 +6,8 @@ import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/api/login.dart';
 import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/provider/MusicDownloadData.dart';
+import 'package:vk_parse/utils/apple_text.dart';
+import 'package:vk_parse/utils/hex_color.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -26,6 +28,7 @@ class LoginPageState extends State<LoginPage> {
   String _username = "";
   String _password = "";
   FormType _form = FormType.login;
+  bool _obscureText = true;
   bool _disabled = false;
 
   LoginPageState() {
@@ -68,16 +71,21 @@ class LoginPageState extends State<LoginPage> {
   }
 
   _clearFiller() {
-    _usernameFilter.text = "";
-    _passwordFilter.text = "";
-    _firstNameFilter.text = "";
-    _lastNameFilter.text = "";
+    setState(() {
+      _usernameFilter.text = "";
+      _passwordFilter.text = "";
+      _firstNameFilter.text = "";
+      _lastNameFilter.text = "";
+      _firstName = "";
+      _lastName = "";
+      _username = "";
+      _password = "";
+    });
   }
 
   void _formChange() async {
     setState(() {
       _formKey.currentState.reset();
-      _clearFiller();
       if (_form == FormType.register) {
         _form = FormType.login;
       } else {
@@ -103,13 +111,15 @@ class LoginPageState extends State<LoginPage> {
               padding: EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
-                  Center(
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          child: Icon(
-                            Icons.music_note,
-                            size: 100,
-                          ))),
+                  Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                          child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/app-logo.png')))))),
                   _buildForm(),
                   _buildButtons(accountData, downloadData),
                 ],
@@ -120,54 +130,94 @@ class LoginPageState extends State<LoginPage> {
 
   List<Widget> _loginAreaForm() {
     return <Widget>[
-      TextFormField(
+      AppleTextInput(
         controller: _usernameFilter,
-        decoration: InputDecoration(labelText: 'Login'),
+        hintText: 'Enter your username',
+        labelText: 'Username',
         validator: (value) {
           if (value.isEmpty) {
-            return "Login can't be empty";
+            return "First name can't be empty";
           }
           return null;
         },
+        onChanged: (text) {
+          setState(() {
+            _username = text;
+          });
+        },
+        inputAction: TextInputAction.continueAction,
       ),
-      TextFormField(
+      Divider(height: 20, color: Colors.transparent),
+      AppleTextInput(
         controller: _passwordFilter,
-        decoration: InputDecoration(labelText: 'Password'),
-        obscureText: true,
+        hintText: 'Enter your password',
+        obscureText: _obscureText,
+        labelText: 'Password',
+        onChanged: (text) {
+          setState(() {
+            _username = text;
+          });
+        },
         validator: (value) {
           if (value.isEmpty) {
-            return "Passwrod can't be empty";
-          } else if (_form == FormType.register && value.length < 8) {
-            return 'Password must be more than 8 characters';
+            return "First name can't be empty";
           }
           return null;
         },
-      )
+        suffixIcon: _password.isEmpty
+            ? null
+            : IconButton(
+                icon: Icon(
+                    _obscureText ? Icons.remove_red_eye : Icons.visibility_off,
+                    color: HexColor('#8c8c8c')),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                }),
+        inputAction: TextInputAction.send,
+      ),
     ];
   }
 
   List<Widget> _registrationAreaForm() {
     return <Widget>[
-          TextFormField(
+          AppleTextInput(
             controller: _firstNameFilter,
-            decoration: InputDecoration(labelText: "First name"),
+            hintText: 'Enter your first name',
+            labelText: 'First name',
+            onChanged: (text) {
+              setState(() {
+                _firstName = text;
+              });
+            },
             validator: (value) {
               if (value.isEmpty) {
                 return "First name can't be empty";
               }
               return null;
             },
+            inputAction: TextInputAction.continueAction,
           ),
-          TextFormField(
+          Divider(height: 20, color: Colors.transparent),
+          AppleTextInput(
             controller: _lastNameFilter,
-            decoration: InputDecoration(labelText: 'Last name'),
+            hintText: 'Enter your last name',
+            labelText: 'Last name',
+            onChanged: (text) {
+              setState(() {
+                _lastName = text;
+              });
+            },
             validator: (value) {
               if (value.isEmpty) {
-                return "Last name can't be empty";
+                return "First name can't be empty";
               }
               return null;
             },
-          )
+            inputAction: TextInputAction.continueAction,
+          ),
+          Divider(height: 20, color: Colors.transparent),
         ] +
         _loginAreaForm();
   }
@@ -189,35 +239,38 @@ class LoginPageState extends State<LoginPage> {
     });
   }
 
-  Widget _buildButtons(AccountData accountData, MusicDownloadData downloadData) {
-    return Column(children: <Widget>[
-      Padding(
-        padding: const EdgeInsets.only(top: 30, bottom: 5),
-        child: CupertinoButton(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-          color: Colors.redAccent,
-          onPressed: () {
-            if (_formKey.currentState.validate()) {
-              if (_form == FormType.login) {
-                _loginPressed(accountData, downloadData);
-              } else {
-                _createAccountPressed();
-              }
-            }
-          },
-          child: Text(_form == FormType.login ? 'Login' : 'Create'),
-        ),
-      ),
-      FlatButton(
-        child: Text(
-          _form == FormType.login
-              ? "Don't have an account? Tap here to register."
-              : 'Have an account? Click here to login.',
-          style: TextStyle(color: Colors.white),
-        ),
-        onPressed: _disabled ? null : () => _formChange(),
-      ),
-    ]);
+  Widget _buildButtons(
+      AccountData accountData, MusicDownloadData downloadData) {
+    return Align(
+        alignment: FractionalOffset.bottomCenter,
+        child: Column(children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(top: 30, bottom: 5),
+            child: CupertinoButton(
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+              color: Colors.redAccent,
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  if (_form == FormType.login) {
+                    _loginPressed(accountData, downloadData);
+                  } else {
+                    _createAccountPressed();
+                  }
+                }
+              },
+              child: Text(_form == FormType.login ? 'Login' : 'Create'),
+            ),
+          ),
+          FlatButton(
+            child: Text(
+              _form == FormType.login
+                  ? "Don't have an account? Tap here to register."
+                  : 'Have an account? Click here to login.',
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: _disabled ? null : () => _formChange(),
+          ),
+        ]));
   }
 
   _loginPressed(AccountData accountData, MusicDownloadData downloadData) async {

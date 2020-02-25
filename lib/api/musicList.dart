@@ -25,7 +25,7 @@ musicListGet() async {
   } catch (e) {
     print(e);
   }
-  return [];
+  return List<Song> ();
 }
 
 musicListPost() async {
