@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -7,7 +8,8 @@ import 'package:vk_parse/provider/AccountData.dart';
 
 import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/provider/MusicDownloadData.dart';
-import 'package:vk_parse/ui/MainPage.dart';
+import 'package:vk_parse/ui/main_tab.dart';
+import 'package:vk_parse/utils/hex_color.dart';
 
 class IntroPage extends StatefulWidget {
   @override
@@ -29,7 +31,7 @@ class _IntroPageState extends State<IntroPage> {
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
+          CupertinoPageRoute(
               builder: (BuildContext context) => MultiProvider(providers: [
                     ChangeNotifierProvider<MusicData>.value(value: musicData),
                     ChangeNotifierProvider<AccountData>.value(
@@ -49,50 +51,9 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/intro-background.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                      child: Container(
-                          margin: EdgeInsets.symmetric(
-                              horizontal:
-                                  MediaQuery.of(context).size.width / 5),
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  colorFilter: ColorFilter.mode(
-                                      Colors.black.withOpacity(0.7),
-                                      BlendMode.dstIn),
-                                  image:
-                                      AssetImage('assets/images/app-logo.png'),
-                                  fit: BoxFit.fitWidth)))),
-                ),
-                Center(
-                    child: Padding(
-                        padding: const EdgeInsets.only(bottom: 100),
-                        child: SpinKitCircle(
-                          color: Colors.white,
-                          size: 80,
-                        ))),
-                Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 30.0),
-                  child: Text(
-                    "© Cr0manty 2020",
-                    style: TextStyle(
-                      fontSize: 17.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            )));
+    return CupertinoPageScaffold(
+      backgroundColor: HexColor('#282828'),
+      child: Container(),
+    );
   }
 }

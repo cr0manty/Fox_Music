@@ -226,7 +226,7 @@ class SearchPageState extends State<SearchPage>
                           TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                   onTap: () {
                     Navigator.of(_scaffoldKey.currentContext).push(
-                        MaterialPageRoute(
+                        CupertinoPageRoute(
                             builder: (BuildContext context) =>
                                 MultiProvider(providers: [
                                   ChangeNotifierProvider<AccountData>.value(

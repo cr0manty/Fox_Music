@@ -24,10 +24,11 @@ class DialogPlaylistContentState extends State<DialogPlaylistContent> {
     PlaylistCheckbox playlist = widget.playlistList[index];
     return Column(children: [
       CheckboxListTile(
+        checkColor: Colors.white,
         activeColor: Colors.redAccent,
         title: Text(
           playlist.playlist.title,
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
         value: playlist.checked,
         onChanged: (value) {

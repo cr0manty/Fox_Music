@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -61,21 +62,19 @@ class MusicListPageState extends State<MusicListPage> {
       _loadPlaylist(musicData, null);
     }
 
-    return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-            title: Text(widget._pageType == PageType.PLAYLIST
-                ? widget.playlist.title
-                : 'Media'),
-            actions: widget._pageType == PageType.PLAYLIST
-                ? [
-                    IconButton(
+    return Material(
+        child: CupertinoPageScaffold(
+            key: _scaffoldKey,
+            navigationBar: CupertinoNavigationBar(
+                middle: Text(widget._pageType == PageType.PLAYLIST
+                    ? widget.playlist.title
+                    : 'Media'),
+                trailing: widget._pageType == PageType.PLAYLIST
+                    ? IconButton(
                         icon: Icon(Icons.add),
-                        onPressed: _addTrackToPlaylistDialog)
-                  ]
-                : null,
-            centerTitle: true),
-        body: _buildBody(musicData));
+                        onPressed: () => _addTrackToPlaylistDialog())
+                    : null),
+            child: _buildBody(musicData)));
   }
 
   _buildBody(MusicData musicData) {
@@ -168,10 +167,18 @@ class MusicListPageState extends State<MusicListPage> {
                   child: Column(children: <Widget>[
                     CupertinoTextField(
                       controller: artistFilter,
+                      placeholder: 'Artist',
+                      decoration: BoxDecoration(
+                          color: HexColor('#303030'),
+                          borderRadius: BorderRadius.circular(9)),
                     ),
-                    Divider(height: 5, color: Colors.transparent),
+                    Divider(height: 10, color: Colors.transparent),
                     CupertinoTextField(
                       controller: titleFilter,
+                      placeholder: 'Title',
+                      decoration: BoxDecoration(
+                          color: HexColor('#303030'),
+                          borderRadius: BorderRadius.circular(9)),
                     ),
                   ]))),
           actions: <Widget>[
@@ -254,8 +261,10 @@ class MusicListPageState extends State<MusicListPage> {
                       await musicData.playerStop();
                     }
                   }
-                  if (musicData.playerState != AudioPlayerState.PLAYING && !stopped) {
-                    if (musicData.currentSong != null && musicData.currentSong.song_id == song.song_id) {
+                  if (musicData.playerState != AudioPlayerState.PLAYING &&
+                      !stopped) {
+                    if (musicData.currentSong != null &&
+                        musicData.currentSong.song_id == song.song_id) {
                       await musicData.playerResume();
                     } else {
                       await musicData.playerPlay(song);
@@ -283,7 +292,9 @@ class MusicListPageState extends State<MusicListPage> {
             ),
           ],
         ),
-        Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+        Padding(
+            padding: EdgeInsets.only(left: 12.0),
+            child: Divider(height: 1, color: Colors.grey))
       ]),
       musicData.isPlaying(song.song_id)
           ? Container(

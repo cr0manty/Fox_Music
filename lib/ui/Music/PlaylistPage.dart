@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/ui/Music/MusicListPage.dart';
 import 'package:vk_parse/utils/Database.dart';
+import 'package:vk_parse/utils/hex_color.dart';
 
 class PlaylistPage extends StatefulWidget {
   @override
@@ -68,6 +69,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                   child: Column(children: <Widget>[
                     CupertinoTextField(
                       controller: playlistName,
+                      placeholder: 'Playlist name',
+                      decoration: BoxDecoration(color: HexColor('#303030'), borderRadius: BorderRadius.circular(9)),
                     ),
                   ]))),
           actions: <Widget>[
@@ -98,21 +101,21 @@ class PlaylistPageState extends State<PlaylistPage> {
   @override
   Widget build(BuildContext context) {
     final sharedData = Provider.of<MusicData>(context);
-    return new Scaffold(
-        key: _scaffoldKey,
-        appBar:
-        new AppBar(title: Text('Playlists'), centerTitle: true, actions: [
-          IconButton(
-              icon: Icon(Icons.add, color: Colors.white),
-              onPressed: _playlistDialog)
-        ]),
-        body: ListView.builder(
-          itemCount: _playlistList.length,
-          physics: ScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) =>
-              _buildPlaylistList(sharedData, index),
-        ));
+    return Material(
+        child: CupertinoPageScaffold(
+            key: _scaffoldKey,
+            navigationBar: CupertinoNavigationBar(
+                middle: Text('Playlists'),
+                trailing: IconButton(
+                    icon: Icon(Icons.add, color: Colors.white),
+                    onPressed: () => _playlistDialog())),
+            child: ListView.builder(
+              itemCount: _playlistList.length,
+              physics: ScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) =>
+                  _buildPlaylistList(sharedData, index),
+            )));
   }
 
   _setImage(Playlist playlist, File image) async {
@@ -131,9 +134,7 @@ class PlaylistPageState extends State<PlaylistPage> {
         return CircleAvatar(
             radius: 25,
             backgroundColor: Colors.grey,
-            backgroundImage: Image
-                .file(file)
-                .image);
+            backgroundImage: Image.file(file).image);
       } else {
         playlist.image = null;
         DBProvider.db.updatePlaylist(playlist);
@@ -165,13 +166,13 @@ class PlaylistPageState extends State<PlaylistPage> {
                             color: Color.fromRGBO(200, 200, 200, 1)))),
                 onTap: () {
                   Navigator.of(_scaffoldKey.currentContext).push(
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                           builder: (context) =>
-                          ChangeNotifierProvider<MusicData>.value(
-                              value: data,
-                              child: MusicListPage(
-                                playlist: playlist,
-                              ))));
+                              ChangeNotifierProvider<MusicData>.value(
+                                  value: data,
+                                  child: MusicListPage(
+                                    playlist: playlist,
+                                  ))));
                 },
                 leading: _showImage(playlist))),
         actions: <Widget>[
@@ -246,7 +247,9 @@ class PlaylistPageState extends State<PlaylistPage> {
           ),
         ],
       ),
-      Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+      Padding(
+          padding: EdgeInsets.only(left: 12.0),
+          child: Divider(height: 1, color: Colors.grey))
     ]);
   }
 }

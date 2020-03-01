@@ -34,38 +34,38 @@ class VKMusicListPageState extends State<VKMusicListPage> {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
-    return new Scaffold(
-        key: _scaffoldKey,
-        appBar: new AppBar(
-          title: Text('Music'),
-          centerTitle: true,
-          actions: accountData.user != null && accountData.user.can_use_vk
-              ? <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.refresh),
-                    onPressed: () async {
-                      try {
-                        final listNewSong = await musicListPost();
-                        if (listNewSong != null) {
-                          infoDialog(_scaffoldKey.currentContext, "New songs",
-                              "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
-                        } else {
-                          infoDialog(
-                              _scaffoldKey.currentContext,
-                              "Something went wrong",
-                              "Unable to get Music List.");
-                        }
-                      } catch (e) {
-                        print(e);
-                      } finally {
-                        downloadData.loadMusic();
-                      }
-                    },
-                  )
-                ]
-              : [],
-        ),
-        body: _buildBody(accountData, downloadData, musicData));
+    return Material(
+        child: CupertinoPageScaffold(
+            key: _scaffoldKey,
+            navigationBar: CupertinoNavigationBar(
+                middle: Text('Music'),
+                trailing:
+                    accountData.user != null && accountData.user.can_use_vk
+                        ? IconButton(
+                            icon: Icon(Icons.refresh),
+                            onPressed: () async {
+                              try {
+                                final listNewSong = await musicListPost();
+                                if (listNewSong != null) {
+                                  infoDialog(
+                                      _scaffoldKey.currentContext,
+                                      "New songs",
+                                      "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
+                                } else {
+                                  infoDialog(
+                                      _scaffoldKey.currentContext,
+                                      "Something went wrong",
+                                      "Unable to get Music List.");
+                                }
+                              } catch (e) {
+                                print(e);
+                              } finally {
+                                downloadData.loadMusic();
+                              }
+                            },
+                          )
+                        : null),
+            child: _buildBody(accountData, downloadData, musicData)));
   }
 
   _buildBody(AccountData accountData, MusicDownloadData downloadData,
@@ -102,7 +102,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                 color: Colors.redAccent,
                 onPressed: () {
                   Navigator.of(_scaffoldKey.currentContext).push(
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                           builder: (context) =>
                               ChangeNotifierProvider<AccountData>.value(
                                   value: accountData,
@@ -138,8 +138,9 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
                   if (downloadData.inQuery(song)) {
-                    if(downloadData.currentSong == song) {
-                      showSnackBar(context, 'Unable to remove from queue', seconds: 3);
+                    if (downloadData.currentSong == song) {
+                      showSnackBar(context, 'Unable to remove from queue',
+                          seconds: 3);
                     } else {
                       downloadData.deleteFromQuery(song);
                     }
@@ -166,7 +167,9 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             ),
           ],
         ),
-        Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
+        Padding(
+            padding: EdgeInsets.only(left: 12.0),
+            child: Divider(height: 1, color: Colors.grey))
       ]),
       downloadData.currentSong == song
           ? Container(

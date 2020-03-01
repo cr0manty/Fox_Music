@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -23,10 +24,10 @@ class FriendListPageState extends State<FriendListPage> {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
-    return Scaffold(
+    return CupertinoPageScaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text('Friends'), centerTitle: true),
-      body: RefreshIndicator(
+      navigationBar: CupertinoNavigationBar(middle: Text('Friends')),
+      child: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () => accountData.loadFiendList(),
           child: ListView.builder(
@@ -59,7 +60,7 @@ class FriendListPageState extends State<FriendListPage> {
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () {
                   Navigator.of(_scaffoldKey.currentContext)
-                      .push(MaterialPageRoute(
+                      .push(CupertinoPageRoute(
                           builder: (context) => MultiProvider(providers: [
                                 ChangeNotifierProvider<MusicDownloadData>.value(
                                     value: downloadData),
