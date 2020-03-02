@@ -24,8 +24,6 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: HexColor('#282828')
       ),
-
-
       home: IntroPage(),
     );
   }

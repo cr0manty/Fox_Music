@@ -52,7 +52,10 @@ class _IntroPageState extends State<IntroPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: HexColor('#282828'),
+      backgroundColor:
+          WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+              ? HexColor('#282828')
+              : Colors.white,
       child: Container(),
     );
   }
