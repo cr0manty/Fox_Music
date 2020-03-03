@@ -27,22 +27,19 @@ class PeoplePageState extends State<PeoplePage> {
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
-    return Scaffold(
+    return CupertinoPageScaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text(widget.relationship.user.username),
-          centerTitle: true,
-          actions: widget.relationship.status != RelationshipStatus.BLOCK
-              ? <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.block),
-                    onPressed: () {},
-                  )
-                ]
-              : [],
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Search'),
+          previousPageTitle: 'Back',
+          trailing: widget.relationship.status != RelationshipStatus.BLOCK
+              ? GestureDetector(
+                  child: Icon(Icons.block),
+                  onTap: () {},
+                )
+              : Container(),
         ),
-        body: widget.relationship.status != RelationshipStatus.BLOCK
+        child: widget.relationship.status != RelationshipStatus.BLOCK
             ? _buildPage(accountData, downloadData)
             : Padding(
                 padding: EdgeInsets.all(20),
@@ -108,7 +105,8 @@ class PeoplePageState extends State<PeoplePage> {
                         shrinkWrap: true,
                         physics: ClampingScrollPhysics(),
                         itemCount: _friendSongList.length,
-                        itemBuilder: (context, index) => _buildSong(downloadData, index),
+                        itemBuilder: (context, index) =>
+                            _buildSong(downloadData, index),
                       )
                     : Padding(
                         padding: EdgeInsets.all(20),

@@ -131,6 +131,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                   'username': _username
                 };
                 accountData.updateUserData(data);
+                Navigator.pop(context);
               }
             },
           )),
@@ -187,6 +188,7 @@ class AccountEditPageState extends State<AccountEditPage> {
             labelText: 'Password confirm',
             labelStyle: TextStyle(color: Colors.white)),
       ),
+      SizedBox(height: 30)
     ];
   }
 

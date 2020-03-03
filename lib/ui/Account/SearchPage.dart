@@ -62,61 +62,47 @@ class SearchPageState extends State<SearchPage>
 
     return DefaultTabController(
         length: 2,
-        child: Scaffold(
+        child: CupertinoPageScaffold(
             key: _scaffoldKey,
-            appBar: AppBar(
-                title: Text('Search'),
-                centerTitle: true,
-                bottom: TabBar(
-                    onTap: (index) {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      setState(() {
-                        _tabIndex = index;
-                        _searchInput.text = '';
-                      });
-                    },
-                    tabs: [
-                      Tab(
-                        text: 'Music',
-                      ),
-                      Tab(
-                        text: 'People',
-                      ),
-                    ])),
-            body: Container(
+            navigationBar: CupertinoNavigationBar(
+              middle: Text('Search'),
+              previousPageTitle: 'Back',
+            ),
+            child: Material(
+                color: Colors.transparent,
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                  Align(
-                      alignment: FractionalOffset.topCenter,
-                      child: Container(
-                          padding: EdgeInsets.all(10),
-                          child: TextField(
-                              controller: _searchInput,
-                              onChanged: (value) async {
-                                if (_tabIndex == 0) {
-                                  List<Song> songList =
-                                      await musicSearchGet(value);
-                                  setState(() {
-                                    _songList = songList;
-                                  });
-                                } else {
-                                  List<User> userList =
-                                      await userSearchGet(value);
-                                  _setFriendStatus(userList);
-                                }
-                              },
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.all(0),
-                                  hintText: "Search",
-                                  prefixIcon: Icon(Icons.search),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(25.0))))))),
-                  Divider(),
-                  _buildTabView(accountData, downloadData)
-                ]))));
+                      Align(
+                          alignment: FractionalOffset.topCenter,
+                          child: Container(
+                              padding: EdgeInsets.all(10),
+                              child: TextField(
+                                  controller: _searchInput,
+                                  onChanged: (value) async {
+                                    if (_tabIndex == 0) {
+                                      List<Song> songList =
+                                          await musicSearchGet(value);
+                                      setState(() {
+                                        _songList = songList;
+                                      });
+                                    } else {
+                                      List<User> userList =
+                                          await userSearchGet(value);
+                                      _setFriendStatus(userList);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.all(0),
+                                      hintText: "Search",
+                                      prefixIcon: Icon(Icons.search),
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(25.0))))))),
+                      Divider(),
+                      _buildTabView(accountData, downloadData)
+                    ]))));
   }
 
   _buildTabView(AccountData accountData, MusicDownloadData downloadData) {

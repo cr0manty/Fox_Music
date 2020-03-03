@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 
@@ -15,13 +16,11 @@ class VKAuthState extends State<VKAuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return CupertinoPageScaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text('VK Auth'), centerTitle: true),
-      body: Container(),
+      navigationBar: CupertinoNavigationBar(
+          middle: Text('Auth'), previousPageTitle: 'Back'),
+      child: Container(),
     );
   }
-
-
-
 }

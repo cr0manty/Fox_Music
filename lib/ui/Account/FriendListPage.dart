@@ -26,15 +26,28 @@ class FriendListPageState extends State<FriendListPage> {
 
     return CupertinoPageScaffold(
       key: _scaffoldKey,
-      navigationBar: CupertinoNavigationBar(middle: Text('Friends')),
+      navigationBar: CupertinoNavigationBar(
+        middle: Text('Friends'),
+        previousPageTitle: 'Back',
+      ),
       child: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () => accountData.loadFiendList(),
-          child: ListView.builder(
-            itemCount: accountData.friendList.length,
-            itemBuilder: (context, index) =>
-                _buildUserCard(accountData, downloadData, index),
-          )),
+          child: accountData.friendList.length > 0
+              ? ListView.builder(
+                  itemCount: accountData.friendList.length,
+                  itemBuilder: (context, index) =>
+                      _buildUserCard(accountData, downloadData, index),
+                )
+              : ListView(children: <Widget>[
+                  Padding(
+                      padding: EdgeInsets.only(top: 30),
+                      child: Text(
+                        'Your friends list is empty',
+                        style: TextStyle(color: Colors.grey, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ))
+                ])),
     );
   }
 

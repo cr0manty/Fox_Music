@@ -28,6 +28,7 @@ friendListGet() async {
   } catch (e) {
     print(e);
   }
+  return [];
 }
 
 friendListIdGet() async {

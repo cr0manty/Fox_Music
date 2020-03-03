@@ -89,7 +89,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             child: Stack(children: <Widget>[
               Padding(
                   padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.1),
+                      top: MediaQuery.of(context).size.height * 0.2),
                   child: Text(
                     'In order to listen, you have to allow access to your account details',
                     style: TextStyle(color: Colors.grey, fontSize: 20),
@@ -97,7 +97,10 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                   )),
               Center(
                   child: CupertinoButton(
-                child: Text('Submit'),
+                child: Text(
+                  'Submit',
+                  style: TextStyle(color: Colors.white),
+                ),
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                 color: Colors.redAccent,
                 onPressed: () {

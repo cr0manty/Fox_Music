@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -97,59 +99,63 @@ class MainPageState extends State<MainPage> {
                         },
                       ));
                     },
-                    child: Material(
-                        child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            alignment: Alignment.bottomCenter,
-                            color: Colors.black.withOpacity(0.8),
-                            child: Row(
-                              children: <Widget>[
-                                CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.grey,
-                                ),
-                                Container(width: 25),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                    child: ClipRect(
+                        child: BackdropFilter(
+                            filter:
+                                ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                            child: Container(
+                              decoration: BoxDecoration(color: Colors.black26.withOpacity(0.3)),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                alignment: Alignment.bottomCenter,
+                                child: Row(
                                   children: <Widget>[
-                                    Text(
-                                      musicData.currentSong.title,
-                                      style: TextStyle(color: Colors.white),
+                                    CircleAvatar(
+                                      radius: 18,
+                                      backgroundColor: Colors.grey,
                                     ),
-                                    Divider(
-                                      height: 5,
+                                    Container(width: 25),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          musicData.currentSong.title,
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        Divider(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          musicData.currentSong.artist,
+                                          style: TextStyle(color: Colors.grey, fontSize: 15),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      musicData.currentSong.artist,
-                                      style: TextStyle(color: Colors.white),
+                                    Expanded(child: SizedBox()),
+                                    GestureDetector(
+                                      child: Icon(
+                                        musicData.playerState ==
+                                                AudioPlayerState.PLAYING
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.white,
+                                      ),
+                                      onTap: () => musicData.playerState ==
+                                              AudioPlayerState.PLAYING
+                                          ? musicData.playerPause()
+                                          : musicData.playerResume(),
                                     ),
+                                    SizedBox(width: 10),
+                                    GestureDetector(
+                                      child: Icon(
+                                        Icons.skip_next,
+                                        color: Colors.white,
+                                      ),
+                                      onTap: () => musicData.next(),
+                                    )
                                   ],
-                                ),
-                                Expanded(child: SizedBox()),
-                                GestureDetector(
-                                  child: Icon(
-                                    musicData.playerState ==
-                                            AudioPlayerState.PLAYING
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
-                                    color: Colors.white,
-                                  ),
-                                  onTap: () => musicData.playerState ==
-                                          AudioPlayerState.PLAYING
-                                      ? musicData.playerPause()
-                                      : musicData.playerResume(),
-                                ),
-                                SizedBox(width: 10),
-                                GestureDetector(
-                                  child: Icon(
-                                    Icons.skip_next,
-                                    color: Colors.white,
-                                  ),
-                                  onTap: () => musicData.next(),
-                                )
-                              ],
-                            ))))))
+                                )))))))
         : Container();
   }
 

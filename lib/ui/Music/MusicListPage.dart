@@ -14,6 +14,8 @@ import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
 
+import 'PlayerPage.dart';
+
 enum ButtonState { SHARE, DELETE }
 enum PageType { SAVED, PLAYLIST }
 
@@ -69,10 +71,11 @@ class MusicListPageState extends State<MusicListPage> {
                 middle: Text(widget._pageType == PageType.PLAYLIST
                     ? widget.playlist.title
                     : 'Media'),
+                previousPageTitle: 'Back',
                 trailing: widget._pageType == PageType.PLAYLIST
-                    ? IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () => _addTrackToPlaylistDialog())
+                    ? GestureDetector(
+                        child: Icon(Icons.add, color: Colors.white, size: 25),
+                        onTap: () => _addTrackToPlaylistDialog())
                     : null),
             child: _buildBody(musicData)));
   }
@@ -252,24 +255,31 @@ class MusicListPageState extends State<MusicListPage> {
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
                   _loadPlaylist(musicData, song);
-                  bool stopped = false;
-                  if (musicData.playerState == AudioPlayerState.PLAYING) {
-                    if (musicData.currentSong.song_id == song.song_id) {
-                      await musicData.playerPause();
-                      stopped = true;
-                    } else {
-                      await musicData.playerStop();
-                    }
-                  }
-                  if (musicData.playerState != AudioPlayerState.PLAYING &&
-                      !stopped) {
+
                     if (musicData.currentSong != null &&
                         musicData.currentSong.song_id == song.song_id) {
                       await musicData.playerResume();
                     } else {
                       await musicData.playerPlay(song);
                     }
-                  }
+                      Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            ChangeNotifierProvider<MusicData>.value(
+                                value: musicData, child: PlayerPage()),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          var begin = Offset(0.0, 1.0);
+                          var end = Offset.zero;
+                          var curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        }));
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),

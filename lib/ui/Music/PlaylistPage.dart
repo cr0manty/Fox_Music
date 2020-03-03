@@ -70,7 +70,9 @@ class PlaylistPageState extends State<PlaylistPage> {
                     CupertinoTextField(
                       controller: playlistName,
                       placeholder: 'Playlist name',
-                      decoration: BoxDecoration(color: HexColor('#303030'), borderRadius: BorderRadius.circular(9)),
+                      decoration: BoxDecoration(
+                          color: HexColor('#303030'),
+                          borderRadius: BorderRadius.circular(9)),
                     ),
                   ]))),
           actions: <Widget>[
@@ -101,14 +103,20 @@ class PlaylistPageState extends State<PlaylistPage> {
   @override
   Widget build(BuildContext context) {
     final sharedData = Provider.of<MusicData>(context);
-    return Material(
-        child: CupertinoPageScaffold(
-            key: _scaffoldKey,
-            navigationBar: CupertinoNavigationBar(
-                middle: Text('Playlists'),
-                trailing: IconButton(
-                    icon: Icon(Icons.add, color: Colors.white),
-                    onPressed: () => _playlistDialog())),
+    return CupertinoPageScaffold(
+        key: _scaffoldKey,
+        navigationBar: CupertinoNavigationBar(
+            middle: Text('Playlists'),
+            previousPageTitle: 'Back',
+            trailing: GestureDetector(
+                child: Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 25,
+                ),
+                onTap: () => _playlistDialog())),
+        child: Material(
+            color: Colors.transparent,
             child: ListView.builder(
               itemCount: _playlistList.length,
               physics: ScrollPhysics(),
