@@ -30,16 +30,15 @@ class LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
   bool _disabled = false;
 
-
   _clearFiller() {
-      _usernameFilter.text = "";
-      _passwordFilter.text = "";
-      _firstNameFilter.text = "";
-      _lastNameFilter.text = "";
-      _firstName = "";
-      _lastName = "";
-      _username = "";
-      _password = "";
+    _usernameFilter.text = "";
+    _passwordFilter.text = "";
+    _firstNameFilter.text = "";
+    _lastNameFilter.text = "";
+    _firstName = "";
+    _lastName = "";
+    _username = "";
+    _password = "";
   }
 
   void _formChange() async {
@@ -59,14 +58,11 @@ class LoginPageState extends State<LoginPage> {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
-    return new Scaffold(
-        resizeToAvoidBottomPadding: false,
-        appBar: AppBar(
-          title: Text("Auth"),
-          centerTitle: true,
-        ),
-        body: ModalProgressHUD(
-            child: SingleChildScrollView(
+    return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(middle: Text('Auth')),
+        child: ModalProgressHUD(
+            child: SafeArea(
+                child: SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
@@ -84,7 +80,7 @@ class LoginPageState extends State<LoginPage> {
                   _buildButtons(accountData, downloadData),
                 ],
               ),
-            ),
+            )),
             inAsyncCall: _disabled));
   }
 
@@ -126,11 +122,11 @@ class LoginPageState extends State<LoginPage> {
         },
         suffixIcon: _password.isEmpty
             ? null
-            : IconButton(
-                icon: Icon(
+            : GestureDetector(
+                child: Icon(
                     _obscureText ? Icons.remove_red_eye : Icons.visibility_off,
                     color: HexColor('#8c8c8c')),
-                onPressed: () {
+                onTap: () {
                   setState(() {
                     _obscureText = !_obscureText;
                   });
@@ -218,7 +214,8 @@ class LoginPageState extends State<LoginPage> {
                   }
                 }
               },
-              child: Text(_form == FormType.login ? 'Login' : 'Create'),
+              child: Text(_form == FormType.login ? 'Login' : 'Create',
+                  style: TextStyle(color: Colors.white)),
             ),
           ),
           FlatButton(

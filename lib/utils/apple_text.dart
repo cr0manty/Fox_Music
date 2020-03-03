@@ -40,6 +40,7 @@ class AppleTextInputState extends State<AppleTextInput> {
       child: Stack(
         children: <Widget>[
           TextFormField(
+            style: TextStyle(color: Colors.white),
             keyboardType: widget.keyboardType,
             validator: widget.validator,
             obscureText: widget.obscureText ?? false,
@@ -76,8 +77,7 @@ class AppleTextInputState extends State<AppleTextInput> {
               child: Text(
                 widget.labelText,
                 style: TextStyle(
-                    color: isEmpty ? Colors.white : Colors.grey,
-                    fontSize: 13),
+                    color: isEmpty ? Colors.white : Colors.grey, fontSize: 13),
               ))
         ],
       ),

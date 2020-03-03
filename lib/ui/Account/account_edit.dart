@@ -103,13 +103,12 @@ class AccountEditPageState extends State<AccountEditPage> {
     AccountData accountData = Provider.of<AccountData>(context);
 
     _setFilter(accountData);
-    return Material(
-        child: CupertinoPageScaffold(
+    return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
           middle: Text('Profile edit'),
           previousPageTitle: 'Back',
-          trailing:  CupertinoButton(
+          trailing: CupertinoButton(
             padding: EdgeInsets.zero,
             child: Text(
               'Done',
@@ -135,41 +134,44 @@ class AccountEditPageState extends State<AccountEditPage> {
               }
             },
           )),
-      child: SafeArea(child: Material(child: _buildSelfEdit(accountData))),
-    ));
+      child: SafeArea(
+          child: Material(
+              color: Colors.transparent, child: _buildSelfEdit(accountData))),
+    );
   }
 
   _changeAreaForm() {
     return [
       TextFormField(
         controller: _firstNameFilter,
+        style: TextStyle(color: Colors.white),
         decoration: InputDecoration(
-          labelText: 'First name',
-        ),
+            labelText: 'First name',
+            labelStyle: TextStyle(color: Colors.white)),
       ),
       TextFormField(
+        style: TextStyle(color: Colors.white),
         controller: _lastNameFilter,
         decoration: InputDecoration(
-          labelText: 'Last name',
-        ),
+            labelText: 'Last name', labelStyle: TextStyle(color: Colors.white)),
       ),
       TextFormField(
+        style: TextStyle(color: Colors.white),
         controller: _emailFilter,
         decoration: InputDecoration(
-          labelText: 'Email',
-        ),
+            labelText: 'Email', labelStyle: TextStyle(color: Colors.white)),
       ),
       TextFormField(
+        style: TextStyle(color: Colors.white),
         controller: _usernameFilter,
         decoration: InputDecoration(
-          labelText: 'Login',
-        ),
+            labelText: 'Login', labelStyle: TextStyle(color: Colors.white)),
       ),
       TextFormField(
+        style: TextStyle(color: Colors.white),
         controller: _passwordFilter,
         decoration: InputDecoration(
-          labelText: 'Password',
-        ),
+            labelText: 'Password', labelStyle: TextStyle(color: Colors.white)),
         validator: (value) {
           if (value.isNotEmpty) {
             if (value.length < 8) {
@@ -182,8 +184,8 @@ class AccountEditPageState extends State<AccountEditPage> {
       TextFormField(
         controller: _passwordConfirmFilter,
         decoration: InputDecoration(
-          labelText: 'Password confirm',
-        ),
+            labelText: 'Password confirm',
+            labelStyle: TextStyle(color: Colors.white)),
       ),
     ];
   }

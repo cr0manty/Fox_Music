@@ -30,128 +30,121 @@ class AccountPageState extends State<AccountPage> {
     MusicData musicData = Provider.of<MusicData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
-    return Material(
-        child: CupertinoPageScaffold(
-          key: _scaffoldKey,
-          navigationBar: CupertinoNavigationBar(middle: Text('Profile')),
-          child: Material(
-              child: SafeArea(
-                  child: _buildSelfShow(accountData, musicData, downloadData))),
-        ));
+    return CupertinoPageScaffold(
+        key: _scaffoldKey,
+        navigationBar: CupertinoNavigationBar(middle: Text('Profile')),
+        child: _buildSelfShow(accountData, musicData, downloadData));
   }
 
   _buildSelfShow(AccountData accountData, MusicData musicData,
       MusicDownloadData downloadData) {
-    return ListView(
-        children: [
-          Padding(
-              padding: EdgeInsets.only(bottom: 15, top: 15),
-              child: GestureDetector(
-                onTap: () {
-                  showCupertinoModalPopup(
-                      context: _scaffoldKey.currentContext,
-                      builder: (context) {
-                        return CupertinoActionSheet(
-                          actions: <Widget>[
-                            CupertinoActionSheetAction(
-                                onPressed: () {
-                                  accountData.changeAccountState();
-                                  Navigator.pop(context);
-                                  Navigator.of(_scaffoldKey.currentContext)
-                                      .push(
-                                      CupertinoPageRoute(
-                                          builder: (context) =>
+    return ListView(children: [
+      Padding(
+          padding: EdgeInsets.only(bottom: 15, top: 15),
+          child: GestureDetector(
+            onTap: () {
+              showCupertinoModalPopup(
+                  context: _scaffoldKey.currentContext,
+                  builder: (context) {
+                    return CupertinoActionSheet(
+                      actions: <Widget>[
+                        CupertinoActionSheetAction(
+                            onPressed: () {
+                              accountData.changeAccountState();
+                              Navigator.pop(context);
+                              Navigator.of(_scaffoldKey.currentContext).push(
+                                  CupertinoPageRoute(
+                                      builder: (context) =>
                                           ChangeNotifierProvider<
-                                              AccountData>.value(
+                                                  AccountData>.value(
                                               value: accountData,
                                               child: AccountEditPage())));
-                                },
-                                child: Text('Edit')),
-                            CupertinoActionSheetAction(
-                                onPressed: () async {
-                                  await accountData.makeLogout();
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  'Logout',
-                                  style: TextStyle(color: Colors.red),
-                                ))
-                          ],
-                        );
-                      });
-                },
-                child: Center(
-                    child: CircleAvatar(
-                        radius: 70,
-                        backgroundColor: Colors.grey,
-                        backgroundImage:
-                        Image
-                            .network(formatImage(accountData.user.image))
+                            },
+                            child: Text('Edit')),
+                        CupertinoActionSheetAction(
+                            onPressed: () async {
+                              await accountData.makeLogout();
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Logout',
+                              style: TextStyle(color: Colors.red),
+                            ))
+                      ],
+                    );
+                  });
+            },
+            child: Center(
+                child: CircleAvatar(
+                    radius: 70,
+                    backgroundColor: Colors.grey,
+                    backgroundImage:
+                        Image.network(formatImage(accountData.user.image))
                             .image)),
-              )),
-          Padding(
-              padding: EdgeInsets.only(bottom: 25),
+          )),
+      Padding(
+          padding: EdgeInsets.only(bottom: 25),
+          child: Center(
               child: Text(
                   accountData.user.last_name.isEmpty &&
-                      accountData.user.first_name.isEmpty
+                          accountData.user.first_name.isEmpty
                       ? ''
-                      : '${accountData.user.first_name} ${accountData.user
-                      .last_name}',
+                      : '${accountData.user.first_name} ${accountData.user.last_name}',
                   style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white))),
-          Card(
-              child: ListTile(
-                leading: Icon(Icons.search, color: Colors.white),
-                onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext)
-                      .push(CupertinoPageRoute(
-                      builder: (context) =>
-                          MultiProvider(providers: [
-                            ChangeNotifierProvider<
-                                MusicDownloadData>.value(
-                                value: downloadData),
-                            ChangeNotifierProvider<AccountData>.value(
-                                value: accountData),
-                          ], child: SearchPage())));
-                },
-                title: Text(
-                  'Search',
-                  style: TextStyle(color: Colors.white),
-                ),
-              )),
-          Card(
-              child: ListTile(
-                leading: Icon(Icons.people, color: Colors.white),
-                onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext)
-                      .push(CupertinoPageRoute(
-                      builder: (context) =>
-                          MultiProvider(providers: [
-                            ChangeNotifierProvider<
-                                MusicDownloadData>.value(
-                                value: downloadData),
-                            ChangeNotifierProvider<AccountData>.value(
-                                value: accountData),
-                          ], child: FriendListPage())));
-                },
-                title: Text(
-                  'Friends',
-                  style: TextStyle(color: Colors.white),
-                ),
-              )),
-          Card(
-              child: ListTile(
-                leading: Icon(Icons.file_download, color: Colors.white),
-                onTap: () =>
-                    _downloadAll(accountData, musicData, downloadData),
-                title: Text(
-                  'Download all',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ))
-        ]);
+                      color: Colors.white)))),
+      Divider(height: 1, color: Colors.grey),
+      Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Icon(Icons.search, color: Colors.white),
+            onTap: () {
+              Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
+                  builder: (context) => MultiProvider(providers: [
+                        ChangeNotifierProvider<MusicDownloadData>.value(
+                            value: downloadData),
+                        ChangeNotifierProvider<AccountData>.value(
+                            value: accountData),
+                      ], child: SearchPage())));
+            },
+            title: Text(
+              'Search',
+              style: TextStyle(color: Colors.white),
+            ),
+          )),
+      Divider(height: 1, color: Colors.grey),
+      Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Icon(Icons.people, color: Colors.white),
+            onTap: () {
+              Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
+                  builder: (context) => MultiProvider(providers: [
+                        ChangeNotifierProvider<MusicDownloadData>.value(
+                            value: downloadData),
+                        ChangeNotifierProvider<AccountData>.value(
+                            value: accountData),
+                      ], child: FriendListPage())));
+            },
+            title: Text(
+              'Friends',
+              style: TextStyle(color: Colors.white),
+            ),
+          )),
+      Divider(height: 1, color: Colors.grey),
+      Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Icon(Icons.file_download, color: Colors.white),
+            onTap: () => _downloadAll(accountData, musicData, downloadData),
+            title: Text(
+              'Download all',
+              style: TextStyle(color: Colors.white),
+            ),
+          )),
+      Divider(height: 1, color: Colors.grey),
+    ]);
   }
 
   _downloadAll(AccountData accountData, MusicData musicData,
@@ -162,8 +155,7 @@ class AccountPageState extends State<AccountPage> {
     } else {
       showDialog(
           context: _scaffoldKey.currentContext,
-          builder: (BuildContext context) =>
-              CupertinoAlertDialog(
+          builder: (BuildContext context) => CupertinoAlertDialog(
                   title: Text('Error'),
                   content: Text(
                       'In order to download, you have to allow access to your account details'),
@@ -182,9 +174,9 @@ class AccountPageState extends State<AccountPage> {
                           Navigator.of(_scaffoldKey.currentContext).push(
                               CupertinoPageRoute(
                                   builder: (context) =>
-                                  ChangeNotifierProvider<AccountData>.value(
-                                      value: accountData,
-                                      child: VKAuthPage(accountData))));
+                                      ChangeNotifierProvider<AccountData>.value(
+                                          value: accountData,
+                                          child: VKAuthPage(accountData))));
                         })
                   ]));
     }
