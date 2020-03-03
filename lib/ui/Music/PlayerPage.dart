@@ -60,7 +60,6 @@ class PlayerPageState extends State<PlayerPage> {
         key: _scaffoldKey,
         child: SwipeDetector(
             onSwipeDown: () {
-
               Navigator.pop(context);
             },
             child: Material(
