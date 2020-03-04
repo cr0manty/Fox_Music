@@ -8,6 +8,7 @@ import 'package:vk_parse/models/Relationship.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/PeoplePage.dart';
+import 'package:vk_parse/utils/apple_search.dart';
 
 class FriendListPage extends StatefulWidget {
   @override
@@ -18,11 +19,13 @@ class FriendListPageState extends State<FriendListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
+  List<Relationship> friendListSorted = [];
 
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+    friendListSorted = accountData.friendList;
 
     return CupertinoPageScaffold(
       key: _scaffoldKey,
@@ -33,9 +36,9 @@ class FriendListPageState extends State<FriendListPage> {
       child: RefreshIndicator(
           key: _refreshKey,
           onRefresh: () => accountData.loadFiendList(),
-          child: accountData.friendList.length > 0
+          child: friendListSorted.length > 0
               ? ListView.builder(
-                  itemCount: accountData.friendList.length,
+                  itemCount: friendListSorted.length + 1,
                   itemBuilder: (context, index) =>
                       _buildUserCard(accountData, downloadData, index),
                 )
@@ -51,9 +54,25 @@ class FriendListPageState extends State<FriendListPage> {
     );
   }
 
+  void _filterFriends(AccountData accountData, String value) {
+    String newValue = value.toLowerCase();
+    setState(() {
+      friendListSorted = accountData.friendList
+          .where((Relationship relationship) =>
+              relationship.user.first_name.toLowerCase().contains(newValue) ||
+              relationship.user.last_name.toLowerCase().contains(newValue))
+          .toList();
+    });
+  }
+
   _buildUserCard(
       AccountData accountData, MusicDownloadData downloadData, int index) {
-    Relationship relationship = accountData.friendList[index];
+    if (index == 0) {
+      return AppleSearch(onChange: (value) {
+        _filterFriends(accountData, value);
+      });
+    }
+    Relationship relationship = accountData.friendList[index - 1];
 
     return Column(children: [
       Slidable(

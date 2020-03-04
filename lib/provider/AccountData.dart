@@ -41,20 +41,12 @@ class AccountData with ChangeNotifier {
     notifyListeners();
   }
 
-  changeAccountState() {
-    accountType = accountType == AccountType.SELF_SHOW
-        ? AccountType.SELF_EDIT
-        : AccountType.SELF_SHOW;
-    notifyListeners();
-  }
-
   updateUserData(data) async {
     if (await profilePost(body: data)) {
       User newUser = await profileGet();
       if (newUser != null) {
         user = newUser;
       }
-      changeAccountState();
       notifyListeners();
     }
   }

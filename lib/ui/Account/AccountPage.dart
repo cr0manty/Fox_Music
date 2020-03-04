@@ -7,9 +7,10 @@ import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/FriendListPage.dart';
 import 'package:vk_parse/ui/Account/VKAuthPage.dart';
-import 'package:vk_parse/ui/Account/SearchPage.dart';
 import 'package:vk_parse/ui/Account/account_edit.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
+import 'package:vk_parse/ui/Account/search_music.dart';
+import 'package:vk_parse/ui/Account/search_people.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -45,7 +46,6 @@ class AccountPageState extends State<AccountPage> {
                       actions: <Widget>[
                         CupertinoActionSheetAction(
                             onPressed: () {
-                              accountData.changeAccountState();
                               Navigator.pop(context);
                               Navigator.of(_scaffoldKey.currentContext).push(
                                   CupertinoPageRoute(
@@ -99,9 +99,7 @@ class AccountPageState extends State<AccountPage> {
                   builder: (context) => MultiProvider(providers: [
                         ChangeNotifierProvider<MusicDownloadData>.value(
                             value: downloadData),
-                        ChangeNotifierProvider<AccountData>.value(
-                            value: accountData),
-                      ], child: SearchPage())));
+                      ], child: SearchMusicPage())));
             },
             title: Text(
               'Search Music',
@@ -120,7 +118,7 @@ class AccountPageState extends State<AccountPage> {
                             value: downloadData),
                         ChangeNotifierProvider<AccountData>.value(
                             value: accountData),
-                      ], child: SearchPage())));
+                      ], child: SearchPeoplePage())));
             },
             title: Text(
               'Search People',

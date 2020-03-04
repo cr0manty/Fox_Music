@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vk_parse/utils/apple_search.dart';
 import 'package:vk_parse/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -34,7 +35,9 @@ class MusicListPageState extends State<MusicListPage> {
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
   List<Song> _musicList = [];
+  List<Song> _musicListSorted = [];
   List<Playlist> _playlistList = [];
+  List<Playlist> _playlistListSorted = [];
   bool init = true;
 
   _addTrackToPlaylistDialog() {}
@@ -84,7 +87,7 @@ class MusicListPageState extends State<MusicListPage> {
         onRefresh: () => _loadPlaylist(musicData, null, update: true),
         child: _musicList.length > 0
             ? ListView.builder(
-                itemCount: _musicList.length,
+                itemCount: _musicListSorted.length + 1,
                 itemBuilder: (context, index) =>
                     _buildSongListTile(index, musicData),
               )
@@ -106,6 +109,7 @@ class MusicListPageState extends State<MusicListPage> {
       if (update) musicData.loadSavedMusic();
       setState(() {
         _musicList = musicData.localSongs;
+        _musicListSorted = _musicList;
       });
     } else {}
     if (song != null) {
@@ -205,6 +209,17 @@ class MusicListPageState extends State<MusicListPage> {
     );
   }
 
+  void _filterSongs(String value) {
+    String newValue = value.toLowerCase();
+    setState(() {
+      _musicListSorted = _musicList
+          .where((song) =>
+              song.artist.toLowerCase().contains(newValue) ||
+              song.title.toLowerCase().contains(newValue))
+          .toList();
+    });
+  }
+
   _shareSong(Song song) async {
     final File bytes = await File(song.path);
     await WcFlutterShare.share(
@@ -234,7 +249,11 @@ class MusicListPageState extends State<MusicListPage> {
   }
 
   _buildSongListTile(int index, MusicData musicData) {
-    Song song = _musicList[index];
+    if (index == 0) {
+      return AppleSearch(onChange: _filterSongs);
+    }
+
+    Song song = _musicListSorted[index - 1];
     if (song == null) {
       return null;
     }
@@ -254,30 +273,32 @@ class MusicListPageState extends State<MusicListPage> {
                 onTap: () async {
                   _loadPlaylist(musicData, song);
 
-                    if (musicData.currentSong != null &&
-                        musicData.currentSong.song_id == song.song_id) {
-                      await musicData.playerResume();
-                    } else {
-                      await musicData.playerPlay(song);
-                    }
-                      Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            ChangeNotifierProvider<MusicData>.value(
-                                value: musicData, child: PlayerPage()),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          var begin = Offset(0.0, 1.0);
-                          var end = Offset.zero;
-                          var curve = Curves.ease;
+                  if (musicData.currentSong != null &&
+                      musicData.currentSong.song_id == song.song_id) {
+                    await musicData.playerResume();
+                  } else {
+                    await musicData.playerPlay(song);
+                  }
+                  Navigator.of(context, rootNavigator: true).push(
+                      PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  ChangeNotifierProvider<MusicData>.value(
+                                      value: musicData, child: PlayerPage()),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            var begin = Offset(0.0, 1.0);
+                            var end = Offset.zero;
+                            var curve = Curves.ease;
 
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
 
-                          return SlideTransition(
-                            position: animation.drive(tween),
-                            child: child,
-                          );
-                        }));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          }));
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),

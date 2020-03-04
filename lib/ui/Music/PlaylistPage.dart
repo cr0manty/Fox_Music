@@ -244,7 +244,7 @@ class PlaylistPageState extends State<PlaylistPage> {
           IconSlideAction(
             caption: 'Delete',
             color: Colors.red,
-            icon: Icons.delete,
+            icon: SFSymbols.trash,
             onTap: () {
               setState(() {
                 _playlistList.remove(playlist);
