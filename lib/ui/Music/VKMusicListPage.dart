@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/utils/showShackbar.dart';
-
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/models/Song.dart';
@@ -158,7 +158,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             IconSlideAction(
               caption: 'Delete',
               color: Colors.red,
-              icon: Icons.delete,
+              icon: SFSymbols.trash,
               onTap: () async {
                 bool isDeleted = await hideMusic(song.song_id);
                 if (isDeleted) {

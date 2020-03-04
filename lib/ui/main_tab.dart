@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +8,9 @@ import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/LoginPage.dart';
 import 'package:vk_parse/ui/Music/PlayerPage.dart';
 import 'package:vk_parse/ui/Music/PlaylistPage.dart';
-
 import 'package:provider/provider.dart';
 import 'package:vk_parse/provider/MusicData.dart';
-
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:vk_parse/ui/Music/MusicListPage.dart';
 import 'package:vk_parse/ui/Account/AccountPage.dart';
 import 'package:vk_parse/ui/Music/VKMusicListPage.dart';
@@ -180,17 +178,20 @@ class MainPageState extends State<MainPage> {
         onWillPop: () => Future<bool>.value(true),
         child: CupertinoTabScaffold(
             tabBar: CupertinoTabBar(
+              activeColor: Colors.redAccent,
               items: <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
-                    icon: Icon(Icons.playlist_play), title: Text('Playlist')),
+                    icon: Icon(SFSymbols.music_note_list),
+                    title: Text('Playlist')),
                 BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.folder_open),
+                    icon: Icon(SFSymbols.folder),
                     title: Text('Media')),
                 BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.music_note),
+                    icon: Icon(SFSymbols.music_note_2),
                     title: Text('Music')),
                 BottomNavigationBarItem(
-                    icon: Icon(CupertinoIcons.person), title: Text('Account'))
+                    icon: Icon(SFSymbols.person_alt),
+                    title: Text('Account'))
               ],
             ),
             tabBuilder: (BuildContext context, int index) {

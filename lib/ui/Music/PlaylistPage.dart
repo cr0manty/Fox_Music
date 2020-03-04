@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -11,6 +9,7 @@ import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/ui/Music/MusicListPage.dart';
 import 'package:vk_parse/utils/Database.dart';
 import 'package:vk_parse/utils/hex_color.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
 class PlaylistPage extends StatefulWidget {
   @override
@@ -187,13 +186,13 @@ class PlaylistPageState extends State<PlaylistPage> {
           IconSlideAction(
             caption: 'Play',
             color: Colors.blue,
-            icon: Icons.play_arrow,
+            icon: SFSymbols.play,
             onTap: null,
           ),
           IconSlideAction(
             caption: 'Set image',
             color: Colors.pinkAccent,
-            icon: Icons.image,
+            icon: SFSymbols.photo,
             onTap: () {
               FocusScope.of(_scaffoldKey.currentContext)
                   .requestFocus(FocusNode());
@@ -239,7 +238,7 @@ class PlaylistPageState extends State<PlaylistPage> {
           IconSlideAction(
             caption: 'Rename',
             color: Colors.indigo,
-            icon: Icons.edit,
+            icon: SFSymbols.pencil,
             onTap: () => _playlistDialog(playlist: playlist),
           ),
           IconSlideAction(

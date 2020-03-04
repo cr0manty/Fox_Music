@@ -1,19 +1,17 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:vk_parse/functions/utils/pickDialog.dart';
 import 'package:vk_parse/models/Playlist.dart';
 import 'package:vk_parse/utils/Database.dart';
 import 'package:vk_parse/provider/MusicData.dart';
 import 'package:vk_parse/models/Song.dart';
 import 'package:vk_parse/functions/format/formatTime.dart';
-
 import 'PlayerPage.dart';
 
 enum ButtonState { SHARE, DELETE }
@@ -222,14 +220,14 @@ class MusicListPageState extends State<MusicListPage> {
       actions.add(IconSlideAction(
         caption: 'Add to playlist',
         color: Colors.pinkAccent,
-        icon: Icons.playlist_add,
+        icon: SFSymbols.rectangle_stack_fill_badge_plus,
         onTap: () => showPickerDialog(context, _playlistList, song.song_id),
       ));
     }
     actions.add(IconSlideAction(
       caption: 'Rename',
       color: Colors.blue,
-      icon: Icons.edit,
+      icon: SFSymbols.pencil,
       onTap: () => _renameSongDialog(song),
     ));
     return actions;
@@ -289,13 +287,13 @@ class MusicListPageState extends State<MusicListPage> {
             IconSlideAction(
               caption: 'Share',
               color: Colors.indigo,
-              icon: CupertinoIcons.share,
+              icon: CupertinoIcons.share_up,
               onTap: () => _shareSong(song),
             ),
             IconSlideAction(
               caption: 'Delete',
               color: Colors.red,
-              icon: Icons.delete,
+              icon: SFSymbols.trash,
               onTap: () => widget._pageType == PageType.SAVED
                   ? _deleteSong(song)
                   : _deleteSongFromPlaylist(song),

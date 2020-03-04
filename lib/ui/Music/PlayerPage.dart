@@ -8,6 +8,7 @@ import 'package:vk_parse/provider/MusicData.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vk_parse/utils/Database.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -207,14 +208,21 @@ class PlayerPageState extends State<PlayerPage> {
                                         )),
                                     Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            vertical: 10.0),
+                                            vertical: 10.0, horizontal: 16),
                                         child: Row(
                                           mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            IconButton(
-                                                onPressed: musicData
-                                                            .currentSong !=
+                                            GestureDetector(
+                                              onTap: musicData.repeatClick,
+                                              child: Icon(SFSymbols.repeat,
+                                                  size: screenHeight * 0.025,
+                                                  color: musicData.repeat
+                                                      ? Colors.redAccent
+                                                      : Colors.grey),
+                                            ),
+                                            GestureDetector(
+                                                onTap: musicData.currentSong !=
                                                         null
                                                     ? () {
                                                         if (sliderValue < 0.3 &&
@@ -226,35 +234,42 @@ class PlayerPageState extends State<PlayerPage> {
                                                         }
                                                       }
                                                     : null,
-                                                icon: Icon(
-                                                  Icons.skip_previous,
+                                                child: Icon(
+                                                  SFSymbols.backward_fill,
                                                   color: Colors.grey,
-                                                  size: screenHeight * 0.07,
+                                                  size: screenHeight * 0.045,
                                                 )),
-                                            IconButton(
-                                              onPressed: _play(musicData),
-                                              icon: Icon(
+                                            GestureDetector(
+                                              onTap: _play(musicData),
+                                              child: Icon(
                                                 musicData.playerState ==
                                                         AudioPlayerState.PLAYING
                                                     ? Icons.pause
-                                                    : Icons.play_arrow,
+                                                    : SFSymbols.play_fill,
                                                 color: Colors.grey,
-                                                size: screenHeight * 0.07,
+                                                size: screenHeight * 0.045,
                                               ),
                                             ),
-                                            IconButton(
-                                                onPressed:
-                                                    musicData.currentSong !=
-                                                            null
-                                                        ? () {
-                                                            musicData.next();
-                                                          }
-                                                        : null,
-                                                icon: Icon(
-                                                  Icons.skip_next,
+                                            GestureDetector(
+                                                onTap: musicData.currentSong !=
+                                                        null
+                                                    ? () {
+                                                        musicData.next();
+                                                      }
+                                                    : null,
+                                                child: Icon(
+                                                  SFSymbols.forward_fill,
                                                   color: Colors.grey,
-                                                  size: screenHeight * 0.07,
+                                                  size: screenHeight * 0.045,
                                                 )),
+                                            GestureDetector(
+                                              onTap: musicData.mixClick,
+                                              child: Icon(SFSymbols.shuffle,
+                                                  size: screenHeight * 0.025,
+                                                  color: musicData.mix
+                                                      ? Colors.redAccent
+                                                      : Colors.grey),
+                                            )
                                           ],
                                         )),
                                     Expanded(
@@ -266,21 +281,11 @@ class PlayerPageState extends State<PlayerPage> {
                                                     left: 10, bottom: 10),
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
                                                   children: <Widget>[
-                                                    IconButton(
-                                                      onPressed:
-                                                          musicData.repeatClick,
-                                                      icon: Icon(Icons.repeat,
-                                                          size: screenHeight *
-                                                              0.03,
-                                                          color: musicData
-                                                                  .repeat
-                                                              ? Colors.redAccent
-                                                              : Colors.grey),
-                                                    ),
-                                                    IconButton(
-                                                      onPressed: musicData
+                                                    GestureDetector(
+                                                      onTap: musicData
                                                                   .currentSong !=
                                                               null
                                                           ? () =>
@@ -291,24 +296,13 @@ class PlayerPageState extends State<PlayerPage> {
                                                                       .currentSong
                                                                       .song_id)
                                                           : null,
-                                                      icon: Icon(
-                                                          Icons.playlist_add,
+                                                      child: Icon(
+                                                          SFSymbols
+                                                              .rectangle_stack_fill_badge_plus,
                                                           size: screenHeight *
-                                                              0.03,
+                                                              0.025,
                                                           color: Colors.grey),
                                                     ),
-                                                    IconButton(
-                                                      onPressed:
-                                                          musicData.mixClick,
-                                                      icon: Icon(
-                                                          CupertinoIcons
-                                                              .shuffle_medium,
-                                                          size: screenHeight *
-                                                              0.03,
-                                                          color: musicData.mix
-                                                              ? Colors.redAccent
-                                                              : Colors.grey),
-                                                    )
                                                   ],
                                                 ))))
                                   ]),

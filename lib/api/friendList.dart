@@ -28,7 +28,7 @@ friendListGet() async {
   } catch (e) {
     print(e);
   }
-  return [];
+  return <Relationship>[];
 }
 
 friendListIdGet() async {

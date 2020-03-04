@@ -35,6 +35,7 @@ dependencies:
   sqflite: any
   percent_indicator: ^2.1.1+1
   swipedetector: ^1.2.0
+  flutter_sfsymbols: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +57,11 @@ flutter:
     - assets/images/audio-cover.png
     - assets/images/intro-background.jpg
     - assets/images/app-logo.png
+
+  fonts:
+    - family: sficonsets
+      fonts:
+        - asset: packages/flutter_sfsymbols/fonts/sficonsets.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

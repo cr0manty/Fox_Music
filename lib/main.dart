@@ -21,9 +21,8 @@ class MyApp extends StatelessWidget {
         DefaultWidgetsLocalizations.delegate,
       ],
       theme: CupertinoThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: HexColor('#282828')
-      ),
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: HexColor('#282828')),
       home: IntroPage(),
     );
   }

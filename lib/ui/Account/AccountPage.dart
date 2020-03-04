@@ -1,20 +1,15 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 import 'package:vk_parse/functions/format/formatImage.dart';
-
 import 'package:vk_parse/provider/AccountData.dart';
 import 'package:vk_parse/provider/MusicData.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
 import 'package:vk_parse/provider/MusicDownloadData.dart';
 import 'package:vk_parse/ui/Account/FriendListPage.dart';
 import 'package:vk_parse/ui/Account/VKAuthPage.dart';
 import 'package:vk_parse/ui/Account/SearchPage.dart';
 import 'package:vk_parse/ui/Account/account_edit.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -98,7 +93,7 @@ class AccountPageState extends State<AccountPage> {
       Material(
           color: Colors.transparent,
           child: ListTile(
-            leading: Icon(Icons.search, color: Colors.white),
+            leading: Icon(SFSymbols.music_albums, color: Colors.white),
             onTap: () {
               Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
                   builder: (context) => MultiProvider(providers: [
@@ -109,7 +104,7 @@ class AccountPageState extends State<AccountPage> {
                       ], child: SearchPage())));
             },
             title: Text(
-              'Search',
+              'Search Music',
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -117,7 +112,26 @@ class AccountPageState extends State<AccountPage> {
       Material(
           color: Colors.transparent,
           child: ListTile(
-            leading: Icon(Icons.people, color: Colors.white),
+            leading: Icon(SFSymbols.search, color: Colors.white),
+            onTap: () {
+              Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
+                  builder: (context) => MultiProvider(providers: [
+                        ChangeNotifierProvider<MusicDownloadData>.value(
+                            value: downloadData),
+                        ChangeNotifierProvider<AccountData>.value(
+                            value: accountData),
+                      ], child: SearchPage())));
+            },
+            title: Text(
+              'Search People',
+              style: TextStyle(color: Colors.white),
+            ),
+          )),
+      Divider(height: 1, color: Colors.grey),
+      Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Icon(SFSymbols.person_2_alt, color: Colors.white),
             onTap: () {
               Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
                   builder: (context) => MultiProvider(providers: [
@@ -136,7 +150,7 @@ class AccountPageState extends State<AccountPage> {
       Material(
           color: Colors.transparent,
           child: ListTile(
-            leading: Icon(Icons.file_download, color: Colors.white),
+            leading: Icon(SFSymbols.arrow_down_to_line, color: Colors.white),
             onTap: () => _downloadAll(accountData, musicData, downloadData),
             title: Text(
               'Download all',
