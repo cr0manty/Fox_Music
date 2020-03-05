@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/provider/account_data.dart';
 import 'package:vk_parse/api/login.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
+import 'package:vk_parse/functions/utils/info_dialog.dart';
+import 'package:vk_parse/provider/download_data.dart';
 import 'package:vk_parse/utils/apple_text.dart';
 import 'package:vk_parse/utils/hex_color.dart';
 

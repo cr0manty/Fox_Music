@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vk_parse/ui/Account/IntroPage.dart';
+import 'package:vk_parse/ui/Account/splash_screen.dart';
 import 'package:vk_parse/utils/hex_color.dart';
 
 void main() => runApp(MyApp());

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vk_parse/models/PlaylistCheckbox.dart';
+import 'package:vk_parse/models/playlist.dart';
 
 class DialogPlaylistContent extends StatefulWidget {
   final List<PlaylistCheckbox> playlistList;

@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/utils/pickDialog.dart';
-import 'package:vk_parse/models/Playlist.dart';
-import 'package:vk_parse/provider/MusicData.dart';
+import 'package:vk_parse/functions/format/time.dart';
+import 'package:vk_parse/functions/utils/pick_dialog.dart';
+import 'package:vk_parse/models/playlist.dart';
+import 'package:vk_parse/provider/music_data.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/utils/Database.dart';
+import 'package:vk_parse/utils/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
 class PlayerPage extends StatefulWidget {

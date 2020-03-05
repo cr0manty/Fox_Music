@@ -5,8 +5,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/models/Playlist.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/models/playlist.dart';
 
 class DBProvider {
   static const dbName = 'vk_music5.db';

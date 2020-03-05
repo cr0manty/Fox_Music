@@ -2,9 +2,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/functions/format/headersToken.dart';
-import 'package:vk_parse/functions/get/getToken.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/functions/format/token.dart';
+import 'package:vk_parse/functions/get/token.dart';
 
 musicListGet() async {
   try {

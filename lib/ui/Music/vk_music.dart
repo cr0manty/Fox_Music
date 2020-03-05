@@ -4,16 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/utils/showShackbar.dart';
+import 'package:vk_parse/functions/utils/snackbar.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/provider/MusicData.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/api/musicList.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
-import 'package:vk_parse/ui/Account/VKAuthPage.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/provider/music_data.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/api/music_list.dart';
+import 'package:vk_parse/functions/utils/info_dialog.dart';
+import 'package:vk_parse/functions/format/time.dart';
+import 'package:vk_parse/provider/download_data.dart';
+import 'package:vk_parse/ui/Account/auth_vk.dart';
 
 class VKMusicListPage extends StatefulWidget {
   @override
@@ -38,6 +38,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
+                actionsForegroundColor: Colors.redAccent,
                 middle: Text('Music'),
                 trailing:
                     accountData.user != null && accountData.user.can_use_vk
@@ -155,10 +156,9 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
           secondaryActions: <Widget>[
-            IconSlideAction(
-              caption: 'Delete',
+            SlideAction(
               color: Colors.red,
-              icon: SFSymbols.trash,
+              child: Icon(SFSymbols.trash, color: Colors.white),
               onTap: () async {
                 bool isDeleted = await hideMusic(song.song_id);
                 if (isDeleted) {

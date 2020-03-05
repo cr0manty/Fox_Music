@@ -3,17 +3,17 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swipedetector/swipedetector.dart';
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
-import 'package:vk_parse/ui/Account/LoginPage.dart';
-import 'package:vk_parse/ui/Music/PlayerPage.dart';
-import 'package:vk_parse/ui/Music/PlaylistPage.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/provider/download_data.dart';
+import 'package:vk_parse/ui/Account/login.dart';
+import 'package:vk_parse/ui/Music/player.dart';
+import 'package:vk_parse/ui/Music/playylist.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/provider/MusicData.dart';
+import 'package:vk_parse/provider/music_data.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:vk_parse/ui/Music/MusicListPage.dart';
-import 'package:vk_parse/ui/Account/AccountPage.dart';
-import 'package:vk_parse/ui/Music/VKMusicListPage.dart';
+import 'package:vk_parse/ui/Music/music_list.dart';
+import 'package:vk_parse/ui/Account/account.dart';
+import 'package:vk_parse/ui/Music/vk_music.dart';
 
 class MainPage extends StatefulWidget {
   @override

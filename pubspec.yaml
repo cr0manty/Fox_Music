@@ -36,6 +36,7 @@ dependencies:
   percent_indicator: ^2.1.1+1
   swipedetector: ^1.2.0
   flutter_sfsymbols: ^1.0.0
+  flutter_svg: ^0.17.2
 
 dev_dependencies:
   flutter_test:
@@ -55,13 +56,15 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/audio-cover.png
-    - assets/images/intro-background.jpg
     - assets/images/app-logo.png
+
+    - assets/svg/add_to_playlist.svg
 
   fonts:
     - family: sficonsets
       fonts:
         - asset: packages/flutter_sfsymbols/fonts/sficonsets.ttf
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

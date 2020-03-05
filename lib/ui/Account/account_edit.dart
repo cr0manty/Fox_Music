@@ -5,10 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/format/formatImage.dart';
+import 'package:vk_parse/functions/format/image.dart';
 
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/functions/utils/infoDialog.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/functions/utils/info_dialog.dart';
 
 class AccountEditPage extends StatefulWidget {
   @override
@@ -106,6 +106,7 @@ class AccountEditPageState extends State<AccountEditPage> {
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
+          actionsForegroundColor: Colors.redAccent,
           middle: Text('Profile edit'),
           previousPageTitle: 'Back',
           trailing: CupertinoButton(

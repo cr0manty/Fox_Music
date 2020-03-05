@@ -1,13 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
-import 'package:vk_parse/functions/format/formatImage.dart';
-import 'package:vk_parse/models/Relationship.dart';
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
-import 'package:vk_parse/ui/Account/PeoplePage.dart';
+import 'package:vk_parse/functions/format/image.dart';
+import 'package:vk_parse/models/relationship.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/provider/download_data.dart';
+import 'package:vk_parse/ui/Account/people.dart';
 import 'package:vk_parse/utils/apple_search.dart';
 
 class FriendListPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class FriendListPageState extends State<FriendListPage> {
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
         middle: Text('Friends'),
+        actionsForegroundColor: Colors.redAccent,
         previousPageTitle: 'Back',
       ),
       child: RefreshIndicator(
@@ -107,16 +109,14 @@ class FriendListPageState extends State<FriendListPage> {
                         Image.network(formatImage(relationship.user.image))
                             .image))),
         secondaryActions: <Widget>[
-          IconSlideAction(
-            caption: 'Block',
+          SlideAction(
             color: Colors.indigo,
-            icon: Icons.block,
+            child: Icon(Icons.block, color: Colors.white),
             onTap: null,
           ),
-          IconSlideAction(
-            caption: 'Delete',
+          SlideAction(
             color: Colors.red,
-            icon: Icons.delete,
+            child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: null,
           ),
         ],

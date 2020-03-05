@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/api/friendList.dart';
-import 'package:vk_parse/api/userSearch.dart';
-import 'package:vk_parse/functions/format/formatImage.dart';
-import 'package:vk_parse/models/Relationship.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
-import 'package:vk_parse/ui/Account/PeoplePage.dart';
+import 'package:vk_parse/api/friends_list.dart';
+import 'package:vk_parse/api/user_search.dart';
+import 'package:vk_parse/functions/format/image.dart';
+import 'package:vk_parse/models/relationship.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/models/user.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/provider/download_data.dart';
+import 'package:vk_parse/ui/Account/people.dart';
 import 'package:vk_parse/utils/apple_search.dart';
 
 class SearchPeoplePage extends StatefulWidget {
@@ -57,6 +57,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
+          actionsForegroundColor: Colors.redAccent,
           middle: Text('Music Search'),
           previousPageTitle: 'Back',
         ),
@@ -131,7 +132,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
           ],
           secondaryActions: relationship.status != RelationshipStatus.BLOCK
               ? <Widget>[
-                   IconSlideAction(
+                  IconSlideAction(
                     caption: 'Block',
                     color: Colors.red,
                     icon: Icons.block,

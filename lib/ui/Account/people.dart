@@ -1,14 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/api/musicList.dart';
-import 'package:vk_parse/functions/format/formatImage.dart';
-import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/models/Relationship.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
+import 'package:vk_parse/api/music_list.dart';
+import 'package:vk_parse/functions/format/image.dart';
+import 'package:vk_parse/functions/format/time.dart';
+import 'package:vk_parse/models/relationship.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/provider/download_data.dart';
 
 class PeoplePage extends StatefulWidget {
   final Relationship relationship;
@@ -31,6 +32,7 @@ class PeoplePageState extends State<PeoplePage> {
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Search'),
+          actionsForegroundColor: Colors.redAccent,
           previousPageTitle: 'Back',
           trailing: widget.relationship.status != RelationshipStatus.BLOCK
               ? GestureDetector(
@@ -40,7 +42,7 @@ class PeoplePageState extends State<PeoplePage> {
               : Container(),
         ),
         child: widget.relationship.status != RelationshipStatus.BLOCK
-            ? _buildPage(accountData, downloadData)
+            ? SafeArea(child: _buildPage(accountData, downloadData))
             : Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
@@ -140,10 +142,12 @@ class PeoplePageState extends State<PeoplePage> {
         )),
         actions: !song.in_my_list
             ? <Widget>[
-                new IconSlideAction(
-                    caption: 'Add',
+                SlideAction(
                     color: Colors.blue,
-                    icon: Icons.add,
+                    child: Icon(
+                      SFSymbols.plus,
+                      color: Colors.white,
+                    ),
                     onTap: () async {
                       bool isAdded = await addMusic(song.song_id);
                       if (isAdded) {
@@ -156,10 +160,12 @@ class PeoplePageState extends State<PeoplePage> {
             : [],
         secondaryActions: song.in_my_list
             ? <Widget>[
-                new IconSlideAction(
-                  caption: 'Delete',
+                SlideAction(
                   color: Colors.red,
-                  icon: Icons.delete,
+                  child: Icon(
+                    SFSymbols.trash,
+                    color: Colors.white,
+                  ),
                   onTap: () async {
                     bool isDeleted = await hideMusic(song.song_id);
                     if (isDeleted) {

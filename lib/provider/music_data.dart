@@ -6,13 +6,13 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:vk_parse/functions/format/fromatSongName.dart';
-import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/get/getPlayerState.dart';
-import 'package:vk_parse/functions/save/savePlayerState.dart';
+import 'package:vk_parse/functions/format/song_name.dart';
+import 'package:vk_parse/functions/format/time.dart';
+import 'package:vk_parse/functions/get/player_state.dart';
+import 'package:vk_parse/functions/save/player_state.dart';
 
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/utils/Database.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/utils/database.dart';
 
 class MusicData with ChangeNotifier {
   AudioPlayer audioPlayer;
@@ -72,10 +72,8 @@ class MusicData with ChangeNotifier {
     });
 
     _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
-      if (!repeat) {
-        playerState = state;
-        notifyListeners();
-      }
+      playerState = state;
+      notifyListeners();
     });
 
     _playerNotifyState =

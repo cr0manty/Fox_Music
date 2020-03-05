@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vk_parse/models/Playlist.dart';
+import 'package:vk_parse/models/playlist.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/provider/MusicData.dart';
-import 'package:vk_parse/ui/Music/MusicListPage.dart';
-import 'package:vk_parse/utils/Database.dart';
+import 'package:vk_parse/provider/music_data.dart';
+import 'package:vk_parse/ui/Music/music_list.dart';
+import 'package:vk_parse/utils/database.dart';
 import 'package:vk_parse/utils/hex_color.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
@@ -105,11 +105,12 @@ class PlaylistPageState extends State<PlaylistPage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
+            actionsForegroundColor: Colors.redAccent,
             middle: Text('Playlists'),
             previousPageTitle: 'Back',
             trailing: GestureDetector(
                 child: Icon(
-                  Icons.add,
+                  SFSymbols.plus,
                   color: Colors.white,
                   size: 25,
                 ),
@@ -183,16 +184,14 @@ class PlaylistPageState extends State<PlaylistPage> {
                 },
                 leading: _showImage(playlist))),
         actions: <Widget>[
-          IconSlideAction(
-            caption: 'Play',
+          SlideAction(
             color: Colors.blue,
-            icon: SFSymbols.play,
+            child: Icon(SFSymbols.play, color: Colors.white),
             onTap: null,
           ),
-          IconSlideAction(
-            caption: 'Set image',
+          SlideAction(
             color: Colors.pinkAccent,
-            icon: SFSymbols.photo,
+            child: Icon(SFSymbols.photo, color: Colors.white),
             onTap: () {
               FocusScope.of(_scaffoldKey.currentContext)
                   .requestFocus(FocusNode());
@@ -235,16 +234,14 @@ class PlaylistPageState extends State<PlaylistPage> {
           ),
         ],
         secondaryActions: <Widget>[
-          IconSlideAction(
-            caption: 'Rename',
+          SlideAction(
             color: Colors.indigo,
-            icon: SFSymbols.pencil,
+            child: Icon(SFSymbols.pencil, color: Colors.white),
             onTap: () => _playlistDialog(playlist: playlist),
           ),
-          IconSlideAction(
-            caption: 'Delete',
+          SlideAction(
             color: Colors.red,
-            icon: SFSymbols.trash,
+            child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: () {
               setState(() {
                 _playlistList.remove(playlist);

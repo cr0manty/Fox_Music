@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/api/musicList.dart';
-import 'package:vk_parse/functions/format/formatTime.dart';
-import 'package:vk_parse/functions/utils/showShackbar.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
+import 'package:vk_parse/api/music_list.dart';
+import 'package:vk_parse/functions/format/time.dart';
+import 'package:vk_parse/functions/utils/snackbar.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/provider/download_data.dart';
 import 'package:vk_parse/utils/apple_search.dart';
 
 class SearchMusicPage extends StatefulWidget {
@@ -25,6 +26,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
+          actionsForegroundColor: Colors.redAccent,
           middle: Text('Music Search'),
           previousPageTitle: 'Back',
         ),
@@ -74,10 +76,9 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         )),
         actions: !song.in_my_list
             ? <Widget>[
-                new IconSlideAction(
-                  caption: 'Add',
+                SlideAction(
                   color: Colors.blue,
-                  icon: Icons.add,
+                  child: Icon(SFSymbols.plus, color: Colors.white),
                   onTap: () async {
                     bool isAdded = await addMusic(song.song_id);
                     if (isAdded == null) {
@@ -93,10 +94,9 @@ class SearchMusicPageState extends State<SearchMusicPage> {
             : [],
         secondaryActions: song.in_my_list
             ? <Widget>[
-                IconSlideAction(
-                  caption: 'Delete',
+                SlideAction(
                   color: Colors.red,
-                  icon: Icons.delete,
+                  child: Icon(SFSymbols.trash, color: Colors.white),
                   onTap: () async {
                     bool isDeleted = await hideMusic(song.song_id);
                     if (isDeleted) {
@@ -114,5 +114,4 @@ class SearchMusicPageState extends State<SearchMusicPage> {
           child: Divider(height: 1, color: Colors.grey))
     ]);
   }
-
 }

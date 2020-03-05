@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/functions/format/headersToken.dart';
-import 'package:vk_parse/models/User.dart';
-import 'package:vk_parse/functions/get/getToken.dart';
+import 'package:vk_parse/functions/format/token.dart';
+import 'package:vk_parse/models/user.dart';
+import 'package:vk_parse/functions/get/token.dart';
 
 profileGet({int friendId}) async {
   try {

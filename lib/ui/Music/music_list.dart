@@ -7,13 +7,14 @@ import 'package:vk_parse/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:vk_parse/functions/utils/pickDialog.dart';
-import 'package:vk_parse/models/Playlist.dart';
-import 'package:vk_parse/utils/Database.dart';
-import 'package:vk_parse/provider/MusicData.dart';
-import 'package:vk_parse/models/Song.dart';
-import 'package:vk_parse/functions/format/formatTime.dart';
-import 'PlayerPage.dart';
+import 'package:vk_parse/functions/utils/pick_dialog.dart';
+import 'package:vk_parse/models/playlist.dart';
+import 'package:vk_parse/utils/database.dart';
+import 'package:vk_parse/provider/music_data.dart';
+import 'package:vk_parse/ui/Music/player.dart';
+import 'package:vk_parse/models/song.dart';
+import 'package:vk_parse/functions/format/time.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 enum ButtonState { SHARE, DELETE }
 enum PageType { SAVED, PLAYLIST }
@@ -69,13 +70,14 @@ class MusicListPageState extends State<MusicListPage> {
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
+                actionsForegroundColor: Colors.redAccent,
                 middle: Text(widget._pageType == PageType.PLAYLIST
                     ? widget.playlist.title
                     : 'Media'),
                 previousPageTitle: 'Back',
                 trailing: widget._pageType == PageType.PLAYLIST
                     ? GestureDetector(
-                        child: Icon(Icons.add, color: Colors.white, size: 25),
+                        child: Icon(SFSymbols.plus, color: Colors.white, size: 25),
                         onTap: () => _addTrackToPlaylistDialog())
                     : null),
             child: _buildBody(musicData)));
@@ -232,17 +234,16 @@ class MusicListPageState extends State<MusicListPage> {
   List<Widget> _actionsPane(Song song) {
     List<Widget> actions = [];
     if (widget._pageType == PageType.SAVED) {
-      actions.add(IconSlideAction(
-        caption: 'Add to playlist',
+      actions.add(SlideAction(
         color: Colors.pinkAccent,
-        icon: SFSymbols.rectangle_stack_fill_badge_plus,
+        child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
+            color: Colors.white, height: 20, width: 20),
         onTap: () => showPickerDialog(context, _playlistList, song.song_id),
       ));
     }
-    actions.add(IconSlideAction(
-      caption: 'Rename',
+    actions.add(SlideAction(
       color: Colors.blue,
-      icon: SFSymbols.pencil,
+      child: Icon(SFSymbols.pencil, color: Colors.white),
       onTap: () => _renameSongDialog(song),
     ));
     return actions;
@@ -305,16 +306,14 @@ class MusicListPageState extends State<MusicListPage> {
               )),
           actions: _actionsPane(song),
           secondaryActions: <Widget>[
-            IconSlideAction(
-              caption: 'Share',
+           SlideAction(
               color: Colors.indigo,
-              icon: CupertinoIcons.share_up,
+              child: Icon(CupertinoIcons.share_up, color: Colors.white,),
               onTap: () => _shareSong(song),
             ),
-            IconSlideAction(
-              caption: 'Delete',
+            SlideAction(
               color: Colors.red,
-              icon: SFSymbols.trash,
+              child: Icon(SFSymbols.trash, color: Colors.white,),
               onTap: () => widget._pageType == PageType.SAVED
                   ? _deleteSong(song)
                   : _deleteSongFromPlaylist(song),

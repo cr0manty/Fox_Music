@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/format/formatImage.dart';
-import 'package:vk_parse/provider/AccountData.dart';
-import 'package:vk_parse/provider/MusicData.dart';
-import 'package:vk_parse/provider/MusicDownloadData.dart';
-import 'package:vk_parse/ui/Account/FriendListPage.dart';
-import 'package:vk_parse/ui/Account/VKAuthPage.dart';
+import 'package:vk_parse/functions/format/image.dart';
+import 'package:vk_parse/provider/account_data.dart';
+import 'package:vk_parse/provider/music_data.dart';
+import 'package:vk_parse/provider/download_data.dart';
+import 'package:vk_parse/ui/Account/friends.dart';
+import 'package:vk_parse/ui/Account/auth_vk.dart';
 import 'package:vk_parse/ui/Account/account_edit.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:vk_parse/ui/Account/search_music.dart';
@@ -102,7 +102,7 @@ class AccountPageState extends State<AccountPage> {
                       ], child: SearchMusicPage())));
             },
             title: Text(
-              'Search Music',
+              'Music Search',
               style: TextStyle(color: Colors.white),
             ),
           )),
@@ -121,7 +121,7 @@ class AccountPageState extends State<AccountPage> {
                       ], child: SearchPeoplePage())));
             },
             title: Text(
-              'Search People',
+              'People Search',
               style: TextStyle(color: Colors.white),
             ),
           )),

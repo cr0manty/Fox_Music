@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:vk_parse/api/profile.dart';
-import 'package:vk_parse/functions/save/saveToken.dart';
+import 'package:vk_parse/functions/save/token.dart';
 import 'package:vk_parse/utils/urls.dart';
 
 loginPost(String username, String password) async {

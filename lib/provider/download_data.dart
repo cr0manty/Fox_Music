@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:vk_parse/api/musicList.dart';
-import 'package:vk_parse/functions/format/fromatSongName.dart';
+import 'package:vk_parse/api/music_list.dart';
+import 'package:vk_parse/functions/format/song_name.dart';
 
-import 'package:vk_parse/functions/utils/infoDialog.dart';
-import 'package:vk_parse/functions/utils/showShackbar.dart';
-import 'package:vk_parse/models/Song.dart';
+import 'package:vk_parse/functions/utils/info_dialog.dart';
+import 'package:vk_parse/functions/utils/snackbar.dart';
+import 'package:vk_parse/models/song.dart';
 
 enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 

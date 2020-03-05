@@ -1,4 +1,4 @@
-import 'package:vk_parse/models/User.dart';
+import 'package:vk_parse/models/user.dart';
 
 enum RelationshipStatus { FRIEND, UNKNOWN, FOLLOW, FOLLOWING, BLOCK }
 

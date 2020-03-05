@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vk_parse/provider/AccountData.dart';
+import 'package:vk_parse/provider/account_data.dart';
 
 class VKAuthPage extends StatefulWidget {
   final AccountData accountData;
@@ -19,7 +19,9 @@ class VKAuthState extends State<VKAuthPage> {
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
-          middle: Text('Auth'), previousPageTitle: 'Back'),
+          actionsForegroundColor: Colors.redAccent,
+          middle: Text('Auth'),
+          previousPageTitle: 'Back'),
       child: Container(),
     );
   }

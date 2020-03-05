@@ -1,5 +1,5 @@
-import 'package:vk_parse/models/PlaylistCheckbox.dart';
-import 'package:vk_parse/utils/Database.dart';
+import 'package:vk_parse/models/playlist.dart';
+import 'package:vk_parse/utils/database.dart';
 
 setPlaylistSong(List<PlaylistCheckbox> list, int songId) async {
   await Future.wait(list.map((playlistChecked) async {

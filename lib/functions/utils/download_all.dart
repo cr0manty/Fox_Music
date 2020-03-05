@@ -1,5 +1,5 @@
-import 'package:vk_parse/api/musicList.dart';
-import 'package:vk_parse/models/Song.dart';
+import 'package:vk_parse/api/music_list.dart';
+import 'package:vk_parse/models/song.dart';
 
 downloadAll() async { // TODO
   try {
