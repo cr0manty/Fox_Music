@@ -34,7 +34,6 @@ dependencies:
   flutter_slidable: ^0.5.4
   sqflite: any
   percent_indicator: ^2.1.1+1
-  swipedetector: ^1.2.0
   flutter_sfsymbols: ^1.0.0
   flutter_svg: ^0.17.2
 

@@ -13,13 +13,13 @@ import 'package:vk_parse/utils/apple_search.dart';
 
 class FriendListPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new FriendListPageState();
+  State<StatefulWidget> createState() => FriendListPageState();
 }
 
 class FriendListPageState extends State<FriendListPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
+      GlobalKey<RefreshIndicatorState>();
   List<Relationship> friendListSorted = [];
 
   @override
