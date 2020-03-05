@@ -21,7 +21,6 @@ class PlayerPageState extends State<PlayerPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
   int selectItem = 1;
-  double _volumeValue = 0;
 
   _loadPlaylist() async {
     List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
@@ -48,12 +47,6 @@ class PlayerPageState extends State<PlayerPage> {
             }
           }
         : null;
-  }
-
-  void _updateVolume(double value) {
-    setState(() {
-      _volumeValue = value;
-    });
   }
 
   void _getSongText(Song song) {}
@@ -328,11 +321,13 @@ class PlayerPageState extends State<PlayerPage> {
                                               ),
                                               child: Slider(
                                                 onChanged: (value) {},
-                                                onChangeEnd: _updateVolume,
-                                                value:
-                                                        _volumeValue > 0.0 &&
-                                                        _volumeValue < 1.0
-                                                    ? _volumeValue
+                                                onChangeEnd:
+                                                    musicData.updateVolume,
+                                                value: musicData.volumeValue >
+                                                            0.0 &&
+                                                        musicData.volumeValue <
+                                                            1.0
+                                                    ? musicData.volumeValue
                                                     : 0,
                                               ),
                                             ),
@@ -348,8 +343,7 @@ class PlayerPageState extends State<PlayerPage> {
                                                 child: SvgPicture.asset(
                                                     'assets/svg/add_to_playlist.svg',
                                                     color: Colors.grey,
-                                                    height:
-                                                        screenHeight * 0.02,
+                                                    height: screenHeight * 0.02,
                                                     width:
                                                         screenHeight * 0.02)),
                                           ],

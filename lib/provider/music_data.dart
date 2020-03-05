@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:path_provider/path_provider.dart';
 import 'package:vk_parse/functions/format/song_name.dart';
 import 'package:vk_parse/functions/format/time.dart';
@@ -23,6 +21,7 @@ class MusicData with ChangeNotifier {
   List<Song> playlist = [];
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
+  double volumeValue;
 
   Duration songPosition;
   Duration songDuration;
@@ -39,6 +38,7 @@ class MusicData with ChangeNotifier {
 
   init(thisPlatform) async {
     platform = thisPlatform;
+    volumeValue = 0;
     await initPlayer();
     await loadSavedMusic();
   }
@@ -131,6 +131,11 @@ class MusicData with ChangeNotifier {
 //      DBProvider.db.newSong(song);
       if (song != null) localSongs.add(song);
     });
+  }
+
+  void updateVolume(double value) {
+    volumeValue = value;
+    notifyListeners();
   }
 
   mixClick() {
