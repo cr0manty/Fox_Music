@@ -29,31 +29,31 @@ class FriendListPageState extends State<FriendListPage> {
     friendListSorted = accountData.friendList;
 
     return CupertinoPageScaffold(
-      key: _scaffoldKey,
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('Friends'),
-        actionsForegroundColor: Colors.redAccent,
-        previousPageTitle: 'Back',
-      ),
-      child: RefreshIndicator(
-          key: _refreshKey,
-          onRefresh: () => accountData.loadFiendList(),
-          child: friendListSorted.length > 0
-              ? ListView.builder(
-                  itemCount: friendListSorted.length + 1,
-                  itemBuilder: (context, index) =>
-                      _buildUserCard(accountData, downloadData, index),
-                )
-              : ListView(children: <Widget>[
-                  Padding(
+        key: _scaffoldKey,
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Friends'),
+          actionsForegroundColor: Colors.redAccent,
+          previousPageTitle: 'Back',
+        ),
+        child: SafeArea(
+            child: CustomScrollView(slivers: <Widget>[
+          CupertinoSliverRefreshControl(
+              onRefresh: () => accountData.loadFiendList()),
+          friendListSorted.length > 0
+              ? SliverList(
+                  delegate: SliverChildListDelegate(List.generate(
+                      friendListSorted.length + 1,
+                      (index) =>
+                          _buildUserCard(accountData, downloadData, index))))
+              : SliverToBoxAdapter(
+                  child: Padding(
                       padding: EdgeInsets.only(top: 30),
                       child: Text(
                         'Your friends list is empty',
                         style: TextStyle(color: Colors.grey, fontSize: 20),
                         textAlign: TextAlign.center,
-                      ))
-                ])),
-    );
+                      ))),
+        ])));
   }
 
   void _filterFriends(AccountData accountData, String value) {

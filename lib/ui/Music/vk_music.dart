@@ -79,14 +79,16 @@ class VKMusicListPageState extends State<VKMusicListPage> {
       MusicData musicData) {
     return accountData.user != null &&
             (accountData.user.can_use_vk || accountData.user.is_staff)
-        ? RefreshIndicator(
-            key: _refreshKey,
-            onRefresh: () => downloadData.loadMusic(),
-            child: ListView.builder(
-              itemCount: dataSongSorted.length + 1,
-              itemBuilder: (context, index) =>
-                  _buildSongListTile(downloadData, musicData, index),
-            ))
+        ? SafeArea(
+            child: CustomScrollView(slivers: <Widget>[
+            CupertinoSliverRefreshControl(
+                onRefresh: () => downloadData.loadMusic()),
+            SliverList(
+                delegate: SliverChildListDelegate(List.generate(
+                    dataSongSorted.length + 1,
+                    (index) =>
+                        _buildSongListTile(downloadData, musicData, index))))
+          ]))
         : Center(
             child: Container(
             alignment: Alignment.center,

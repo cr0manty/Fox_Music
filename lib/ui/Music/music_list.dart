@@ -35,7 +35,7 @@ class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
-  new GlobalKey<RefreshIndicatorState>();
+      new GlobalKey<RefreshIndicatorState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   List<Playlist> _playlistList = [];
@@ -78,34 +78,36 @@ class MusicListPageState extends State<MusicListPage>
                 previousPageTitle: 'Back',
                 trailing: widget._pageType == PageType.PLAYLIST
                     ? GestureDetector(
-                    child:
-                    Icon(SFSymbols.plus, color: Colors.white, size: 25),
-                    onTap: () => _addTrackToPlaylistDialog())
+                        child:
+                            Icon(SFSymbols.plus, color: Colors.white, size: 25),
+                        onTap: () => _addTrackToPlaylistDialog())
                     : null),
             child: _buildBody(musicData)));
   }
 
+  //        onRefresh: () => _loadPlaylist(musicData, null, update: true),
   _buildBody(MusicData musicData) {
-    return RefreshIndicator(
-        key: _refreshKey,
+    return SafeArea(
+        child: CustomScrollView(slivers: <Widget>[
+      CupertinoSliverRefreshControl(
         onRefresh: () => _loadPlaylist(musicData, null, update: true),
-        child: _musicList.length > 0
-            ? ListView.builder(
-          itemCount: _musicListSorted.length + 1,
-          itemBuilder: (context, index) =>
-              _buildSongListTile(index, musicData),
-        )
-            : ListView(children: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(top: 30),
-              child: Text(
-                widget._pageType == PageType.SAVED
-                    ? 'No saved songs'
-                    : 'Empty playlist',
-                style: TextStyle(color: Colors.grey, fontSize: 20),
-                textAlign: TextAlign.center,
-              ))
-        ]));
+      ),
+      _musicList.length > 0
+          ? SliverList(
+              delegate: SliverChildListDelegate(List.generate(
+                  _musicListSorted.length + 1,
+                  (index) => _buildSongListTile(index, musicData))))
+          : SliverToBoxAdapter(
+              child: Padding(
+                  padding: EdgeInsets.only(top: 30),
+                  child: Text(
+                    widget._pageType == PageType.SAVED
+                        ? 'No saved songs'
+                        : 'Empty playlist',
+                    style: TextStyle(color: Colors.grey, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  )))
+    ]));
   }
 
   _loadPlaylist(MusicData musicData, Song song, {bool update = false}) async {
@@ -126,33 +128,32 @@ class MusicListPageState extends State<MusicListPage>
   _deleteSong(Song song) {
     showDialog(
         context: context,
-        builder: (BuildContext context) =>
-        new CupertinoAlertDialog(
-            title: Text('Delete file'),
-            content: Text('Are you sure you want to delete this file?'),
-            actions: [
-              CupertinoDialogAction(
-                  isDefaultAction: true,
-                  child: Text("Cancel"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-              CupertinoDialogAction(
-                  isDefaultAction: true,
-                  isDestructiveAction: true,
-                  child: Text("Delete"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    try {
-                      File(song.path).deleteSync();
-                      setState(() {
-                        _musicList.remove(song);
-                      });
-                    } catch (e) {
-                      print(e);
-                    }
-                  })
-            ]));
+        builder: (BuildContext context) => new CupertinoAlertDialog(
+                title: Text('Delete file'),
+                content: Text('Are you sure you want to delete this file?'),
+                actions: [
+                  CupertinoDialogAction(
+                      isDefaultAction: true,
+                      child: Text("Cancel"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      }),
+                  CupertinoDialogAction(
+                      isDefaultAction: true,
+                      isDestructiveAction: true,
+                      child: Text("Delete"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        try {
+                          File(song.path).deleteSync();
+                          setState(() {
+                            _musicList.remove(song);
+                          });
+                        } catch (e) {
+                          print(e);
+                        }
+                      })
+                ]));
   }
 
   _renameSong(String artist, String title) {}
@@ -219,8 +220,8 @@ class MusicListPageState extends State<MusicListPage>
     setState(() {
       _musicListSorted = _musicList
           .where((song) =>
-      song.artist.toLowerCase().contains(newValue) ||
-          song.title.toLowerCase().contains(newValue))
+              song.artist.toLowerCase().contains(newValue) ||
+              song.title.toLowerCase().contains(newValue))
           .toList();
     });
   }
@@ -283,10 +284,11 @@ class MusicListPageState extends State<MusicListPage>
                   } else {
                     await musicData.playerPlay(song);
                   }
-                  Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+                  Navigator.of(context, rootNavigator: true)
+                      .push(PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                    ChangeNotifierProvider<MusicData>.value(
-                        value: musicData, child: PlayerPage()),
+                        ChangeNotifierProvider<MusicData>.value(
+                            value: musicData, child: PlayerPage()),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       return SlideTransition(
@@ -317,8 +319,7 @@ class MusicListPageState extends State<MusicListPage>
                 SFSymbols.trash,
                 color: Colors.white,
               ),
-              onTap: () =>
-              widget._pageType == PageType.SAVED
+              onTap: () => widget._pageType == PageType.SAVED
                   ? _deleteSong(song)
                   : _deleteSongFromPlaylist(song),
             ),
@@ -330,10 +331,10 @@ class MusicListPageState extends State<MusicListPage>
       ]),
       musicData.isPlaying(song.song_id)
           ? Container(
-        height: 72,
-        width: 3,
-        decoration: BoxDecoration(color: Colors.white),
-      )
+              height: 72,
+              width: 3,
+              decoration: BoxDecoration(color: Colors.white),
+            )
           : Container(),
     ]);
   }
