@@ -14,6 +14,7 @@ import 'package:vk_parse/functions/utils/info_dialog.dart';
 import 'package:vk_parse/functions/format/time.dart';
 import 'package:vk_parse/provider/download_data.dart';
 import 'package:vk_parse/ui/Account/auth_vk.dart';
+import 'package:vk_parse/utils/apple_search.dart';
 
 class VKMusicListPage extends StatefulWidget {
   @override
@@ -27,12 +28,17 @@ class VKMusicListPageState extends State<VKMusicListPage> {
   StreamSubscription _playerNotifyState;
   bool init = true;
   Song playedSong;
+  List<Song> dataSongSorted = [];
 
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+
+    if (init) {
+      dataSongSorted = downloadData.dataSong;
+    }
 
     return Material(
         child: CupertinoPageScaffold(
@@ -77,7 +83,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
             key: _refreshKey,
             onRefresh: () => downloadData.loadMusic(),
             child: ListView.builder(
-              itemCount: downloadData.dataSong.length,
+              itemCount: dataSongSorted.length + 1,
               itemBuilder: (context, index) =>
                   _buildSongListTile(downloadData, musicData, index),
             ))
@@ -117,11 +123,27 @@ class VKMusicListPageState extends State<VKMusicListPage> {
           ));
   }
 
+  void _filterSongs(MusicDownloadData downloadData, String value) {
+    String newValue = value.toLowerCase();
+    setState(() {
+      dataSongSorted = downloadData.dataSong
+          .where((song) =>
+              song.artist.toLowerCase().contains(newValue) ||
+              song.title.toLowerCase().contains(newValue))
+          .toList();
+    });
+  }
+
   _buildSongListTile(
       MusicDownloadData downloadData, MusicData musicData, int index) {
-    Song song = downloadData.dataSong[index];
+    if (index == 0)
+      return AppleSearch(
+          onChange: (value) => _filterSongs(downloadData, value));
+
+    Song song = downloadData.dataSong[index - 1];
     if (init) {
       _playerNotifyState = downloadData.onResultChanged.listen((result) {
+        if (result == DownloadState.COMPLETED) musicData.loadSavedMusic();
         downloadData.showInfo(_scaffoldKey.currentContext, result);
       });
       init = false;

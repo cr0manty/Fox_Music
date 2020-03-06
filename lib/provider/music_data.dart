@@ -18,6 +18,7 @@ class MusicData with ChangeNotifier {
   bool repeat = false;
   bool mix = false;
   bool initCC = false;
+  List<Song> withoutMix = [];
   List<Song> playlist = [];
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
@@ -111,7 +112,9 @@ class MusicData with ChangeNotifier {
 
   setPlaylistSongs(List<Song> songList, Song song) {
     if (songList != playlist) {
-      playlist = songList;
+      playlist.clear();
+      playlist.addAll(songList);
+      if (mix) mixClick();
 
       currentIndexPlaylist = playlist.indexOf(song);
       notifyListeners();
@@ -140,8 +143,15 @@ class MusicData with ChangeNotifier {
 
   mixClick() {
     mix = !mix;
+    if (mix) {
+      withoutMix = playlist;
+      playlist..shuffle();
+      playlist.remove(currentSong);
+      playlist.insert(0, currentSong);
+    } else {
+      playlist = withoutMix;
+    }
     currentIndexPlaylist = playlist.indexOf(currentSong);
-    savePlayerState(repeat, mix);
     notifyListeners();
   }
 
