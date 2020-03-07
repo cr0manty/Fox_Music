@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -210,7 +211,6 @@ class AccountEditPageState extends State<AccountEditPage> {
                             context: _scaffoldKey.currentContext,
                             builder: (context) {
                               return CupertinoActionSheet(
-                                title: Text('Choose image from...'),
                                 actions: <Widget>[
                                   CupertinoActionSheetAction(
                                       onPressed: () async {
@@ -234,15 +234,24 @@ class AccountEditPageState extends State<AccountEditPage> {
                               );
                             });
                       },
-                      child: ClipOval(
-                          child: CircleAvatar(
-                              radius: 100,
-                              backgroundColor: Colors.grey,
-                              backgroundImage: accountData.newImage != null
-                                  ? Image.file(accountData.newImage).image
-                                  : Image.network(
-                                          formatImage(accountData.user.image))
-                                      .image)),
+                      child: Stack(children: <Widget>[
+                        ClipOval(
+                            child: CircleAvatar(
+                                radius: 75,
+                                backgroundColor: Colors.grey,
+                                backgroundImage: accountData.newImage != null
+                                    ? Image.file(accountData.newImage).image
+                                    : Image.network(
+                                            formatImage(accountData.user.image))
+                                        .image)),
+                        ClipOval(
+                            child: Container(
+                          height: 150,
+                          width: 150,
+                          color: Colors.black54,
+                              child: Icon(CupertinoIcons.photo_camera, color: Colors.white,size: 75),
+                        )),
+                      ]),
                     )),
                 Divider(height: 10),
                 ModalProgressHUD(

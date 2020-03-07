@@ -57,7 +57,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           actionsForegroundColor: Colors.redAccent,
-          middle: Text('Music Search'),
+          middle: Text('People Search'),
           previousPageTitle: 'Back',
         ),
         child: Material(
@@ -66,7 +66,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
                 child: ListView.builder(
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount: _userList.length + 1,
+              itemCount: _userList.isEmpty ? 2 : _userList.length + 1,
               itemBuilder: (context, index) =>
                   _buildUserCard(accountData, downloadData, index),
             ))));
@@ -74,6 +74,8 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
 
   _buildUserCard(
       AccountData accountData, MusicDownloadData downloadData, int index) {
+    int newIndex = index - 1;
+
     if (index == 0) {
       return AppleSearch(
         onChange: (value) async {
@@ -81,9 +83,17 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
           _setFriendStatus(userList);
         },
       );
+    } else if (index == 1 && _userList.isEmpty) {
+      return Padding(
+          padding: EdgeInsets.only(top: 30),
+          child: Text(
+            'Your search returned no results.',
+            style: TextStyle(color: Colors.grey, fontSize: 20),
+            textAlign: TextAlign.center,
+          ));
     }
 
-    Relationship relationship = _userList[index - 1];
+    Relationship relationship = _userList[newIndex];
 
     return Column(children: [
       Slidable(

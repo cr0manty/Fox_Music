@@ -117,13 +117,21 @@ class PlaylistPageState extends State<PlaylistPage> {
                 onTap: () => _playlistDialog())),
         child: Material(
             color: Colors.transparent,
-            child: ListView.builder(
-              itemCount: _playlistList.length,
-              physics: ScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (context, index) =>
-                  _buildPlaylistList(sharedData, index),
-            )));
+            child: _playlistList.length > 0
+                ? ListView.builder(
+                    itemCount: _playlistList.length,
+                    physics: ScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) =>
+                        _buildPlaylistList(sharedData, index),
+                  )
+                : SafeArea(
+                    child: Center(
+                        child: Text(
+                    'You have no playlists yet',
+                    style: TextStyle(color: Colors.grey, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  )))));
   }
 
   _setImage(Playlist playlist, File image) async {

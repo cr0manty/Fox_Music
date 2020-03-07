@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -39,7 +40,7 @@ class PlayerPageState extends State<PlayerPage> {
   _play(MusicData musicData) {
     return musicData.currentSong != null
         ? () async {
-            if (musicData.playerState == PlayerState.PLAYING) {
+            if (musicData.playerState == AudioPlayerState.PLAYING) {
               await musicData.playerPause();
             } else {
               musicData.playerResume();
@@ -72,9 +73,8 @@ class PlayerPageState extends State<PlayerPage> {
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
-    double sliderValue = musicData.sliderValue()
-        ? (musicData.songPosition / musicData.songDuration)
-        : 0;
+    double sliderValue =
+        durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
     FocusScope.of(context).requestFocus(FocusNode());
 
     return CupertinoPageScaffold(
@@ -177,16 +177,14 @@ class PlayerPageState extends State<PlayerPage> {
                                       musicData.songPosition != null &&
                                               sliderValue > 0.0 &&
                                               sliderValue < 1.0
-                                          ? timeFormat(
-                                              musicData.songPosition)
+                                          ? timeFormat(musicData.songPosition)
                                           : '00:00',
                                       style: TextStyle(
                                           color:
                                               Colors.white.withOpacity(0.7))),
                                   Text(
                                       musicData.songDuration != null
-                                          ? timeFormat(
-                                              musicData.songDuration)
+                                          ? timeFormat(musicData.songDuration)
                                           : '00:00',
                                       style: TextStyle(
                                           color: Colors.white.withOpacity(0.7)))
@@ -235,19 +233,23 @@ class PlayerPageState extends State<PlayerPage> {
                                 height: screenHeight * 0.03),
                             Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 16),
+                                    vertical: 10.0, horizontal: 10),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     GestureDetector(
-                                      onTap: musicData.repeatClick,
-                                      child: Icon(SFSymbols.repeat,
-                                          size: screenHeight * 0.025,
-                                          color: musicData.repeat
-                                              ? Colors.redAccent
-                                              : Colors.grey),
-                                    ),
+                                        onTap: musicData.repeatClick,
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          height: screenHeight * 0.05,
+                                          width: screenHeight * 0.05,
+                                          child: Icon(SFSymbols.repeat,
+                                              size: screenHeight * 0.025,
+                                              color: musicData.repeat
+                                                  ? Colors.redAccent
+                                                  : Colors.grey),
+                                        )),
                                     GestureDetector(
                                         onTap: musicData.currentSong != null
                                             ? () {
@@ -259,21 +261,29 @@ class PlayerPageState extends State<PlayerPage> {
                                                 }
                                               }
                                             : null,
-                                        child: Icon(
-                                          SFSymbols.backward_fill,
-                                          color: Colors.grey,
-                                          size: screenHeight * 0.045,
-                                        )),
+                                        child: Container(
+                                            color: Colors.transparent,
+                                            height: screenHeight * 0.05,
+                                            width: screenHeight * 0.05,
+                                            child: Icon(
+                                              SFSymbols.backward_fill,
+                                              color: Colors.grey,
+                                              size: screenHeight * 0.045,
+                                            ))),
                                     GestureDetector(
                                       onTap: _play(musicData),
-                                      child: Icon(
-                                        musicData.playerState ==
-                                                PlayerState.PLAYING
-                                            ? SFSymbols.pause_fill
-                                            : SFSymbols.play_fill,
-                                        color: Colors.grey,
-                                        size: screenHeight * 0.045,
-                                      ),
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          height: screenHeight * 0.05,
+                                          width: screenHeight * 0.05,
+                                          child: Icon(
+                                            musicData.playerState ==
+                                                    AudioPlayerState.PLAYING
+                                                ? SFSymbols.pause_fill
+                                                : SFSymbols.play_fill,
+                                            color: Colors.grey,
+                                            size: screenHeight * 0.045,
+                                          )),
                                     ),
                                     GestureDetector(
                                         onTap: musicData.currentSong != null
@@ -281,27 +291,35 @@ class PlayerPageState extends State<PlayerPage> {
                                                 musicData.next();
                                               }
                                             : null,
-                                        child: Icon(
-                                          SFSymbols.forward_fill,
-                                          color: Colors.grey,
-                                          size: screenHeight * 0.045,
-                                        )),
+                                        child: Container(
+                                            color: Colors.transparent,
+                                            height: screenHeight * 0.05,
+                                            width: screenHeight * 0.05,
+                                            child: Icon(
+                                              SFSymbols.forward_fill,
+                                              color: Colors.grey,
+                                              size: screenHeight * 0.045,
+                                            ))),
                                     GestureDetector(
                                       onTap: musicData.mixClick,
-                                      child: Icon(SFSymbols.shuffle,
+                                      child:  Container(
+                                          color: Colors.transparent,
+                                          height: screenHeight * 0.05,
+                                          width: screenHeight * 0.05,
+                                          child:Icon(SFSymbols.shuffle,
                                           size: screenHeight * 0.025,
                                           color: musicData.mix
                                               ? Colors.redAccent
                                               : Colors.grey),
-                                    )
+                                    ))
                                   ],
                                 )),
                             Expanded(
                                 child: Align(
                                     alignment: FractionalOffset.bottomCenter,
                                     child: Padding(
-                                        padding: EdgeInsets.only(
-                                            left: 16, right: 16),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -313,7 +331,7 @@ class PlayerPageState extends State<PlayerPage> {
                                                           musicData.currentSong)
                                                       : null,
                                               child: Icon(
-                                                  SFSymbols.text_justify,
+                                                  SFSymbols.ellipses_bubble,
                                                   size: screenHeight * 0.025,
                                                   color: Colors.grey),
                                             ),
@@ -342,12 +360,12 @@ class PlayerPageState extends State<PlayerPage> {
                                                 onChanged: (value) {},
                                                 onChangeEnd:
                                                     musicData.updateVolume,
-                                                value: musicData.volumeValue != null &&
-                                                        musicData.volumeValue >
+                                                value: musicData.volume !=
+                                                            null &&
+                                                        musicData.volume >
                                                             0.0 &&
-                                                        musicData.volumeValue <=
-                                                            1.0
-                                                    ? musicData.volumeValue
+                                                        musicData.volume <= 1.0
+                                                    ? musicData.volume
                                                     : 0,
                                               ),
                                             ),
@@ -365,7 +383,7 @@ class PlayerPageState extends State<PlayerPage> {
                                                     color: Colors.grey,
                                                     height: screenHeight * 0.02,
                                                     width:
-                                                        screenHeight * 0.018)),
+                                                        screenHeight * 0.02)),
                                           ],
                                         ))))
                           ]),

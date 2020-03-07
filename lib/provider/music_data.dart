@@ -1,28 +1,22 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:audiofileplayer/audio_system.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:fox_music/functions/utils/rename_song.dart';
+import 'package:foxmusic/functions/format/time.dart';
+import 'package:foxmusic/functions/utils/rename_song.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:fox_music/functions/format/song_name.dart';
-import 'package:fox_music/functions/get/player_state.dart';
-import 'package:fox_music/functions/save/player_state.dart';
-import 'package:fox_music/models/song.dart';
-import 'package:fox_music/utils/database.dart';
-import 'package:audiofileplayer/audiofileplayer.dart';
+import 'package:foxmusic/functions/format/song_name.dart';
+import 'package:foxmusic/functions/get/player_state.dart';
+import 'package:foxmusic/functions/save/player_state.dart';
+import 'package:foxmusic/models/song.dart';
+import 'package:foxmusic/utils/database.dart';
 import 'package:media_metadata_plugin/media_metadata_plugin.dart';
 import 'package:random_string/random_string.dart';
 
-enum PlayerState {
-  STOPPED,
-  PLAYING,
-  PAUSED,
-  COMPLETED,
-}
-
 class MusicData with ChangeNotifier {
-  Audio currentAudio;
+  AudioPlayer audioPlayer;
   Song currentSong;
   bool repeat = false;
   bool mix = false;
@@ -31,85 +25,91 @@ class MusicData with ChangeNotifier {
   List<Song> playlist = [];
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
-  double volumeValue = 1;
+  double volume = 1;
 
-  double songPosition;
-  double songDuration;
+  Duration songPosition;
+  Duration songDuration;
   var platform;
 
-  PlayerState playerState = PlayerState.STOPPED;
+  AudioPlayerState playerState;
+
+  StreamSubscription _durationSubscription;
+  StreamSubscription _positionSubscription;
+  StreamSubscription _playerCompleteSubscription;
+  StreamSubscription _playerError;
+  StreamSubscription _playerState;
+  StreamSubscription _playerNotifyState;
 
   init(thisPlatform) async {
     platform = thisPlatform;
-    await _getState();
+    await initPlayer();
     await loadSavedMusic();
   }
 
-//  initPlayer() {
-//    audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
-//
-//    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
-//      songDuration = duration;
-//      if (initCC) {
-//        setCCData(duration);
-//        initCC = false;
-//      }
-//      notifyListeners();
-//    });
-//    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
-//      songPosition = p;
-//      notifyListeners();
-//    });
-//    _playerCompleteSubscription =
-//        audioPlayer.onPlayerCompletion.listen((event) {
-//      if (!repeat) {
-//        next();
-//        initCC = true;
-//      }
-//      notifyListeners();
-//    });
-//
-//    _playerError = audioPlayer.onPlayerError.listen((error) {
-//      print(error);
-//    });
-//
-//    _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
-//      audioPlayerState = state;
-//      notifyListeners();
-//    });
-//
-//    _playerNotifyState =
-//        audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-//      audioPlayerState = state;
-//      notifyListeners();
-//    });
-//    _getState();
-//  }
+  initPlayer() {
+    audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
+    playerState = audioPlayer.state;
+
+    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
+      songDuration = duration;
+      if (initCC) {
+        setCCData(duration);
+        initCC = false;
+      }
+      notifyListeners();
+    });
+    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
+      songPosition = p;
+      notifyListeners();
+    });
+    _playerCompleteSubscription =
+        audioPlayer.onPlayerCompletion.listen((event) {
+      if (!repeat) {
+        next();
+        initCC = true;
+      }
+      notifyListeners();
+    });
+
+    _playerError = audioPlayer.onPlayerError.listen((error) {
+      print(error);
+    });
+
+    _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
+      playerState = state;
+      notifyListeners();
+    });
+
+    _playerNotifyState =
+        audioPlayer.onNotificationPlayerStateChanged.listen((state) {
+      playerState = state;
+      notifyListeners();
+    });
+    _getState();
+  }
 
   _getState() async {
     var data = await getPlayerState();
     if (data['repeat']) {
       repeatClick();
     }
-    if (data['mix']) {
-      mixClick();
-    }
+    updateVolume(data['volume']);
   }
 
-//  setCCData(Duration duration) {
-//    if (platform == TargetPlatform.iOS) {
-//      audioPlayer.startHeadlessService();
-//
-//      audioPlayer.setNotification(
-//          title: currentSong.title,
-//          artist: currentSong.artist,
-//          imageUrl:
-//              'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
-//          forwardSkipInterval: const Duration(seconds: 5),
-//          backwardSkipInterval: const Duration(seconds: 5),
-//          duration: duration);
-//    }
-//  }
+  setCCData(Duration duration) {
+    if (platform == TargetPlatform.iOS) {
+      audioPlayer.startHeadlessService();
+
+      audioPlayer.setNotification(
+          title: currentSong.title,
+          artist: currentSong.artist,
+          imageUrl:
+              'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
+          forwardSkipInterval: const Duration(seconds: 5),
+          backwardSkipInterval: const Duration(seconds: 5),
+          duration: duration);
+    }
+  }
 
   setPlaylistSongs(List<Song> songList, Song song) {
     if (songList != playlist) {
@@ -175,9 +175,10 @@ class MusicData with ChangeNotifier {
   }
 
   void updateVolume(double value) {
-    currentAudio.setVolume(value);
-    volumeValue = currentAudio.volume;
+    audioPlayer.setVolume(value);
+    volume = value;
     notifyListeners();
+    savePlayerState(repeat, volume);
   }
 
   mixClick() {
@@ -196,8 +197,13 @@ class MusicData with ChangeNotifier {
 
   repeatClick() async {
     repeat = !repeat;
+    if (repeat) {
+      await audioPlayer.setReleaseMode(ReleaseMode.LOOP);
+    } else {
+      await audioPlayer.setReleaseMode(ReleaseMode.STOP);
+    }
 
-    savePlayerState(repeat, mix);
+    savePlayerState(repeat, volume);
     notifyListeners();
   }
 
@@ -214,104 +220,29 @@ class MusicData with ChangeNotifier {
     return songDuration != null && songPosition != null;
   }
 
-  Audio _preStartPlay(Function func, data) {
-    return func(data, playInBackground: true, onPosition: (position) {
-      songPosition = position;
-      notifyListeners();
-    }, onDuration: (duration) {
-      songDuration = duration;
-      notifyListeners();
-    }, onComplete: () {
-      if (!repeat) {
-        currentAudio.dispose();
-        next();
-      } else {
-        currentAudio.seek(0).then((value) {
-          currentAudio.play();
-        });
-      }
-      notifyListeners();
-    });
-  }
-
-  playerPlay(Song song, {bool isLocal = true}) async {
-    Function func = Audio.loadFromByteData;
-    var data;
-
-    if (currentAudio != null)
-      currentAudio
-        ..pause()
-        ..dispose();
-
-    if (isLocal) {
-      File file = File(song.path);
-      var bytes = await file.readAsBytes();
-      data = ByteData.view(bytes.buffer);
-    } else {
-      func = Audio.loadFromRemoteUrl;
-      data = song.download;
-    }
-    currentAudio = _preStartPlay(func, data);
-
-    if (volumeValue != null) currentAudio.setVolume(volumeValue);
-    volumeValue = currentAudio.volume;
-
-    currentAudio.play();
-    playerState = PlayerState.PLAYING;
+  playerPlay(Song song, {isLocal = true}) async {
+    await audioPlayer.play(song.path, isLocal: isLocal);
+    playerState = AudioPlayerState.PLAYING;
     currentSong = song;
-    _loadCCcontrol();
+    initCC = true;
     notifyListeners();
   }
 
-  _loadCCcontrol() {
-    AudioSystem.instance.setMetadata(AudioMetadata(
-        title: currentSong.title,
-        artist: currentSong.artist,
-        durationSeconds: songDuration));
-
-    AudioSystem.instance
-        .setPlaybackState(true, songPosition);
-
-    AudioSystem.instance.setAndroidNotificationButtons(<dynamic>[
-      AndroidMediaButtonType.pause,
-      AndroidMediaButtonType.stop,
-
-    ]);
-
-    AudioSystem.instance.setSupportedMediaActions(<MediaActionType>{
-      MediaActionType.playPause,
-      MediaActionType.pause,
-      MediaActionType.next,
-      MediaActionType.previous,
-      MediaActionType.skipForward,
-      MediaActionType.skipBackward,
-      MediaActionType.seekTo,
-    }, skipIntervalSeconds: 30);
-  }
-
   playerStop() async {
-    if (currentAudio != null) {
-      currentAudio
-        ..pause()
-        ..dispose();
-    }
-    playerState = PlayerState.STOPPED;
+    audioPlayer.stop();
+    playerState = AudioPlayerState.STOPPED;
     notifyListeners();
   }
 
   playerResume() async {
-    if (currentAudio != null) {
-      currentAudio.resume();
-    }
-    playerState = PlayerState.PLAYING;
+    audioPlayer.resume();
+    playerState = AudioPlayerState.PLAYING;
     notifyListeners();
   }
 
   playerPause() async {
-    if (currentAudio != null) {
-      currentAudio.pause();
-    }
-    playerState = PlayerState.PAUSED;
+    audioPlayer.pause();
+    playerState = AudioPlayerState.PAUSED;
     notifyListeners();
   }
 
@@ -339,20 +270,24 @@ class MusicData with ChangeNotifier {
 
   seek({duration}) {
     if (currentSong != null) {
-      double value =
-          (duration != null && duration < 1 ? songDuration * duration : 0);
-      currentAudio.seek(value);
+      int value = (duration != null && duration < 1
+              ? durToInt(songDuration) * duration
+              : 0)
+          .toInt();
+      audioPlayer.seek(Duration(seconds: value));
       notifyListeners();
     }
   }
 
   @override
   void dispose() {
-    if (currentAudio != null) {
-      currentAudio
-        ..pause()
-        ..dispose();
-    }
+    audioPlayer.stop();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _durationSubscription?.cancel();
+    _playerError?.cancel();
+    _playerState?.cancel();
+    _playerNotifyState?.cancel();
     super.dispose();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/utils/hex_color.dart';
+import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
+import 'package:foxmusic/utils/hex_color.dart';
 
 class AppleSearch extends StatefulWidget {
   final ValueChanged<String> onChange;
@@ -12,6 +13,7 @@ class AppleSearch extends StatefulWidget {
 }
 
 class AppleSearchState extends State<AppleSearch> {
+  TextEditingController _controller = TextEditingController();
   FocusNode _searchFocus = FocusNode();
   bool hasFocus = false;
 
@@ -27,6 +29,11 @@ class AppleSearchState extends State<AppleSearch> {
     });
   }
 
+  void _clearController() {
+    _controller.clear();
+    widget.onChange('');
+  }
+
   Widget build(BuildContext context) {
     double width = hasFocus
         ? MediaQuery.of(context).size.width * 0.8
@@ -36,6 +43,18 @@ class AppleSearchState extends State<AppleSearch> {
           width: width,
           padding: EdgeInsets.all(10),
           child: CupertinoTextField(
+            controller: _controller,
+            suffixMode: OverlayVisibilityMode.editing,
+            suffix: GestureDetector(
+                onTap: () => _clearController(),
+                child: Container(
+                  alignment: Alignment.center,
+                    padding: EdgeInsets.only(right: 8),
+                    child: Icon(
+                      SFSymbols.multiply_circle_fill,
+                      color: Colors.grey,
+                      size: 20,
+                    ))),
             prefix: Padding(
                 padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                 child: Icon(

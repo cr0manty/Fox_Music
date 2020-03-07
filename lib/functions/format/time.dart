@@ -5,7 +5,13 @@ String formatDuration(int time) {
       .join(':');
 }
 
-String timeFormat(double value) {
+String timeFormat(Duration time) {
+  return [time.inMinutes, time.inSeconds]
+      .map((seg) => seg.remainder(60).toString().padLeft(2, '0'))
+      .join(':');
+}
+
+String timeFormatDouble(double value) {
   Duration time = Duration(seconds: value.round());
   return [time.inMinutes, time.inSeconds]
       .map((seg) => seg.remainder(60).toString().padLeft(2, '0'))

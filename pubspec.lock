@@ -22,13 +22,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.0"
-  audiofileplayer:
-    dependency: "direct main"
-    description:
-      name: audiofileplayer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.1"
   audioplayers:
     dependency: "direct main"
     description:
@@ -177,13 +170,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.3+4"
-  logging:
-    dependency: transitive
-    description:
-      name: logging
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.11.4"
   matcher:
     dependency: transitive
     description:

@@ -156,7 +156,13 @@ class MusicListPageState extends State<MusicListPage>
                 ]));
   }
 
-  _renameSong(String artist, String title) {}
+  _renameSong(Song song, String artist, String title) {
+    setState(() {
+      song.title = title;
+      song.artist = artist;
+    });
+    DBProvider.db.updateSong(song);
+  }
 
   _renameSongDialog(Song song) async {
     final TextEditingController artistFilter = new TextEditingController();
@@ -205,7 +211,7 @@ class MusicListPageState extends State<MusicListPage>
                 onPressed: () {
                   if (artistFilter.text.isNotEmpty &&
                       titleFilter.text.isNotEmpty) {
-                    _renameSong(artistFilter.text, titleFilter.text);
+                    _renameSong(song, artistFilter.text, titleFilter.text);
                   }
                   Navigator.pop(context);
                 }),
