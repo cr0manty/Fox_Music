@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:fox_music/functions/utils/rename_song.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -105,6 +106,7 @@ class DBProvider {
     final db = await database;
     var res = await db.update("Song", song.toJson(),
         where: "song_id = ?", whereArgs: [song.song_id]);
+    await renameSong(song);
     return res;
   }
 
