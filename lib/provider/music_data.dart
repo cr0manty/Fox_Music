@@ -220,7 +220,7 @@ class MusicData with ChangeNotifier {
     return songDuration != null && songPosition != null;
   }
 
-  playerPlay(Song song, {isLocal = true}) async {
+  void playerPlay(Song song, {isLocal = true}) async {
     await audioPlayer.play(song.path, isLocal: isLocal);
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
