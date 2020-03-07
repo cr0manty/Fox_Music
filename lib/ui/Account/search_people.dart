@@ -7,7 +7,6 @@ import 'package:fox_music/api/friends_list.dart';
 import 'package:fox_music/api/user_search.dart';
 import 'package:fox_music/functions/format/image.dart';
 import 'package:fox_music/models/relationship.dart';
-import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/user.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
