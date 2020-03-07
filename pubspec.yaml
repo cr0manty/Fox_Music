@@ -62,6 +62,8 @@ flutter:
     - assets/images/app-logo.png
 
     - assets/svg/add_to_playlist.svg
+    - assets/svg/search_friends.svg
+    - assets/svg/search_music.svg
 
   fonts:
     - family: sficonsets

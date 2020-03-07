@@ -11,6 +11,7 @@ import 'package:fox_music/ui/Account/account_edit.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/ui/Account/search_music.dart';
 import 'package:fox_music/ui/Account/search_people.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AccountPage extends StatefulWidget {
   @override
@@ -93,7 +94,10 @@ class AccountPageState extends State<AccountPage> {
       Material(
           color: Colors.transparent,
           child: ListTile(
-            leading: Icon(SFSymbols.music_albums, color: Colors.white),
+            leading: SvgPicture.asset('assets/svg/search_music.svg',
+                color: Colors.white,
+                height: 22,
+                width: 22),
             onTap: () {
               Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
                   builder: (context) => MultiProvider(providers: [
@@ -110,7 +114,10 @@ class AccountPageState extends State<AccountPage> {
       Material(
           color: Colors.transparent,
           child: ListTile(
-            leading: Icon(SFSymbols.search, color: Colors.white),
+            leading: SvgPicture.asset('assets/svg/search_friends.svg',
+                color: Colors.white,
+                height: 22,
+                width: 22),
             onTap: () {
               Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
                   builder: (context) => MultiProvider(providers: [

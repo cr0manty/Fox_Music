@@ -7,7 +7,6 @@ import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/provider/music_data.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/utils/swipe_detector.dart';
@@ -364,9 +363,9 @@ class PlayerPageState extends State<PlayerPage> {
                                                 child: SvgPicture.asset(
                                                     'assets/svg/add_to_playlist.svg',
                                                     color: Colors.grey,
-                                                    height: screenHeight * 0.02,
+                                                    height: screenHeight * 0.025,
                                                     width:
-                                                        screenHeight * 0.02)),
+                                                        screenHeight * 0.025)),
                                           ],
                                         ))))
                           ]),
