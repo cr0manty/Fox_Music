@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/api/music_list.dart';
-import 'package:vk_parse/functions/format/time.dart';
-import 'package:vk_parse/functions/utils/snackbar.dart';
-import 'package:vk_parse/models/song.dart';
-import 'package:vk_parse/provider/download_data.dart';
-import 'package:vk_parse/utils/apple_search.dart';
+import 'package:fox_music/api/music_list.dart';
+import 'package:fox_music/functions/format/time.dart';
+import 'package:fox_music/functions/utils/snackbar.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/utils/apple_search.dart';
 
 class SearchMusicPage extends StatefulWidget {
   @override
@@ -74,7 +74,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
-        actions: !song.in_my_list
+        actions: song.in_my_list == 0
             ? <Widget>[
                 SlideAction(
                   color: Colors.blue,
@@ -85,14 +85,14 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                       showSnackBar(context, 'Song alredy in your list');
                     } else if (isAdded) {
                       setState(() {
-                        song.in_my_list = true;
+                        song.in_my_list = 1;
                       });
                     }
                   },
                 ),
               ]
             : [],
-        secondaryActions: song.in_my_list
+        secondaryActions: song.in_my_list == 1
             ? <Widget>[
                 SlideAction(
                   color: Colors.red,
@@ -101,7 +101,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     bool isDeleted = await hideMusic(song.song_id);
                     if (isDeleted) {
                       setState(() {
-                        song.in_my_list = false;
+                        song.in_my_list = 0;
                       });
                     }
                   },

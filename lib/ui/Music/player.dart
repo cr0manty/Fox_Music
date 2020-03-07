@@ -2,15 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/format/time.dart';
-import 'package:vk_parse/functions/utils/pick_dialog.dart';
-import 'package:vk_parse/models/playlist.dart';
-import 'package:vk_parse/models/song.dart';
-import 'package:vk_parse/provider/music_data.dart';
+import 'package:fox_music/functions/format/time.dart';
+import 'package:fox_music/functions/utils/pick_dialog.dart';
+import 'package:fox_music/models/playlist.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/provider/music_data.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:vk_parse/utils/database.dart';
+import 'package:fox_music/utils/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:vk_parse/utils/swipe_detector.dart';
+import 'package:fox_music/utils/swipe_detector.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
@@ -40,7 +40,7 @@ class PlayerPageState extends State<PlayerPage> {
   _play(MusicData musicData) {
     return musicData.currentSong != null
         ? () async {
-            if (musicData.playerState == AudioPlayerState.PLAYING) {
+            if (musicData.playerState == PlayerState.PLAYING) {
               await musicData.playerPause();
             } else {
               musicData.playerResume();
@@ -51,13 +51,31 @@ class PlayerPageState extends State<PlayerPage> {
 
   void _getSongText(Song song) {}
 
+  String _getSecondsString(double decimalValue) {
+    return '${(decimalValue * 60).toInt()}'.padLeft(2, '0');
+  }
+
+  String _getMinuteString(int flooredValue) {
+    return '${flooredValue % 60}'.padLeft(2, '0');
+  }
+
+  String _getTimeStringFromDouble(double value) {
+    int flooredValue = value.floor();
+    double decimalValue = value - flooredValue;
+    String hourValue = _getMinuteString(flooredValue);
+    String minuteString = _getSecondsString(decimalValue);
+
+    return '$hourValue:$minuteString';
+  }
+
   @override
   Widget build(BuildContext context) {
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
-    double sliderValue =
-        durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
+    double sliderValue = musicData.sliderValue()
+        ? (musicData.songPosition / musicData.songDuration)
+        : 0;
     FocusScope.of(context).requestFocus(FocusNode());
 
     return CupertinoPageScaffold(
@@ -160,14 +178,16 @@ class PlayerPageState extends State<PlayerPage> {
                                       musicData.songPosition != null &&
                                               sliderValue > 0.0 &&
                                               sliderValue < 1.0
-                                          ? timeFormat(musicData.songPosition)
+                                          ? timeFormat(
+                                              musicData.songPosition)
                                           : '00:00',
                                       style: TextStyle(
                                           color:
                                               Colors.white.withOpacity(0.7))),
                                   Text(
                                       musicData.songDuration != null
-                                          ? timeFormat(musicData.songDuration)
+                                          ? timeFormat(
+                                              musicData.songDuration)
                                           : '00:00',
                                       style: TextStyle(
                                           color: Colors.white.withOpacity(0.7)))
@@ -249,7 +269,7 @@ class PlayerPageState extends State<PlayerPage> {
                                       onTap: _play(musicData),
                                       child: Icon(
                                         musicData.playerState ==
-                                                AudioPlayerState.PLAYING
+                                                PlayerState.PLAYING
                                             ? SFSymbols.pause_fill
                                             : SFSymbols.play_fill,
                                         color: Colors.grey,
@@ -323,9 +343,10 @@ class PlayerPageState extends State<PlayerPage> {
                                                 onChanged: (value) {},
                                                 onChangeEnd:
                                                     musicData.updateVolume,
-                                                value: musicData.volumeValue >
+                                                value: musicData.volumeValue != null &&
+                                                        musicData.volumeValue >
                                                             0.0 &&
-                                                        musicData.volumeValue <
+                                                        musicData.volumeValue <=
                                                             1.0
                                                     ? musicData.volumeValue
                                                     : 0,

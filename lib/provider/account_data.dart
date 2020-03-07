@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'package:connectivity/connectivity.dart';
-import 'package:vk_parse/api/auth.dart';
-import 'package:vk_parse/api/friends_list.dart';
-import 'package:vk_parse/functions/save/logout.dart';
-import 'package:vk_parse/models/relationship.dart';
+import 'package:fox_music/api/auth.dart';
+import 'package:fox_music/api/friends_list.dart';
+import 'package:fox_music/functions/save/logout.dart';
+import 'package:fox_music/models/relationship.dart';
 
-import 'package:vk_parse/models/user.dart';
-import 'package:vk_parse/api/profile.dart';
+import 'package:fox_music/models/user.dart';
+import 'package:fox_music/api/profile.dart';
 
 enum AccountType { SELF_SHOW, SELF_EDIT }
 

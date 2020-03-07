@@ -2,18 +2,18 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/utils/apple_search.dart';
-import 'package:vk_parse/utils/hex_color.dart';
+import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:vk_parse/functions/utils/pick_dialog.dart';
-import 'package:vk_parse/models/playlist.dart';
-import 'package:vk_parse/utils/database.dart';
-import 'package:vk_parse/provider/music_data.dart';
-import 'package:vk_parse/ui/Music/player.dart';
-import 'package:vk_parse/models/song.dart';
-import 'package:vk_parse/functions/format/time.dart';
+import 'package:fox_music/functions/utils/pick_dialog.dart';
+import 'package:fox_music/models/playlist.dart';
+import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/ui/Music/player.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/functions/format/time.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 enum ButtonState { SHARE, DELETE }
@@ -112,7 +112,7 @@ class MusicListPageState extends State<MusicListPage>
 
   _loadPlaylist(MusicData musicData, Song song, {bool update = false}) async {
     if (widget._pageType == PageType.SAVED) {
-      if (update) musicData.loadSavedMusic();
+      if (update) await musicData.loadSavedMusic();
       setState(() {
         _musicList = musicData.localSongs;
         _musicListSorted = _musicList;

@@ -1,4 +1,4 @@
-import 'package:vk_parse/utils/urls.dart';
+import 'package:fox_music/utils/urls.dart';
 
 formatImage(String imageUrl) {
   if (imageUrl.startsWith('http')) return imageUrl;

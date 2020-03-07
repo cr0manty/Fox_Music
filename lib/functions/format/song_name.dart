@@ -1,4 +1,4 @@
-import 'package:vk_parse/models/song.dart';
+import 'package:fox_music/models/song.dart';
 
 splitStringToFile(String str) {
   return str.replaceAll('/', ' ').replaceAll(' ', '_');

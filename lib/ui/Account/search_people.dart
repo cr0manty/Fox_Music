@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/api/friends_list.dart';
-import 'package:vk_parse/api/user_search.dart';
-import 'package:vk_parse/functions/format/image.dart';
-import 'package:vk_parse/models/relationship.dart';
-import 'package:vk_parse/models/song.dart';
-import 'package:vk_parse/models/user.dart';
-import 'package:vk_parse/provider/account_data.dart';
-import 'package:vk_parse/provider/download_data.dart';
-import 'package:vk_parse/ui/Account/people.dart';
-import 'package:vk_parse/utils/apple_search.dart';
+import 'package:fox_music/api/friends_list.dart';
+import 'package:fox_music/api/user_search.dart';
+import 'package:fox_music/functions/format/image.dart';
+import 'package:fox_music/models/relationship.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/models/user.dart';
+import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/ui/Account/people.dart';
+import 'package:fox_music/utils/apple_search.dart';
 
 class SearchPeoplePage extends StatefulWidget {
   @override

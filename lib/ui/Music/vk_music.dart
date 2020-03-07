@@ -4,17 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/utils/snackbar.dart';
+import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:vk_parse/provider/account_data.dart';
-import 'package:vk_parse/provider/music_data.dart';
-import 'package:vk_parse/models/song.dart';
-import 'package:vk_parse/api/music_list.dart';
-import 'package:vk_parse/functions/utils/info_dialog.dart';
-import 'package:vk_parse/functions/format/time.dart';
-import 'package:vk_parse/provider/download_data.dart';
-import 'package:vk_parse/ui/Account/auth_vk.dart';
-import 'package:vk_parse/utils/apple_search.dart';
+import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/api/music_list.dart';
+import 'package:fox_music/functions/utils/info_dialog.dart';
+import 'package:fox_music/functions/format/time.dart';
+import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/ui/Account/auth_vk.dart';
+import 'package:fox_music/utils/apple_search.dart';
 
 class VKMusicListPage extends StatefulWidget {
   @override

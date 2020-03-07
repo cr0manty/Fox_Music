@@ -1,4 +1,4 @@
-package music.vk_parse
+package music.fox_music
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

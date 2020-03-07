@@ -3,12 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vk_parse/models/playlist.dart';
+import 'package:fox_music/models/playlist.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/provider/music_data.dart';
-import 'package:vk_parse/ui/Music/music_list.dart';
-import 'package:vk_parse/utils/database.dart';
-import 'package:vk_parse/utils/hex_color.dart';
+import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/ui/Music/music_list.dart';
+import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
 class PlaylistPage extends StatefulWidget {

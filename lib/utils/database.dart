@@ -5,11 +5,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:vk_parse/models/song.dart';
-import 'package:vk_parse/models/playlist.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/models/playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music5.db';
+  static const dbName = 'vk_music36.db';
 
   DBProvider._();
 
@@ -29,13 +29,13 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute("CREATE TABLE Song ("
-          "song_id INTEGER PRIMARY KEY,"
+          "song_id INTEGER PRIMARY KEY AUTOINCREMENT,"
           "title TEXT,"
-          "String TEXT,"
+          "artist TEXT,"
           "duration INTEGER,"
           "download TEXT,"
           "path TEXT,"
-          "image BLOB"
+          "in_my_list INTEGER"
           ")");
       await db.execute("CREATE TABLE Playlist ("
           "id INTEGER PRIMARY KEY,"
@@ -48,12 +48,22 @@ class DBProvider {
 
   newSong(Song song) async {
     final db = await database;
-    var exist = await db.query("Song", where: "song_id = ?", whereArgs: [song.song_id]);
+    var exist =
+        await db.query("Song", where: "song_id = ?", whereArgs: [song.song_id]);
 
     if (exist.isEmpty) {
       var res = await db.insert("Song", song.toJson());
       return res;
     }
+  }
+
+  songInDb(Song song) async {
+    final db = await database;
+    var exist = await db.query("Song",
+        where: "title = ?, artist = ?, duration = ?",
+        whereArgs: [song.title, song.artist, song.duration]);
+
+    return exist.isNotEmpty;
   }
 
   newPlaylist(Playlist playlist) async {

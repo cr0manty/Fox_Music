@@ -1,4 +1,4 @@
-import 'package:vk_parse/utils/hex_color.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

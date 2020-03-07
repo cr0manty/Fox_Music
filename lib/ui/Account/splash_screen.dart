@@ -3,12 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/provider/account_data.dart';
+import 'package:fox_music/provider/account_data.dart';
 
-import 'package:vk_parse/provider/music_data.dart';
-import 'package:vk_parse/provider/download_data.dart';
-import 'package:vk_parse/ui/main_tab.dart';
-import 'package:vk_parse/utils/hex_color.dart';
+import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/ui/main_tab.dart';
+import 'package:fox_music/utils/hex_color.dart';
 
 class IntroPage extends StatefulWidget {
   @override

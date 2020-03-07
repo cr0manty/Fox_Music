@@ -1,5 +1,5 @@
-import 'package:vk_parse/api/music_list.dart';
-import 'package:vk_parse/models/song.dart';
+import 'package:fox_music/api/music_list.dart';
+import 'package:fox_music/models/song.dart';
 
 downloadAll() async { // TODO
   try {

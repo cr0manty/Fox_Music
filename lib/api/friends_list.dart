@@ -1,11 +1,11 @@
 import 'package:http/http.dart' as http;
-import 'package:vk_parse/models/relationship.dart';
+import 'package:fox_music/models/relationship.dart';
 import 'dart:convert';
 
-import 'package:vk_parse/utils/urls.dart';
-import 'package:vk_parse/models/user.dart';
-import 'package:vk_parse/functions/format/token.dart';
-import 'package:vk_parse/functions/get/token.dart';
+import 'package:fox_music/utils/urls.dart';
+import 'package:fox_music/models/user.dart';
+import 'package:fox_music/functions/format/token.dart';
+import 'package:fox_music/functions/get/token.dart';
 
 friendListGet() async {
   try {

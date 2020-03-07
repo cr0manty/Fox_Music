@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vk_parse/provider/account_data.dart';
+import 'package:fox_music/provider/account_data.dart';
 
 class VKAuthPage extends StatefulWidget {
   final AccountData accountData;

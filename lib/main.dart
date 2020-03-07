@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vk_parse/ui/Account/splash_screen.dart';
-import 'package:vk_parse/utils/hex_color.dart';
+import 'package:fox_music/ui/Account/splash_screen.dart';
+import 'package:fox_music/utils/hex_color.dart';
 
 void main() => runApp(MyApp());
 
@@ -15,7 +15,6 @@ class MyApp extends StatelessWidget {
     return CupertinoApp(
       key: _scaffoldKey,
       debugShowCheckedModeBanner: false,
-      title: 'VK Music',
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
         DefaultMaterialLocalizations.delegate,
         DefaultWidgetsLocalizations.delegate,

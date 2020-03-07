@@ -2,9 +2,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:vk_parse/api/profile.dart';
-import 'package:vk_parse/functions/save/token.dart';
-import 'package:vk_parse/utils/urls.dart';
+import 'package:fox_music/api/profile.dart';
+import 'package:fox_music/functions/save/token.dart';
+import 'package:fox_music/utils/urls.dart';
 
 loginPost(String username, String password) async {
   Map<String, String> body = {

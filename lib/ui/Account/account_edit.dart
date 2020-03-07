@@ -5,10 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:vk_parse/functions/format/image.dart';
+import 'package:fox_music/functions/format/image.dart';
 
-import 'package:vk_parse/provider/account_data.dart';
-import 'package:vk_parse/functions/utils/info_dialog.dart';
+import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/functions/utils/info_dialog.dart';
 
 class AccountEditPage extends StatefulWidget {
   @override
