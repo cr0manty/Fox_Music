@@ -363,9 +363,9 @@ class PlayerPageState extends State<PlayerPage> {
                                                 child: SvgPicture.asset(
                                                     'assets/svg/add_to_playlist.svg',
                                                     color: Colors.grey,
-                                                    height: screenHeight * 0.025,
+                                                    height: screenHeight * 0.02,
                                                     width:
-                                                        screenHeight * 0.025)),
+                                                        screenHeight * 0.018)),
                                           ],
                                         ))))
                           ]),

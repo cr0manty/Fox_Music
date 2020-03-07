@@ -241,7 +241,7 @@ class MusicListPageState extends State<MusicListPage>
       actions.add(SlideAction(
         color: Colors.pinkAccent,
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
-            color: Colors.white, height: 20, width: 20),
+            color: Colors.white, height: 18, width: 18),
         onTap: () => showPickerDialog(context, _playlistList, song.song_id),
       ));
     }
