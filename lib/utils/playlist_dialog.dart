@@ -15,32 +15,42 @@ class DialogPlaylistContentState extends State<DialogPlaylistContent> {
   Widget build(BuildContext context) {
     return widget.playlistList.length == 0
         ? Container()
-        : Column(
-            children: List<Column>.generate(widget.playlistList.length,
+        : ListView(
+            children: List<Container>.generate(widget.playlistList.length,
                 (int index) => _buildPlaylistList(index)));
   }
 
   _buildPlaylistList(int index) {
     PlaylistCheckbox playlist = widget.playlistList[index];
-    return Column(children: [
-      CheckboxListTile(
-        checkColor: Colors.white,
-        activeColor: Colors.redAccent,
-        title: Text(
-          playlist.playlist.title,
-          style: TextStyle(color: Colors.white),
-        ),
-        value: playlist.checked,
-        onChanged: (value) {
-          setState(() {
-            playlist.checked = !playlist.checked;
-          });
-        },
-      ),
+    return Container(
+      padding: EdgeInsets.only(top: 4),
+        child: Column(children: [
+      GestureDetector(
+          onTap: () {
+            setState(() {
+              playlist.checked = !playlist.checked;
+            });
+          },
+          child: Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(playlist.playlist.title,
+                        style: TextStyle(color: Colors.white, fontSize: 15)),
+                    playlist.checked
+                        ? Icon(
+                            Icons.done,
+                            color: Colors.white,
+                            size: 15,
+                          )
+                        : Container()
+                  ]))),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 12),
         child: Divider(color: Colors.grey),
       )
-    ]);
+    ]));
   }
 }

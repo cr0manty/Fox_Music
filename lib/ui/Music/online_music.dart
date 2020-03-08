@@ -16,12 +16,12 @@ import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
 import 'package:fox_music/utils/apple_search.dart';
 
-class VKMusicListPage extends StatefulWidget {
+class OnlineMusicListPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new VKMusicListPageState();
+  State<StatefulWidget> createState() => new OnlineMusicListPageState();
 }
 
-class VKMusicListPageState extends State<VKMusicListPage> {
+class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   GlobalKey<RefreshIndicatorState> _refreshKey =
       new GlobalKey<RefreshIndicatorState>();
@@ -35,10 +35,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
-    if (init) {
-      dataSongSorted = downloadData.dataSong;
-    }
+    dataSongSorted = downloadData.dataSong;
 
     return Material(
         child: CupertinoPageScaffold(
@@ -164,21 +161,28 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-                onTap: () async {
-                  if (downloadData.inQuery(song)) {
-                    if (downloadData.currentSong == song) {
-                      showSnackBar(context, 'Unable to remove from queue',
-                          seconds: 3);
-                    } else {
-                      downloadData.deleteFromQuery(song);
-                    }
-                  } else {
-                    downloadData.query = song;
-                  }
-                },
+                onTap: () {},
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
+          actions: <Widget>[
+            SlideAction(
+              color: Colors.deepPurple,
+              child: Icon(SFSymbols.arrow_down, color: Colors.white),
+              onTap: () async {
+                if (downloadData.inQuery(song)) {
+                  if (downloadData.currentSong == song) {
+                    showSnackBar(context, 'Unable to remove from queue',
+                        seconds: 3);
+                  } else {
+                    downloadData.deleteFromQuery(song);
+                  }
+                } else {
+                  downloadData.query = song;
+                }
+              },
+            )
+          ],
           secondaryActions: <Widget>[
             SlideAction(
               color: Colors.red,
@@ -188,6 +192,7 @@ class VKMusicListPageState extends State<VKMusicListPage> {
                 if (isDeleted) {
                   setState(() {
                     downloadData.dataSong.removeAt(index);
+                    dataSongSorted = downloadData.dataSong;
                   });
                 }
               },

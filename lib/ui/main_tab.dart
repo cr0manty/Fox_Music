@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fox_music/functions/save/last_tab.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Account/login.dart';
@@ -12,16 +13,26 @@ import 'package:fox_music/provider/music_data.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/ui/Account/account.dart';
-import 'package:fox_music/ui/Music/vk_music.dart';
+import 'package:fox_music/ui/Music/online_music.dart';
 import 'package:fox_music/utils/swipe_detector.dart';
 
 class MainPage extends StatefulWidget {
+  final int lastIndex;
+
+  MainPage(this.lastIndex);
+
   @override
   State<StatefulWidget> createState() => new MainPageState();
 }
 
 class MainPageState extends State<MainPage> {
   int currentIndex = 0;
+
+  @override
+  void initState() {
+    currentIndex = widget.lastIndex;
+    super.initState();
+  }
 
   Widget _buildView(MusicData musicData, AccountData accountData,
       MusicDownloadData downloadData, Widget child) {
@@ -35,6 +46,7 @@ class MainPageState extends State<MainPage> {
   Widget _switchTabs(MusicData musicData, MusicDownloadData downloadData,
       AccountData accountData, int index) {
     Widget page;
+    saveLastTab(index);
 
     switch (index) {
       case 0:
@@ -52,7 +64,7 @@ class MainPageState extends State<MainPage> {
       case 2:
         page = CupertinoTabView(
             builder: (BuildContext context) => _buildView(
-                musicData, accountData, downloadData, VKMusicListPage()));
+                musicData, accountData, downloadData, OnlineMusicListPage()));
         break;
       case 3:
         page = CupertinoTabView(
@@ -63,6 +75,7 @@ class MainPageState extends State<MainPage> {
                 accountData.user != null ? AccountPage() : LoginPage()));
         break;
     }
+
     return Stack(
       children: <Widget>[page, _buildPlayer(musicData)],
     );
@@ -107,16 +120,11 @@ class MainPageState extends State<MainPage> {
                             child: Container(
                                 decoration: BoxDecoration(
                                     color: Colors.black26.withOpacity(0.3)),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                 alignment: Alignment.bottomCenter,
                                 child: Row(
                                   children: <Widget>[
-                                    CircleAvatar(
-                                      radius: 18,
-                                      backgroundColor: Colors.grey,
-                                    ),
-                                    Container(width: 25),
+                                    Container(width: 10),
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -137,26 +145,33 @@ class MainPageState extends State<MainPage> {
                                     ),
                                     Expanded(child: SizedBox()),
                                     GestureDetector(
-                                      child: Icon(
-                                        musicData.playerState ==
-                                                PlayerState.PLAYING
-                                            ? SFSymbols.pause_fill
-                                            : SFSymbols.play_fill,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          height: MediaQuery.of(context).size.width * 0.12,
+                                          width: MediaQuery.of(context).size.width * 0.12,
+                                          child: Icon(
+                                            musicData.playerState ==
+                                                    AudioPlayerState.PLAYING
+                                                ? SFSymbols.pause_fill
+                                                : SFSymbols.play_fill,
+                                            color: Colors.white,
+                                            size: 20,
+                                          )),
                                       onTap: () => musicData.playerState ==
-                                              PlayerState.PLAYING
+                                              AudioPlayerState.PLAYING
                                           ? musicData.playerPause()
                                           : musicData.playerResume(),
                                     ),
-                                    SizedBox(width: 10),
                                     GestureDetector(
-                                      child: Icon(
-                                        SFSymbols.forward_fill,
-                                        size: 20,
-                                        color: Colors.white,
-                                      ),
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          height: MediaQuery.of(context).size.width * 0.12,
+                                          width: MediaQuery.of(context).size.width * 0.12,
+                                          child: Icon(
+                                            SFSymbols.forward_fill,
+                                            size: 20,
+                                            color: Colors.white,
+                                          )),
                                       onTap: () => musicData.next(),
                                     )
                                   ],

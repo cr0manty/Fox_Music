@@ -221,8 +221,8 @@ class LoginPageState extends State<LoginPage> {
           FlatButton(
             child: Text(
               _form == FormType.login
-                  ? "Don't have an account? Tap here to register."
-                  : 'Have an account? Click here to login.',
+                  ? "Don't have an account? Sign up."
+                  : 'Have an account? Sign in.',
               style: TextStyle(color: Colors.white),
             ),
             onPressed: _disabled ? null : () => _formChange(),

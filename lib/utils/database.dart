@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:fox_music/functions/utils/rename_song.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -58,13 +57,32 @@ class DBProvider {
     }
   }
 
-  songInDb(Song song) async {
+  songExist(Song song) async {
     final db = await database;
     var exist = await db.query("Song",
-        where: "title = ?, artist = ?, duration = ?",
-        whereArgs: [song.title, song.artist, song.duration]);
+        where: "title = ? and artist = ?",
+        whereArgs: [song.title, song.artist]);
 
     return exist.isNotEmpty;
+  }
+
+  songNotExist(Song song) async {
+    bool result = await songExist(song);
+    return !result;
+  }
+
+  getPlaylistSongs(List<String> songIdList) async {
+    List<Song> songList = [];
+
+    await Future.wait(songIdList.map((String id) async {
+      if (id.isNotEmpty) {
+        int songId = await int.parse(id);
+        Song song = await getSong(songId);
+        if (song != null) songList.add(song);
+      }
+    }));
+
+    return songList;
   }
 
   newPlaylist(Playlist playlist) async {
@@ -106,7 +124,6 @@ class DBProvider {
     final db = await database;
     var res = await db.update("Song", song.toJson(),
         where: "song_id = ?", whereArgs: [song.song_id]);
-    await renameSong(song);
     return res;
   }
 

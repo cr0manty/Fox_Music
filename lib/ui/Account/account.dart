@@ -9,7 +9,7 @@ import 'package:fox_music/ui/Account/friends.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
 import 'package:fox_music/ui/Account/account_edit.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:fox_music/ui/Account/search_music.dart';
+import 'package:fox_music/ui/Music/search_music.dart';
 import 'package:fox_music/ui/Account/search_people.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

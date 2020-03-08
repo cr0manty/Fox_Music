@@ -1,8 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-getToken() async {
+getLastTab() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
 
-  String token = await preferences.getString("CurrentToken");
-  return token ?? '';
+  int lastTab = await preferences.getInt("LastTab");
+  return lastTab ?? 0;
 }

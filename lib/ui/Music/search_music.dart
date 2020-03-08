@@ -36,7 +36,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                 child: ListView.builder(
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount: _songList.length + 1,
+              itemCount:  _songList.isEmpty ? 2 : _songList.length + 1,
               itemBuilder: (context, index) =>
                   _buildSongListTile(downloadData, index),
             ))));
@@ -52,7 +52,16 @@ class SearchMusicPageState extends State<SearchMusicPage> {
           });
         },
       );
+    } else if (index == 1 && _songList.isEmpty) {
+      return Padding(
+          padding: EdgeInsets.only(top: 30),
+          child: Text(
+            'Your search returned no results.',
+            style: TextStyle(color: Colors.grey, fontSize: 20),
+            textAlign: TextAlign.center,
+          ));
     }
+
     Song song = _songList[index - 1];
     if (song == null) {
       return null;

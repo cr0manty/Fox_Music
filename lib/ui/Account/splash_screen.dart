@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fox_music/functions/get/last_tab.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
 
@@ -21,6 +22,7 @@ class _IntroPageState extends State<IntroPage> {
   startTime() async {
     return Timer(Duration(seconds: splashDuration), () async {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
+      int lastIndex = await getLastTab();
       MusicData musicData = new MusicData();
       AccountData accountData = new AccountData();
       MusicDownloadData downloadData = new MusicDownloadData();
@@ -37,7 +39,7 @@ class _IntroPageState extends State<IntroPage> {
                         value: accountData),
                     ChangeNotifierProvider<MusicDownloadData>.value(
                         value: downloadData),
-                  ], child: MainPage())),
+                  ], child: MainPage(lastIndex))),
           (Route<dynamic> route) => false);
     });
   }
