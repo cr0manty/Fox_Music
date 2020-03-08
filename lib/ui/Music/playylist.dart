@@ -2,12 +2,13 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/models/song.dart';
+import 'package:fox_music/utils/database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/ui/Music/music_list.dart';
-import 'package:fox_music/utils/database.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 
@@ -180,15 +181,13 @@ class PlaylistPageState extends State<PlaylistPage> {
                         style: TextStyle(
                             fontSize: 18,
                             color: Color.fromRGBO(200, 200, 200, 1)))),
-                onTap: () {
+                onTap: () async {
                   Navigator.of(_scaffoldKey.currentContext).push(
                       CupertinoPageRoute(
                           builder: (context) =>
                               ChangeNotifierProvider<MusicData>.value(
                                   value: data,
-                                  child: MusicListPage(
-                                    playlist: playlist,
-                                  ))));
+                                  child: MusicListPage(playlist: playlist))));
                 },
                 leading: _showImage(playlist))),
         actions: <Widget>[

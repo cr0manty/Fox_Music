@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fox_music/utils/database.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/utils/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
@@ -9,7 +10,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/utils/database.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/models/song.dart';
@@ -20,44 +20,24 @@ enum ButtonState { SHARE, DELETE }
 enum PageType { SAVED, PLAYLIST }
 
 class MusicListPage extends StatefulWidget {
-  PageType _pageType;
-  Playlist playlist;
+  final PageType _pageType;
+  final Playlist playlist;
 
-  MusicListPage({this.playlist}) {
-    _pageType = playlist != null ? PageType.PLAYLIST : PageType.SAVED;
-  }
+  MusicListPage({this.playlist})
+      : _pageType = playlist != null ? PageType.PLAYLIST : PageType.SAVED;
 
-  @override
   State<StatefulWidget> createState() => MusicListPageState();
 }
 
 class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   List<Playlist> _playlistList = [];
-  List<Playlist> _playlistListSorted = [];
   bool init = true;
 
   _addTrackToPlaylistDialog() {}
-
-  _loadPlaylistList() async {
-    List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
-    if (mounted) {
-      setState(() {
-        _playlistList = playlistList;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPlaylistList();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,18 +92,27 @@ class MusicListPageState extends State<MusicListPage>
 
   _loadPlaylist(MusicData musicData, Song song, {bool update = false}) async {
     if (widget._pageType == PageType.SAVED) {
+      List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
       if (update) await musicData.loadSavedMusic();
       setState(() {
+        _playlistList = playlistList;
         _musicList = musicData.localSongs;
         _musicListSorted = _musicList;
       });
-    } else {}
+    } else {
+      Playlist newPlaylist =
+          await DBProvider.db.getPlaylist(widget.playlist.id);
+      List<String> songIdList = newPlaylist.songList.split(',');
+      List<Song> songList = await musicData.loadPlaylistTrack(songIdList);
+      setState(() {
+        _musicList = songList;
+        _musicListSorted = _musicList;
+      });
+    }
     if (song != null) {
       musicData.setPlaylistSongs(_musicList, song);
     }
   }
-
-  _deleteSongFromPlaylist(Song song) {}
 
   _deleteSong(Song song) {
     showDialog(
@@ -156,15 +145,7 @@ class MusicListPageState extends State<MusicListPage>
                 ]));
   }
 
-  _renameSong(Song song, String artist, String title) {
-    setState(() {
-      song.title = title;
-      song.artist = artist;
-    });
-    DBProvider.db.updateSong(song);
-  }
-
-  _renameSongDialog(Song song) async {
+  _renameSongDialog(MusicData musicData, Song song) async {
     final TextEditingController artistFilter = new TextEditingController();
     final TextEditingController titleFilter = new TextEditingController();
 
@@ -211,7 +192,11 @@ class MusicListPageState extends State<MusicListPage>
                 onPressed: () {
                   if (artistFilter.text.isNotEmpty &&
                       titleFilter.text.isNotEmpty) {
-                    _renameSong(song, artistFilter.text, titleFilter.text);
+                    setState(() {
+                      song.title = titleFilter.text;
+                      song.artist = artistFilter.text;
+                    });
+                    musicData.renameSong(song);
                   }
                   Navigator.pop(context);
                 }),
@@ -232,6 +217,22 @@ class MusicListPageState extends State<MusicListPage>
     });
   }
 
+  void deleteSongFromPlaylist(Song song) {
+    List<String> playlistSongs = widget.playlist.songList.split(',');
+    String newSongList = '';
+
+    playlistSongs.forEach((id) {
+      if (song.song_id.toString() != id) newSongList += id + ',';
+    });
+
+    setState(() {
+      widget.playlist.songList = newSongList;
+      _musicList.remove(song);
+    });
+
+    DBProvider.db.updatePlaylist(widget.playlist);
+  }
+
   _shareSong(Song song) async {
     final File bytes = await File(song.path);
     await WcFlutterShare.share(
@@ -241,7 +242,7 @@ class MusicListPageState extends State<MusicListPage>
         bytesOfFile: bytes.readAsBytesSync());
   }
 
-  List<Widget> _actionsPane(Song song) {
+  List<Widget> _actionsPane(MusicData musicData, Song song) {
     List<Widget> actions = [];
     if (widget._pageType == PageType.SAVED) {
       actions.add(SlideAction(
@@ -254,7 +255,7 @@ class MusicListPageState extends State<MusicListPage>
     actions.add(SlideAction(
       color: Colors.blue,
       child: Icon(SFSymbols.pencil, color: Colors.white),
-      onTap: () => _renameSongDialog(song),
+      onTap: () => _renameSongDialog(musicData, song),
     ));
     return actions;
   }
@@ -309,7 +310,7 @@ class MusicListPageState extends State<MusicListPage>
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
-          actions: _actionsPane(song),
+          actions: _actionsPane(musicData, song),
           secondaryActions: <Widget>[
             SlideAction(
               color: Colors.indigo,
@@ -327,7 +328,7 @@ class MusicListPageState extends State<MusicListPage>
               ),
               onTap: () => widget._pageType == PageType.SAVED
                   ? _deleteSong(song)
-                  : _deleteSongFromPlaylist(song),
+                  : deleteSongFromPlaylist(song),
             ),
           ],
         ),

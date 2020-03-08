@@ -33,7 +33,7 @@ class Song {
   @override
   int get hashCode => song_id.hashCode;
 
-  bool operator ==(o) => song_id == o.song_id;
+  bool operator ==(o) => title == o.title && artist == o.artist;
 
   @override
   toString() {
@@ -48,7 +48,7 @@ class Song {
 
   factory Song.fromJson(Map<String, dynamic> json) =>
       new Song(
-          title: json['name'],
+          title: json['title'],
           artist: json['artist'],
           duration: json['duration'],
           download: json['download'],

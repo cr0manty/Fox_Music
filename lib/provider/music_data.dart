@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fox_music/functions/format/time.dart';
-import 'package:fox_music/functions/utils/rename_song.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
@@ -121,11 +120,6 @@ class MusicData with ChangeNotifier {
     }
   }
 
-  void loadLocalDBSongs() async {
-    localSongs = [];
-    localSongs = await DBProvider.db.getAllSong();
-  }
-
   bool _filterSongs(String artist, String title) {
     return localSongs
             .where((song) =>
@@ -136,14 +130,33 @@ class MusicData with ChangeNotifier {
         0;
   }
 
+  void renameSong(Song song) async {
+    String newFileName = await formatFileName(song);
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    String path = '$dir/songs/$newFileName';
+
+    File oldSong = File(song.path);
+    File newSong = new File(path);
+
+    var bytes = await oldSong.readAsBytes();
+    await newSong.writeAsBytes(bytes);
+    await oldSong.delete();
+
+    song.path = path;
+    notifyListeners();
+
+    loadSavedMusic();
+  }
+
   void loadSavedMusic() async {
-    await loadLocalDBSongs();
     final String directory = (await getApplicationDocumentsDirectory()).path;
     final documentDir = new Directory("$directory/songs/");
     if (!documentDir.existsSync()) {
       documentDir.createSync();
     }
     final fileList = Directory("$directory/songs/").listSync();
+    localSongs = [];
+
     fileList.forEach((songPath) async {
       final song = formatSong(songPath.path);
       if (song == null) {
@@ -163,14 +176,14 @@ class MusicData with ChangeNotifier {
                       ? songData.artistName
                       : randomAlpha(15),
               song_id: rng.nextInt(100000));
-          DBProvider.db.newSong(song);
           localSongs.add(song);
           renameSong(song);
         }
-      } else if (localSongs.indexOf(song) == -1 && song != null) {
+      } else if (song != null && localSongs.indexOf(song) == -1) {
         localSongs.add(song);
       }
     });
+    notifyListeners();
   }
 
   void updateVolume(double value) {
@@ -202,12 +215,17 @@ class MusicData with ChangeNotifier {
       await audioPlayer.setReleaseMode(ReleaseMode.STOP);
     }
 
-    savePlayerState(repeat, volume);
     notifyListeners();
+    savePlayerState(repeat, volume);
   }
 
-  playlistAddClick() {
-    notifyListeners();
+  loadPlaylistTrack(List<String> songsListId) async {
+    List<Song> songList = [];
+
+    await Future.wait(localSongs.map((Song song) async {
+      if (songsListId.contains(song.song_id.toString())) songList.add(song);
+    }));
+    return songList;
   }
 
   loadPlaylist(List<Song> songList) {
@@ -232,7 +250,6 @@ class MusicData with ChangeNotifier {
     playerState = AudioPlayerState.STOPPED;
     notifyListeners();
   }
-
 
   playerResume() async {
     audioPlayer.resume();

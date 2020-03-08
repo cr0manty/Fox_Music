@@ -15,23 +15,25 @@ class DialogPlaylistContentState extends State<DialogPlaylistContent> {
   Widget build(BuildContext context) {
     return widget.playlistList.length == 0
         ? Container()
-        : Column(
-            children: List<Column>.generate(widget.playlistList.length,
+        : ListView(
+            children: List<Container>.generate(widget.playlistList.length,
                 (int index) => _buildPlaylistList(index)));
   }
 
   _buildPlaylistList(int index) {
     PlaylistCheckbox playlist = widget.playlistList[index];
-    return Column(children: [
+    return Container(
+      padding: EdgeInsets.only(top: 4),
+        child: Column(children: [
       GestureDetector(
-        onTap: () {
-          setState(() {
-            playlist.checked = !playlist.checked;
-          });
-        },
+          onTap: () {
+            setState(() {
+              playlist.checked = !playlist.checked;
+            });
+          },
           child: Container(
               color: Colors.transparent,
-              padding: EdgeInsets.only(top: 12, left: 25, right: 25, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -46,9 +48,9 @@ class DialogPlaylistContentState extends State<DialogPlaylistContent> {
                         : Container()
                   ]))),
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 12),
         child: Divider(color: Colors.grey),
       )
-    ]);
+    ]));
   }
 }
