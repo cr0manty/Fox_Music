@@ -5,5 +5,5 @@ getPlayerState() async {
 
   bool repeat = await preferences.getBool("RepeatState");
   double volume = await preferences.getDouble("Volume");
-  return {'repeat': repeat ?? false, 'volume': volume == null ? 1 : volume};
+  return {'repeat': repeat ?? false, 'volume': volume == null ? 1.0 : volume};
 }

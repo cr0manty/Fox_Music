@@ -147,7 +147,7 @@ class MainPageState extends State<MainPage> {
                                     GestureDetector(
                                       child: Container(
                                           color: Colors.transparent,
-                                          height: MediaQuery.of(context).size.width * 0.15,
+                                          height: MediaQuery.of(context).size.width * 0.12,
                                           width: MediaQuery.of(context).size.width * 0.12,
                                           child: Icon(
                                             musicData.playerState ==
@@ -155,7 +155,7 @@ class MainPageState extends State<MainPage> {
                                                 ? SFSymbols.pause_fill
                                                 : SFSymbols.play_fill,
                                             color: Colors.white,
-                                            size: 25,
+                                            size: 20,
                                           )),
                                       onTap: () => musicData.playerState ==
                                               AudioPlayerState.PLAYING
@@ -165,11 +165,11 @@ class MainPageState extends State<MainPage> {
                                     GestureDetector(
                                       child: Container(
                                           color: Colors.transparent,
-                                          height: MediaQuery.of(context).size.width * 0.15,
+                                          height: MediaQuery.of(context).size.width * 0.12,
                                           width: MediaQuery.of(context).size.width * 0.12,
                                           child: Icon(
                                             SFSymbols.forward_fill,
-                                            size: 25,
+                                            size: 20,
                                             color: Colors.white,
                                           )),
                                       onTap: () => musicData.next(),

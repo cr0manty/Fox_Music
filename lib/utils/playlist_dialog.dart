@@ -23,23 +23,28 @@ class DialogPlaylistContentState extends State<DialogPlaylistContent> {
   _buildPlaylistList(int index) {
     PlaylistCheckbox playlist = widget.playlistList[index];
     return Column(children: [
-      Theme(
-          data: Theme.of(context).copyWith(
-            unselectedWidgetColor: Colors.transparent,
-          ),
-          child: CheckboxListTile(
-              checkColor: Colors.white,
-              activeColor: Colors.transparent,
-              title: Text(
-                playlist.playlist.title,
-                style: TextStyle(color: Colors.white),
-              ),
-              value: playlist.checked,
-              onChanged: (value) {
-                setState(() {
-                  playlist.checked = !playlist.checked;
-                });
-              })),
+      GestureDetector(
+        onTap: () {
+          setState(() {
+            playlist.checked = !playlist.checked;
+          });
+        },
+          child: Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.only(top: 12, left: 25, right: 25, bottom: 8),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(playlist.playlist.title,
+                        style: TextStyle(color: Colors.white, fontSize: 15)),
+                    playlist.checked
+                        ? Icon(
+                            Icons.done,
+                            color: Colors.white,
+                            size: 15,
+                          )
+                        : Container()
+                  ]))),
       Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Divider(color: Colors.grey),
