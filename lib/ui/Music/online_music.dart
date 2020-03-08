@@ -36,7 +36,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    dataSongSorted = downloadData.dataSong;
+    if (init) dataSongSorted = downloadData.dataSong;
 
     return Material(
         child: CupertinoPageScaffold(
@@ -140,7 +140,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       return AppleSearch(
           onChange: (value) => _filterSongs(downloadData, value));
 
-    Song song = downloadData.dataSong[index - 1];
+    Song song = dataSongSorted[index - 1];
     if (init) {
       _playerNotifyState = downloadData.onResultChanged.listen((result) {
         if (result == DownloadState.COMPLETED) musicData.loadSavedMusic();
@@ -208,8 +208,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
           ? Container(
               height: 72,
               width: MediaQuery.of(context).size.width * downloadData.progress,
-              decoration:
-                  BoxDecoration(color: main_color.withOpacity(0.2)),
+              decoration: BoxDecoration(color: main_color.withOpacity(0.2)),
             )
           : downloadData.inQuery(song)
               ? Container(
