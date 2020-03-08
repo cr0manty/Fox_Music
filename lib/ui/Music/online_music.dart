@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -41,7 +42,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-                actionsForegroundColor: Colors.redAccent,
+                actionsForegroundColor: main_color,
                 middle: Text('Music'),
                 trailing:
                     accountData.user != null && accountData.user.can_use_vk
@@ -108,7 +109,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                color: Colors.redAccent,
+                color: main_color,
                 onPressed: () {
                   Navigator.of(_scaffoldKey.currentContext).push(
                       CupertinoPageRoute(
@@ -185,7 +186,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
           ],
           secondaryActions: <Widget>[
             SlideAction(
-              color: Colors.red,
+              color: main_color,
               child: Icon(SFSymbols.trash, color: Colors.white),
               onTap: () async {
                 bool isDeleted = await hideMusic(song.song_id);
@@ -208,7 +209,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               height: 72,
               width: MediaQuery.of(context).size.width * downloadData.progress,
               decoration:
-                  BoxDecoration(color: Colors.redAccent.withOpacity(0.2)),
+                  BoxDecoration(color: main_color.withOpacity(0.2)),
             )
           : downloadData.inQuery(song)
               ? Container(

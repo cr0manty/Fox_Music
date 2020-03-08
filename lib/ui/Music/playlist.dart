@@ -106,7 +106,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
-            actionsForegroundColor: Colors.redAccent,
+            actionsForegroundColor: main_color,
             middle: Text('Playlists'),
             previousPageTitle: 'Back',
             trailing: GestureDetector(
@@ -163,7 +163,7 @@ class PlaylistPageState extends State<PlaylistPage> {
           playlist.title[0].toUpperCase(),
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
-        backgroundColor: Colors.redAccent);
+        backgroundColor: main_color);
   }
 
   _buildPlaylistList(MusicData data, int index) {
@@ -197,6 +197,13 @@ class PlaylistPageState extends State<PlaylistPage> {
             onTap: null,
           ),
           SlideAction(
+            color: second_color,
+            child: Icon(SFSymbols.pencil, color: Colors.white),
+            onTap: () => _playlistDialog(playlist: playlist),
+          ),
+        ],
+        secondaryActions: <Widget>[
+          SlideAction(
             color: Colors.pinkAccent,
             child: Icon(SFSymbols.photo, color: Colors.white),
             onTap: () {
@@ -206,7 +213,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                   context: _scaffoldKey.currentContext,
                   builder: (context) {
                     return CupertinoActionSheet(
-                      title: Text('Choose image from...'),
                       actions: <Widget>[
                         CupertinoActionSheetAction(
                             onPressed: () async {
@@ -239,15 +245,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                   });
             },
           ),
-        ],
-        secondaryActions: <Widget>[
           SlideAction(
-            color: Colors.indigo,
-            child: Icon(SFSymbols.pencil, color: Colors.white),
-            onTap: () => _playlistDialog(playlist: playlist),
-          ),
-          SlideAction(
-            color: Colors.red,
+            color: main_color,
             child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: () {
               setState(() {

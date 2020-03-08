@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 
 import 'package:fox_music/functions/format/image.dart';
@@ -32,7 +33,7 @@ class FriendListPageState extends State<FriendListPage> {
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Friends'),
-          actionsForegroundColor: Colors.redAccent,
+          actionsForegroundColor: main_color,
           previousPageTitle: 'Back',
         ),
         child: SafeArea(
@@ -115,7 +116,7 @@ class FriendListPageState extends State<FriendListPage> {
             onTap: null,
           ),
           SlideAction(
-            color: Colors.red,
+            color: main_color,
             child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: null,
           ),

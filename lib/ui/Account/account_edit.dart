@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -107,7 +108,7 @@ class AccountEditPageState extends State<AccountEditPage> {
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: Colors.redAccent,
+          actionsForegroundColor: main_color,
           middle: Text('Profile edit'),
           previousPageTitle: 'Back',
           trailing: CupertinoButton(

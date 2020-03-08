@@ -51,7 +51,7 @@ class MusicListPageState extends State<MusicListPage>
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-                actionsForegroundColor: Colors.redAccent,
+                actionsForegroundColor: main_color,
                 middle: Text(widget._pageType == PageType.PLAYLIST
                     ? widget.playlist.title
                     : 'Media'),
@@ -102,7 +102,7 @@ class MusicListPageState extends State<MusicListPage>
     } else {
       Playlist newPlaylist =
           await DBProvider.db.getPlaylist(widget.playlist.id);
-      List<String> songIdList = newPlaylist.songList.split(',');
+      List<String> songIdList = newPlaylist.splitSongList();
       List<Song> songList = await musicData.loadPlaylistTrack(songIdList);
       setState(() {
         _musicList = songList;
@@ -218,15 +218,8 @@ class MusicListPageState extends State<MusicListPage>
   }
 
   void deleteSongFromPlaylist(Song song) {
-    List<String> playlistSongs = widget.playlist.songList.split(',');
-    String newSongList = '';
-
-    playlistSongs.forEach((id) {
-      if (song.song_id.toString() != id) newSongList += id + ',';
-    });
-
     setState(() {
-      widget.playlist.songList = newSongList;
+      widget.playlist.deleteSong(song.song_id);
       _musicList.remove(song);
     });
 
@@ -246,14 +239,14 @@ class MusicListPageState extends State<MusicListPage>
     List<Widget> actions = [];
     if (widget._pageType == PageType.SAVED) {
       actions.add(SlideAction(
-        color: Colors.pinkAccent,
+        color: main_color,
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
         onTap: () => showPickerDialog(context, _playlistList, song.song_id),
       ));
     }
     actions.add(SlideAction(
-      color: Colors.blue,
+      color: second_color,
       child: Icon(SFSymbols.pencil, color: Colors.white),
       onTap: () => _renameSongDialog(musicData, song),
     ));
@@ -313,7 +306,7 @@ class MusicListPageState extends State<MusicListPage>
           actions: _actionsPane(musicData, song),
           secondaryActions: <Widget>[
             SlideAction(
-              color: Colors.indigo,
+              color: second_color,
               child: Icon(
                 CupertinoIcons.share_up,
                 color: Colors.white,
@@ -321,7 +314,7 @@ class MusicListPageState extends State<MusicListPage>
               onTap: () => _shareSong(song),
             ),
             SlideAction(
-              color: Colors.red,
+              color: main_color,
               child: Icon(
                 SFSymbols.trash,
                 color: Colors.white,

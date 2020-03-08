@@ -63,19 +63,17 @@ class LoginPageState extends State<LoginPage> {
         child: ModalProgressHUD(
             child: SafeArea(
                 child: SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Center(
-                          child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 40),
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/images/app-logo.png')))))),
+                  Center(
+                      child: Container(
+                          height: MediaQuery.of(context).size.height * 0.3,
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: AssetImage(
+                                      'assets/images/app-logo.png'))))),
                   _buildForm(),
                   _buildButtons(accountData, downloadData),
                 ],
@@ -204,7 +202,7 @@ class LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.only(top: 30, bottom: 5),
             child: CupertinoButton(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-              color: Colors.redAccent,
+              color: main_color,
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   if (_form == FormType.login) {

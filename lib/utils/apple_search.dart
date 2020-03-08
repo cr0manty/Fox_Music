@@ -79,7 +79,7 @@ class AppleSearchState extends State<AppleSearch> {
                   child: Text(
                     'Cansel',
                     style: TextStyle(
-                        color: Colors.redAccent,
+                        color: main_color,
                         fontSize: 17,
                         fontWeight: FontWeight.w400),
                   )),

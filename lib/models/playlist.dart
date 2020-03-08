@@ -35,12 +35,12 @@ class Playlist {
         'songList': songList,
       };
 
-  List<String> _splitSongList() {
+  List<String> splitSongList() {
     return songList.split(',');
   }
 
   bool inList(int id) {
-    List<String> data = _splitSongList();
+    List<String> data = splitSongList();
     return data.indexOf(id.toString()) != -1;
   }
 
@@ -58,7 +58,7 @@ class Playlist {
     String newList = '';
 
     if (inList(id)) {
-      final list = _splitSongList();
+      final list = splitSongList();
       list.forEach((data) {
         if (data != id.toString()) {
           newList += data;

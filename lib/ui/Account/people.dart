@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/image.dart';
@@ -32,7 +33,7 @@ class PeoplePageState extends State<PeoplePage> {
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Search'),
-          actionsForegroundColor: Colors.redAccent,
+          actionsForegroundColor: main_color,
           previousPageTitle: 'Back',
           trailing: widget.relationship.status != RelationshipStatus.BLOCK
               ? GestureDetector(
@@ -95,7 +96,7 @@ class PeoplePageState extends State<PeoplePage> {
                 child: CupertinoButton(
                   padding: EdgeInsets.symmetric(horizontal: 15),
                   color: widget.relationship.status == RelationshipStatus.FRIEND
-                      ? Colors.redAccent
+                      ? main_color
                       : Colors.indigo,
                   onPressed: () {},
                   child: Text(widget.relationship.buttonName()),
@@ -161,7 +162,7 @@ class PeoplePageState extends State<PeoplePage> {
         secondaryActions: song.in_my_list == 1
             ? <Widget>[
                 SlideAction(
-                  color: Colors.red,
+                  color: main_color,
                   child: Icon(
                     SFSymbols.trash,
                     color: Colors.white,

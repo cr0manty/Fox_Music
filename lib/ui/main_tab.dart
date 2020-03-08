@@ -7,7 +7,8 @@ import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Account/login.dart';
 import 'package:fox_music/ui/Music/player.dart';
-import 'package:fox_music/ui/Music/playylist.dart';
+import 'package:fox_music/ui/Music/playlist.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -189,7 +190,7 @@ class MainPageState extends State<MainPage> {
         onWillPop: () => Future<bool>.value(true),
         child: CupertinoTabScaffold(
             tabBar: CupertinoTabBar(
-              activeColor: Colors.redAccent,
+              activeColor: main_color,
               items: <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                     icon: Icon(SFSymbols.music_note_list),

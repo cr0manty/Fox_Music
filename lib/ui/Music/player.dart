@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/functions/utils/pick_dialog.dart';
@@ -144,11 +145,11 @@ class PlayerPageState extends State<PlayerPage> {
                             SliderTheme(
                               data: SliderTheme.of(context).copyWith(
                                 activeTrackColor:
-                                    Colors.redAccent.withOpacity(0.6),
+                                    main_color.withOpacity(0.6),
                                 inactiveTrackColor:
                                     Color.fromRGBO(100, 100, 100, 0.6),
                                 trackHeight: 3.0,
-                                thumbColor: Colors.redAccent.withOpacity(0.6),
+                                thumbColor: main_color.withOpacity(0.6),
                                 thumbShape: RoundSliderThumbShape(
                                     enabledThumbRadius: 4.0),
                                 overlayColor: Colors.red.withAlpha(12),
@@ -247,7 +248,7 @@ class PlayerPageState extends State<PlayerPage> {
                                           child: Icon(SFSymbols.repeat,
                                               size: screenHeight * 0.025,
                                               color: musicData.repeat
-                                                  ? Colors.redAccent
+                                                  ? main_color
                                                   : Colors.grey),
                                         )),
                                     GestureDetector(
@@ -309,7 +310,7 @@ class PlayerPageState extends State<PlayerPage> {
                                           child:Icon(SFSymbols.shuffle,
                                           size: screenHeight * 0.025,
                                           color: musicData.mix
-                                              ? Colors.redAccent
+                                              ? main_color
                                               : Colors.grey),
                                     ))
                                   ],

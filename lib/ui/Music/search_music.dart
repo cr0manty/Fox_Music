@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/time.dart';
@@ -26,7 +27,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: Colors.redAccent,
+          actionsForegroundColor: main_color,
           middle: Text('Music Search'),
           previousPageTitle: 'Back',
         ),
@@ -104,7 +105,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         secondaryActions: song.in_my_list == 1
             ? <Widget>[
                 SlideAction(
-                  color: Colors.red,
+                  color: main_color,
                   child: Icon(SFSymbols.trash, color: Colors.white),
                   onTap: () async {
                     bool isDeleted = await hideMusic(song.song_id);

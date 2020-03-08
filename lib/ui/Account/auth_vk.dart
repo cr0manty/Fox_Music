@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/utils/hex_color.dart';
 
 class VKAuthPage extends StatefulWidget {
   final AccountData accountData;
@@ -19,7 +20,7 @@ class VKAuthState extends State<VKAuthPage> {
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: Colors.redAccent,
+          actionsForegroundColor: main_color,
           middle: Text('Auth'),
           previousPageTitle: 'Back'),
       child: Container(),

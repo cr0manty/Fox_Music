@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/api/friends_list.dart';
 import 'package:fox_music/api/user_search.dart';
@@ -56,7 +57,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: Colors.redAccent,
+          actionsForegroundColor: main_color,
           middle: Text('People Search'),
           previousPageTitle: 'Back',
         ),
