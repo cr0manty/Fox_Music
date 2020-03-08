@@ -1,4 +1,4 @@
-package com.cr0manty.foxmusic
+package com.cr0manty.fox_music
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

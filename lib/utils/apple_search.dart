@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:foxmusic/utils/hex_color.dart';
+import 'package:fox_music/utils/hex_color.dart';
 
 class AppleSearch extends StatefulWidget {
   final ValueChanged<String> onChange;

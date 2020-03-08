@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:foxmusic/functions/format/image.dart';
-import 'package:foxmusic/provider/account_data.dart';
-import 'package:foxmusic/provider/music_data.dart';
-import 'package:foxmusic/provider/download_data.dart';
-import 'package:foxmusic/ui/Account/friends.dart';
-import 'package:foxmusic/ui/Account/auth_vk.dart';
-import 'package:foxmusic/ui/Account/account_edit.dart';
+import 'package:fox_music/functions/format/image.dart';
+import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/ui/Account/friends.dart';
+import 'package:fox_music/ui/Account/auth_vk.dart';
+import 'package:fox_music/ui/Account/account_edit.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:foxmusic/ui/Music/search_music.dart';
-import 'package:foxmusic/ui/Account/search_people.dart';
+import 'package:fox_music/ui/Music/search_music.dart';
+import 'package:fox_music/ui/Account/search_people.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AccountPage extends StatefulWidget {

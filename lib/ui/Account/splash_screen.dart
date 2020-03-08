@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:foxmusic/functions/get/last_tab.dart';
+import 'package:fox_music/functions/get/last_tab.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
 
