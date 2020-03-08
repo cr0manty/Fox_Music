@@ -234,6 +234,7 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
+
   playerResume() async {
     audioPlayer.resume();
     playerState = AudioPlayerState.PLAYING;
