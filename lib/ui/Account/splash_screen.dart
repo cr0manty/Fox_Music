@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fox_music/functions/get/last_tab.dart';
+import 'package:fox_music/ui/Music/player.dart';
+import 'package:fox_music/utils/fade_route.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
 
@@ -28,18 +30,17 @@ class _IntroPageState extends State<IntroPage> {
       MusicDownloadData downloadData = new MusicDownloadData();
       musicData.init(Theme.of(context).platform);
       accountData.init();
-      downloadData.init();
+      downloadData.init(musicData);
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator.of(context).pushAndRemoveUntil(
-          CupertinoPageRoute(
-              builder: (BuildContext context) => MultiProvider(providers: [
-                    ChangeNotifierProvider<MusicData>.value(value: musicData),
-                    ChangeNotifierProvider<AccountData>.value(
-                        value: accountData),
-                    ChangeNotifierProvider<MusicDownloadData>.value(
-                        value: downloadData),
-                  ], child: MainPage(lastIndex))),
+          FadeRoute(
+              page: MultiProvider(providers: [
+            ChangeNotifierProvider<MusicData>.value(value: musicData),
+            ChangeNotifierProvider<AccountData>.value(value: accountData),
+            ChangeNotifierProvider<MusicDownloadData>.value(
+                value: downloadData),
+          ], child: MainPage(lastIndex))),
           (Route<dynamic> route) => false);
     });
   }
@@ -57,7 +58,14 @@ class _IntroPageState extends State<IntroPage> {
           WidgetsBinding.instance.window.platformBrightness == Brightness.dark
               ? HexColor('#282828')
               : Colors.white,
-      child: Container(),
+      child: Container(
+          height: 0,
+          width: 0,
+          child: Stack(children: <Widget>[
+            ChangeNotifierProvider(
+                create: (_) => MusicData(), child: PlayerPage()),
+            Container(child: Image.asset('assets/images/audio-cover.png'))
+          ])),
     );
   }
 }

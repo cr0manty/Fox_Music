@@ -23,7 +23,7 @@ class Playlist {
   }
 
   factory Playlist.fromJson(Map<String, dynamic> json) => new Playlist(
-      title: json['title'],
+      title: json['title'].toString(),
       id: json['id'],
       image: json['image'],
       songList: json['songList']);

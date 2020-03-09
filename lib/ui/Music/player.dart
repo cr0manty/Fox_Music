@@ -52,23 +52,6 @@ class PlayerPageState extends State<PlayerPage> {
 
   void _getSongText(Song song) {}
 
-  String _getSecondsString(double decimalValue) {
-    return '${(decimalValue * 60).toInt()}'.padLeft(2, '0');
-  }
-
-  String _getMinuteString(int flooredValue) {
-    return '${flooredValue % 60}'.padLeft(2, '0');
-  }
-
-  String _getTimeStringFromDouble(double value) {
-    int flooredValue = value.floor();
-    double decimalValue = value - flooredValue;
-    String hourValue = _getMinuteString(flooredValue);
-    String minuteString = _getSecondsString(decimalValue);
-
-    return '$hourValue:$minuteString';
-  }
-
   @override
   Widget build(BuildContext context) {
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
@@ -144,8 +127,7 @@ class PlayerPageState extends State<PlayerPage> {
                                   Widget>[
                             SliderTheme(
                               data: SliderTheme.of(context).copyWith(
-                                activeTrackColor:
-                                    main_color.withOpacity(0.6),
+                                activeTrackColor: main_color.withOpacity(0.6),
                                 inactiveTrackColor:
                                     Color.fromRGBO(100, 100, 100, 0.6),
                                 trackHeight: 3.0,
@@ -229,12 +211,9 @@ class PlayerPageState extends State<PlayerPage> {
                                     ),
                                   )
                                 : Container(),
-                            Divider(
-                                color: Colors.transparent,
-                                height: screenHeight * 0.03),
                             Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 10),
+                                    vertical: 15, horizontal: 10),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -243,10 +222,10 @@ class PlayerPageState extends State<PlayerPage> {
                                         onTap: musicData.repeatClick,
                                         child: Container(
                                           color: Colors.transparent,
-                                          height: screenHeight * 0.05,
-                                          width: screenHeight * 0.05,
+                                          height: screenHeight * 0.07,
+                                          width: screenHeight * 0.07,
                                           child: Icon(SFSymbols.repeat,
-                                              size: screenHeight * 0.025,
+                                              size: screenHeight * 0.03,
                                               color: musicData.repeat
                                                   ? main_color
                                                   : Colors.grey),
@@ -264,8 +243,8 @@ class PlayerPageState extends State<PlayerPage> {
                                             : null,
                                         child: Container(
                                             color: Colors.transparent,
-                                            height: screenHeight * 0.05,
-                                            width: screenHeight * 0.05,
+                                            height: screenHeight * 0.07,
+                                            width: screenHeight * 0.1,
                                             child: Icon(
                                               SFSymbols.backward_fill,
                                               color: Colors.grey,
@@ -275,8 +254,8 @@ class PlayerPageState extends State<PlayerPage> {
                                       onTap: _play(musicData),
                                       child: Container(
                                           color: Colors.transparent,
-                                          height: screenHeight * 0.05,
-                                          width: screenHeight * 0.05,
+                                          height: screenHeight * 0.07,
+                                          width: screenHeight * 0.1,
                                           child: Icon(
                                             musicData.playerState ==
                                                     AudioPlayerState.PLAYING
@@ -294,25 +273,25 @@ class PlayerPageState extends State<PlayerPage> {
                                             : null,
                                         child: Container(
                                             color: Colors.transparent,
-                                            height: screenHeight * 0.05,
-                                            width: screenHeight * 0.05,
+                                            height: screenHeight * 0.07,
+                                            width: screenHeight * 0.1,
                                             child: Icon(
                                               SFSymbols.forward_fill,
                                               color: Colors.grey,
                                               size: screenHeight * 0.045,
                                             ))),
                                     GestureDetector(
-                                      onTap: musicData.mixClick,
-                                      child:  Container(
+                                        onTap: musicData.mixClick,
+                                        child: Container(
                                           color: Colors.transparent,
-                                          height: screenHeight * 0.05,
-                                          width: screenHeight * 0.05,
-                                          child:Icon(SFSymbols.shuffle,
-                                          size: screenHeight * 0.025,
-                                          color: musicData.mix
-                                              ? main_color
-                                              : Colors.grey),
-                                    ))
+                                          height: screenHeight * 0.07,
+                                          width: screenHeight * 0.07,
+                                          child: Icon(SFSymbols.shuffle,
+                                              size: screenHeight * 0.03,
+                                              color: musicData.mix
+                                                  ? main_color
+                                                  : Colors.grey),
+                                        ))
                                   ],
                                 )),
                             Expanded(
@@ -326,50 +305,69 @@ class PlayerPageState extends State<PlayerPage> {
                                               MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
                                             GestureDetector(
-                                              onTap:
-                                                  musicData.currentSong != null
-                                                      ? () => _getSongText(
-                                                          musicData.currentSong)
-                                                      : null,
-                                              child: Icon(
-                                                  SFSymbols.ellipses_bubble,
-                                                  size: screenHeight * 0.025,
-                                                  color: Colors.grey),
-                                            ),
-                                            SliderTheme(
-                                              data: SliderTheme.of(context)
-                                                  .copyWith(
-                                                activeTrackColor: Colors.white
-                                                    .withOpacity(0.6),
-                                                inactiveTrackColor:
-                                                    Color.fromRGBO(
-                                                        100, 100, 100, 0.6),
-                                                trackHeight: 3.0,
-                                                thumbColor: Colors.white
-                                                    .withOpacity(0.6),
-                                                thumbShape:
-                                                    RoundSliderThumbShape(
-                                                        enabledThumbRadius:
-                                                            4.0),
-                                                overlayColor:
-                                                    Colors.red.withAlpha(12),
-                                                overlayShape:
-                                                    RoundSliderOverlayShape(
-                                                        overlayRadius: 17.0),
-                                              ),
-                                              child: Slider(
-                                                onChanged: (value) {},
-                                                onChangeEnd:
-                                                    musicData.updateVolume,
-                                                value: musicData.volume !=
-                                                            null &&
-                                                        musicData.volume >
-                                                            0.0 &&
-                                                        musicData.volume <= 1.0
-                                                    ? musicData.volume
-                                                    : 0,
-                                              ),
-                                            ),
+                                                onTap: musicData.currentSong !=
+                                                        null
+                                                    ? () => _getSongText(
+                                                        musicData.currentSong)
+                                                    : null,
+                                                child: Container(
+                                                  color: Colors.transparent,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.12,
+                                                  height: screenHeight * 0.05,
+                                                  child: Icon(
+                                                      SFSymbols.ellipses_bubble,
+                                                      size:
+                                                          screenHeight * 0.025,
+                                                      color: Colors.grey),
+                                                )),
+                                            Expanded(
+                                                child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 40),
+                                                    child: SliderTheme(
+                                                      data: SliderTheme.of(
+                                                              context)
+                                                          .copyWith(
+                                                        activeTrackColor: Colors
+                                                            .white
+                                                            .withOpacity(0.6),
+                                                        inactiveTrackColor:
+                                                            Color.fromRGBO(100,
+                                                                100, 100, 0.6),
+                                                        trackHeight: 3.0,
+                                                        thumbColor: Colors.white
+                                                            .withOpacity(0.6),
+                                                        thumbShape:
+                                                            RoundSliderThumbShape(
+                                                                enabledThumbRadius:
+                                                                    4.0),
+                                                        overlayColor: Colors.red
+                                                            .withAlpha(12),
+                                                        overlayShape:
+                                                            RoundSliderOverlayShape(
+                                                                overlayRadius:
+                                                                    17.0),
+                                                      ),
+                                                      child: Slider(
+                                                        onChanged: (value) {},
+                                                        onChangeEnd: musicData
+                                                            .updateVolume,
+                                                        value: musicData.volume !=
+                                                                    null &&
+                                                                musicData
+                                                                        .volume >
+                                                                    0.0 &&
+                                                                musicData
+                                                                        .volume <=
+                                                                    1.0
+                                                            ? musicData.volume
+                                                            : 0,
+                                                      ),
+                                                    ))),
                                             GestureDetector(
                                                 onTap: musicData.currentSong !=
                                                         null
@@ -379,12 +377,20 @@ class PlayerPageState extends State<PlayerPage> {
                                                         musicData.currentSong
                                                             .song_id)
                                                     : null,
-                                                child: SvgPicture.asset(
-                                                    'assets/svg/add_to_playlist.svg',
-                                                    color: Colors.grey,
-                                                    height: screenHeight * 0.02,
+                                                child: Container(
+                                                    color: Colors.transparent,
+                                                    padding: EdgeInsets.all(11),
                                                     width:
-                                                        screenHeight * 0.02)),
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.12,
+                                                    height: screenHeight * 0.05,
+                                                    child: SvgPicture.asset(
+                                                        'assets/svg/add_to_playlist.svg',
+                                                        color: Colors.grey,
+                                                        height: 10,
+                                                        width: 1))),
                                           ],
                                         ))))
                           ]),

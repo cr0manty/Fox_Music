@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/utils/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
@@ -268,9 +269,9 @@ class MusicListPageState extends State<MusicListPage>
           actionPane: SlidableDrawerActionPane(),
           actionExtentRatio: 0.25,
           child: Container(
-              height: 72,
-              child: ListTile(
-                contentPadding: EdgeInsets.only(left: 30, right: 20),
+              height: 60,
+              child: TileList(
+                padding: EdgeInsets.only(left: 30, right: 20),
                 title: Text(song.title,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(song.artist,
@@ -284,21 +285,7 @@ class MusicListPageState extends State<MusicListPage>
                   } else {
                     await musicData.playerPlay(song);
                   }
-                  Navigator.of(context, rootNavigator: true)
-                      .push(PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        ChangeNotifierProvider<MusicData>.value(
-                            value: musicData, child: PlayerPage()),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position: animation.drive(
-                            Tween(begin: Offset(0.0, 1.0), end: Offset.zero)
-                                .chain(CurveTween(curve: Curves.ease))),
-                        child: child,
-                      );
-                    },
-                  ));
+
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
@@ -331,7 +318,7 @@ class MusicListPageState extends State<MusicListPage>
       ]),
       musicData.isPlaying(song.song_id)
           ? Container(
-              height: 72,
+              height: 60,
               width: 3,
               decoration: BoxDecoration(color: Colors.white),
             )

@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:fox_music/functions/save/last_tab.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/ui/Account/login.dart';
+import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
+import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
@@ -73,29 +74,13 @@ class MainPageState extends State<MainPage> {
                 musicData,
                 accountData,
                 downloadData,
-                accountData.user != null ? AccountPage() : LoginPage()));
+                accountData.user != null ? AccountPage() : SignIn()));
         break;
     }
 
     return Stack(
       children: <Widget>[page, _buildPlayer(musicData)],
     );
-  }
-
-  void _openPlayer(MusicData musicData) {
-    Navigator.of(context).push(PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          ChangeNotifierProvider<MusicData>.value(
-              value: musicData, child: PlayerPage()),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: animation.drive(
-              Tween(begin: Offset(0.0, 1.0), end: Offset.zero)
-                  .chain(CurveTween(curve: Curves.ease))),
-          child: child,
-        );
-      },
-    ));
   }
 
   Widget _buildPlayer(MusicData musicData) {
@@ -106,8 +91,14 @@ class MainPageState extends State<MainPage> {
             right: 0,
             child: SafeArea(
                 child: SwipeDetector(
-                    onTap: () => _openPlayer(musicData),
-                    onSwipeUp: () => _openPlayer(musicData),
+                    onTap: () => Navigator.of(context, rootNavigator: true)
+                        .push(BottomRoute(
+                            page: ChangeNotifierProvider<MusicData>.value(
+                                value: musicData, child: PlayerPage()))),
+                    onSwipeUp: () => Navigator.of(context, rootNavigator: true)
+                        .push(BottomRoute(
+                            page: ChangeNotifierProvider<MusicData>.value(
+                                value: musicData, child: PlayerPage()))),
                     onSwipeDown: () {
                       musicData.playerStop();
                       setState(() {
@@ -121,7 +112,8 @@ class MainPageState extends State<MainPage> {
                             child: Container(
                                 decoration: BoxDecoration(
                                     color: Colors.black26.withOpacity(0.3)),
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 4),
                                 alignment: Alignment.bottomCenter,
                                 child: Row(
                                   children: <Widget>[
@@ -148,8 +140,14 @@ class MainPageState extends State<MainPage> {
                                     GestureDetector(
                                       child: Container(
                                           color: Colors.transparent,
-                                          height: MediaQuery.of(context).size.width * 0.12,
-                                          width: MediaQuery.of(context).size.width * 0.12,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.12,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.12,
                                           child: Icon(
                                             musicData.playerState ==
                                                     AudioPlayerState.PLAYING
@@ -166,8 +164,14 @@ class MainPageState extends State<MainPage> {
                                     GestureDetector(
                                       child: Container(
                                           color: Colors.transparent,
-                                          height: MediaQuery.of(context).size.width * 0.12,
-                                          width: MediaQuery.of(context).size.width * 0.12,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.12,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.12,
                                           child: Icon(
                                             SFSymbols.forward_fill,
                                             size: 20,

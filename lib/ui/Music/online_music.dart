@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/utils/hex_color.dart';
+import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -30,46 +32,20 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   bool init = true;
   Song playedSong;
   List<Song> dataSongSorted = [];
+  bool isEmptySearch = true;
 
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    if (init) dataSongSorted = downloadData.dataSong;
+    if (isEmptySearch) dataSongSorted = downloadData.dataSong;
 
     return Material(
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-                actionsForegroundColor: main_color,
-                middle: Text('Music'),
-                trailing:
-                    accountData.user != null && accountData.user.can_use_vk
-                        ? IconButton(
-                            icon: Icon(Icons.refresh),
-                            onPressed: () async {
-                              try {
-                                final listNewSong = await musicListPost();
-                                if (listNewSong != null) {
-                                  infoDialog(
-                                      _scaffoldKey.currentContext,
-                                      "New songs",
-                                      "${listNewSong['added']} new songs.\n${listNewSong['updated']} updated songs.");
-                                } else {
-                                  infoDialog(
-                                      _scaffoldKey.currentContext,
-                                      "Something went wrong",
-                                      "Unable to get Music List.");
-                                }
-                              } catch (e) {
-                                print(e);
-                              } finally {
-                                downloadData.loadMusic();
-                              }
-                            },
-                          )
-                        : null),
+                actionsForegroundColor: main_color, middle: Text('Music')),
             child: _buildBody(accountData, downloadData, musicData)));
   }
 
@@ -79,8 +55,12 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             (accountData.user.can_use_vk || accountData.user.is_staff)
         ? SafeArea(
             child: CustomScrollView(slivers: <Widget>[
-            CupertinoSliverRefreshControl(
-                onRefresh: () => downloadData.loadMusic()),
+            CupertinoSliverRefreshControl(onRefresh: () async {
+              await downloadData.loadMusic();
+              setState(() {
+                dataSongSorted = downloadData.dataSong;
+              });
+            }),
             SliverList(
                 delegate: SliverChildListDelegate(List.generate(
                     dataSongSorted.length + 1,
@@ -89,49 +69,35 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
           ]))
         : Center(
             child: Container(
-            alignment: Alignment.center,
-            margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height * 0.2),
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Stack(children: <Widget>[
-              Padding(
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height * 0.2),
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Padding(
                   padding: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.2),
                   child: Text(
                     'In order to listen, you have to allow access to your account details',
                     style: TextStyle(color: Colors.grey, fontSize: 20),
                     textAlign: TextAlign.center,
-                  )),
-              Center(
-                  child: CupertinoButton(
-                child: Text(
-                  'Submit',
-                  style: TextStyle(color: Colors.white),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-                color: main_color,
-                onPressed: () {
-                  Navigator.of(_scaffoldKey.currentContext).push(
-                      CupertinoPageRoute(
-                          builder: (context) =>
-                              ChangeNotifierProvider<AccountData>.value(
-                                  value: accountData,
-                                  child: VKAuthPage(accountData))));
-                },
-              )),
-            ]),
-          ));
+                  ),
+                )));
   }
 
   void _filterSongs(MusicDownloadData downloadData, String value) {
-    String newValue = value.toLowerCase();
-    setState(() {
-      dataSongSorted = downloadData.dataSong
-          .where((song) =>
-              song.artist.toLowerCase().contains(newValue) ||
-              song.title.toLowerCase().contains(newValue))
-          .toList();
-    });
+    if (value.isNotEmpty) {
+      String newValue = value.toLowerCase();
+      setState(() {
+        isEmptySearch = false;
+        dataSongSorted = downloadData.dataSong
+            .where((song) =>
+                song.artist.toLowerCase().contains(newValue) ||
+                song.title.toLowerCase().contains(newValue))
+            .toList();
+      });
+    } else {
+      isEmptySearch = false;
+    }
   }
 
   _buildSongListTile(
@@ -155,9 +121,9 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
           actionPane: SlidableDrawerActionPane(),
           actionExtentRatio: 0.25,
           child: Container(
-              height: 72,
-              child: ListTile(
-                contentPadding: EdgeInsets.only(left: 30, right: 20),
+              height: 60,
+              child: TileList(
+                padding: EdgeInsets.only(left: 30, right: 20),
                 title: Text(song.title,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(song.artist,
@@ -189,13 +155,11 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               color: main_color,
               child: Icon(SFSymbols.trash, color: Colors.white),
               onTap: () async {
-                bool isDeleted = await hideMusic(song.song_id);
-                if (isDeleted) {
-                  setState(() {
-                    downloadData.dataSong.removeAt(index);
-                    dataSongSorted = downloadData.dataSong;
-                  });
-                }
+                hideMusic(song.song_id);
+                setState(() {
+                  downloadData.dataSong.remove(song);
+                  dataSongSorted = downloadData.dataSong;
+                });
               },
             ),
           ],
@@ -206,15 +170,17 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       ]),
       downloadData.currentSong == song
           ? Container(
-              height: 72,
+              height: 60,
               width: MediaQuery.of(context).size.width * downloadData.progress,
               decoration: BoxDecoration(color: main_color.withOpacity(0.2)),
             )
           : downloadData.inQuery(song)
               ? Container(
-                  height: 72,
-                  width: 3,
-                  decoration: BoxDecoration(color: Colors.grey),
+                  height: 60,
+                  width: 4,
+                  alignment: Alignment.centerRight,
+                  decoration:
+                      BoxDecoration(color: Colors.orange.withOpacity(0.5)),
                 )
               : Container(),
     ]);

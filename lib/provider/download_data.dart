@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
+import 'package:fox_music/provider/music_data.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,7 @@ class MusicDownloadData with ChangeNotifier {
   StreamSubscription _downloadSubscription;
   StreamSubscription _queryChange;
   StreamSubscription _stateChange;
+  MusicData _musicData;
 
   final StreamController<DownloadState> _resultController =
       StreamController<DownloadState>.broadcast();
@@ -47,7 +49,8 @@ class MusicDownloadData with ChangeNotifier {
     _downloadState = DownloadState.COMPLETED;
   }
 
-  init() {
+  init(MusicData musicData) {
+    _musicData = musicData;
     loadMusic();
 
     _queryChange = onQueryChanged.listen((Song song) {
@@ -149,6 +152,8 @@ class MusicDownloadData with ChangeNotifier {
     try {
       File file = await _songExist(song);
       if (file != null) await file.writeAsBytes(bytes);
+
+      _musicData.localSongs.add(song);
       return true;
     } catch (e) {
       print(e);
@@ -161,7 +166,10 @@ class MusicDownloadData with ChangeNotifier {
     String filename = await formatFileName(song);
     File file = new File('$dir/songs/$filename');
 
-    if (!(await file.exists())) return file;
+    if (!await file.exists()) {
+      song.path = filename;
+      return file;
+    }
     _state = DownloadState.EXIST;
     return null;
   }

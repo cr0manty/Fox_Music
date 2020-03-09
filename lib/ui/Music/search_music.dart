@@ -18,6 +18,7 @@ class SearchMusicPage extends StatefulWidget {
 
 class SearchMusicPageState extends State<SearchMusicPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  int addAmount = 0;
   List<Song> _songList = [];
 
   @override
@@ -28,8 +29,9 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           actionsForegroundColor: main_color,
-          middle: Text('Music Search'),
           previousPageTitle: 'Back',
+                    middle: Text('Music Search'),
+
         ),
         child: Material(
             color: Colors.transparent,
@@ -37,7 +39,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                 child: ListView.builder(
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
-              itemCount:  _songList.isEmpty ? 2 : _songList.length + 1,
+              itemCount: _songList.isEmpty ? 2 : _songList.length + 1,
               itemBuilder: (context, index) =>
                   _buildSongListTile(downloadData, index),
             ))));
@@ -96,6 +98,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     } else if (isAdded) {
                       setState(() {
                         song.in_my_list = 1;
+                        downloadData.dataSong.insert(addAmount++, song);
                       });
                     }
                   },
@@ -112,6 +115,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     if (isDeleted) {
                       setState(() {
                         song.in_my_list = 0;
+                        downloadData.dataSong.remove(song);
                       });
                     }
                   },

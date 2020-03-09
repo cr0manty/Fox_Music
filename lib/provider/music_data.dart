@@ -298,7 +298,7 @@ class MusicData with ChangeNotifier {
 
   @override
   void dispose() {
-    audioPlayer.stop();
+    audioPlayer?.stop();
     _positionSubscription?.cancel();
     _playerCompleteSubscription?.cancel();
     _durationSubscription?.cancel();

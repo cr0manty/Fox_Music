@@ -29,10 +29,13 @@ class PlaylistPageState extends State<PlaylistPage> {
     });
   }
 
+  _updatePlaylistList(MusicData musicData) async {}
+
   _renamePlaylist(Playlist playlist, String playlistName) async {
-    playlist.title = playlistName;
-    await DBProvider.db.updatePlaylist(playlist);
-    setState(() {});
+    setState(() {
+      playlist.title = playlistName;
+    });
+    DBProvider.db.updatePlaylist(playlist);
   }
 
   _loadPlaylist() async {
@@ -102,7 +105,8 @@ class PlaylistPageState extends State<PlaylistPage> {
 
   @override
   Widget build(BuildContext context) {
-    final sharedData = Provider.of<MusicData>(context);
+    MusicData musicData = Provider.of<MusicData>(context);
+
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
@@ -118,21 +122,25 @@ class PlaylistPageState extends State<PlaylistPage> {
                 onTap: () => _playlistDialog())),
         child: Material(
             color: Colors.transparent,
-            child: _playlistList.length > 0
-                ? ListView.builder(
-                    itemCount: _playlistList.length,
-                    physics: ScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) =>
-                        _buildPlaylistList(sharedData, index),
-                  )
-                : SafeArea(
-                    child: Center(
-                        child: Text(
-                    'You have no playlists yet',
-                    style: TextStyle(color: Colors.grey, fontSize: 20),
-                    textAlign: TextAlign.center,
-                  )))));
+            child: SafeArea(
+                child: CustomScrollView(slivers: <Widget>[
+              CupertinoSliverRefreshControl(
+                onRefresh: () => _updatePlaylistList(musicData),
+              ),
+              _playlistList.length > 0
+                  ? SliverList(
+                      delegate: SliverChildListDelegate(List.generate(
+                      _playlistList.length,
+                      (index) => _buildPlaylistList(musicData, index),
+                    )))
+                  : SliverToBoxAdapter(
+                      child: Center(
+                          child: Text(
+                      'You have no playlists yet',
+                      style: TextStyle(color: Colors.grey, fontSize: 20),
+                      textAlign: TextAlign.center,
+                    )))
+            ]))));
   }
 
   _setImage(Playlist playlist, File image) async {

@@ -250,12 +250,14 @@ class AccountEditPageState extends State<AccountEditPage> {
                           height: 150,
                           width: 150,
                           color: Colors.black54,
-                              child: Icon(CupertinoIcons.photo_camera, color: Colors.white,size: 75),
+                          child: Icon(CupertinoIcons.photo_camera,
+                              color: Colors.white, size: 75),
                         )),
                       ]),
                     )),
                 Divider(height: 10),
                 ModalProgressHUD(
+                    progressIndicator: CupertinoActivityIndicator(radius: 20),
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(16.0),
                       child: Form(

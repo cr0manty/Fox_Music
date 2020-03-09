@@ -99,7 +99,7 @@ class AccountPageState extends State<AccountPage> {
                 height: 22,
                 width: 22),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
+              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true).push(CupertinoPageRoute(
                   builder: (context) => MultiProvider(providers: [
                         ChangeNotifierProvider<MusicDownloadData>.value(
                             value: downloadData),
@@ -119,7 +119,7 @@ class AccountPageState extends State<AccountPage> {
                 height: 22,
                 width: 22),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext).push(CupertinoPageRoute(
+              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true).push(CupertinoPageRoute(
                   builder: (context) => MultiProvider(providers: [
                         ChangeNotifierProvider<MusicDownloadData>.value(
                             value: downloadData),
