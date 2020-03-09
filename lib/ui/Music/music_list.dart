@@ -12,7 +12,6 @@ import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/music_data.dart';
-import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -40,13 +39,23 @@ class MusicListPageState extends State<MusicListPage>
 
   _addTrackToPlaylistDialog() {}
 
+  void _updateMusicList(MusicData musicData) {
+    if (init) {
+      musicData.playlistUpdate = true;
+    }
+    if (widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) {
+      _loadPlaylist(musicData, null);
+      musicData.playlistUpdate = false;
+    } else if (widget._pageType == PageType.SAVED && musicData.localUpdate) {
+      _loadPlaylist(musicData, null);
+      musicData.localUpdate = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
-    if (init) {
-      init = false;
-      _loadPlaylist(musicData, null);
-    }
+    _updateMusicList(musicData);
 
     return Material(
         child: CupertinoPageScaffold(
@@ -240,14 +249,14 @@ class MusicListPageState extends State<MusicListPage>
     List<Widget> actions = [];
     if (widget._pageType == PageType.SAVED) {
       actions.add(SlideAction(
-        color: main_color,
+        color: HexColor('#604d9e'),
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
-        onTap: () => showPickerDialog(context, _playlistList, song.song_id),
+        onTap: () => showPickerDialog(context, musicData, _playlistList, song.song_id),
       ));
     }
     actions.add(SlideAction(
-      color: second_color,
+      color: HexColor('#6d7f1f'),
       child: Icon(SFSymbols.pencil, color: Colors.white),
       onTap: () => _renameSongDialog(musicData, song),
     ));
@@ -279,13 +288,16 @@ class MusicListPageState extends State<MusicListPage>
                 onTap: () async {
                   _loadPlaylist(musicData, song);
 
+                  setState(() {
+                    musicData.isLocal = true;
+                  });
+
                   if (musicData.currentSong != null &&
                       musicData.currentSong.song_id == song.song_id) {
                     await musicData.playerResume();
                   } else {
                     await musicData.playerPlay(song);
                   }
-
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
@@ -293,7 +305,7 @@ class MusicListPageState extends State<MusicListPage>
           actions: _actionsPane(musicData, song),
           secondaryActions: <Widget>[
             SlideAction(
-              color: second_color,
+              color: HexColor('#fdac07'),
               child: Icon(
                 CupertinoIcons.share_up,
                 color: Colors.white,

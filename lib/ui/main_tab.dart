@@ -17,6 +17,7 @@ import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/ui/Account/account.dart';
 import 'package:fox_music/ui/Music/online_music.dart';
 import 'package:fox_music/utils/swipe_detector.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
 
 class MainPage extends StatefulWidget {
   final int lastIndex;
@@ -29,10 +30,16 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   int currentIndex = 0;
+  bool keyboardActive = false;
 
   @override
   void initState() {
     currentIndex = widget.lastIndex;
+    KeyboardVisibilityNotification().addNewListener(
+      onChange: (bool visible) {
+        keyboardActive = visible;
+      },
+    );
     super.initState();
   }
 
@@ -84,7 +91,7 @@ class MainPageState extends State<MainPage> {
   }
 
   Widget _buildPlayer(MusicData musicData) {
-    return musicData.currentSong != null
+    return musicData.currentSong != null && !keyboardActive
         ? Positioned(
             bottom: 0,
             left: 0,
@@ -113,7 +120,7 @@ class MainPageState extends State<MainPage> {
                                 decoration: BoxDecoration(
                                     color: Colors.black26.withOpacity(0.3)),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 4),
+                                    horizontal: 16, vertical: 8),
                                 alignment: Alignment.bottomCenter,
                                 child: Row(
                                   children: <Widget>[

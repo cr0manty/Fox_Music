@@ -311,23 +311,19 @@ class PlayerPageState extends State<PlayerPage> {
                                                         musicData.currentSong)
                                                     : null,
                                                 child: Container(
-                                                  color: Colors.transparent,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.12,
-                                                  height: screenHeight * 0.05,
-                                                  child: Icon(
-                                                      SFSymbols.ellipses_bubble,
-                                                      size:
-                                                          screenHeight * 0.025,
-                                                      color: Colors.grey),
-                                                )),
+                                                    color: Colors.transparent,
+                                                    padding: EdgeInsets.all(11),
+                                                    width:
+                                                       45,
+                                                    height: 45,
+                                                    child: SvgPicture.asset(
+                                                        'assets/svg/lyrics.svg',
+                                                        color: Colors.grey))),
                                             Expanded(
                                                 child: Container(
                                                     margin:
                                                         EdgeInsets.symmetric(
-                                                            horizontal: 40),
+                                                            horizontal: 20),
                                                     child: SliderTheme(
                                                       data: SliderTheme.of(
                                                               context)
@@ -373,6 +369,7 @@ class PlayerPageState extends State<PlayerPage> {
                                                         null
                                                     ? () => showPickerDialog(
                                                         context,
+                                                        musicData,
                                                         _playlistList,
                                                         musicData.currentSong
                                                             .song_id)
@@ -380,17 +377,11 @@ class PlayerPageState extends State<PlayerPage> {
                                                 child: Container(
                                                     color: Colors.transparent,
                                                     padding: EdgeInsets.all(11),
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.12,
-                                                    height: screenHeight * 0.05,
+                                                    width:45,
+                                                    height: 45,
                                                     child: SvgPicture.asset(
                                                         'assets/svg/add_to_playlist.svg',
-                                                        color: Colors.grey,
-                                                        height: 10,
-                                                        width: 1))),
+                                                        color: Colors.grey))),
                                           ],
                                         ))))
                           ]),

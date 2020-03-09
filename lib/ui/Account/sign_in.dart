@@ -26,6 +26,8 @@ class SignInState extends State<SignIn> {
   String _password = "";
   bool _obscureText = true;
   bool _disabled = false;
+  bool freeSpace = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +39,9 @@ class SignInState extends State<SignIn> {
         child: ModalProgressHUD(
             progressIndicator: CupertinoActivityIndicator(radius: 20),
             child: SafeArea(
-                child: SingleChildScrollView(
+                child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
+              child: ListView(
                 children: <Widget>[
                   Center(
                       child: Container(
@@ -51,6 +52,10 @@ class SignInState extends State<SignIn> {
                                       'assets/images/app-logo.png'))))),
                   _buildForm(),
                   _buildButtons(accountData, downloadData),
+                  freeSpace
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.1)
+                      : Container()
                 ],
               ),
             )),

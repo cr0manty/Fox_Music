@@ -26,8 +26,6 @@ class OnlineMusicListPage extends StatefulWidget {
 
 class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  GlobalKey<RefreshIndicatorState> _refreshKey =
-      new GlobalKey<RefreshIndicatorState>();
   StreamSubscription _playerNotifyState;
   bool init = true;
   Song playedSong;
@@ -77,7 +75,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                   padding: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.2),
                   child: Text(
-                    'In order to listen, you have to allow access to your account details',
+                    'To listen you have to sign up or log in',
                     style: TextStyle(color: Colors.grey, fontSize: 20),
                     textAlign: TextAlign.center,
                   ),
@@ -123,33 +121,46 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
           child: Container(
               height: 60,
               child: TileList(
+                leading: GestureDetector(
+                  onTap: downloadData.inQuery(song)
+                      ? null
+                      : () async {
+                          if (downloadData.inQuery(song)) {
+                            if (downloadData.currentSong == song) {
+                              showSnackBar(
+                                  context, 'Unable to remove from queue',
+                                  seconds: 3);
+                            } else {
+                              downloadData.deleteFromQuery(song);
+                            }
+                          } else {
+                            downloadData.query = song;
+                          }
+                          setState(() {});
+                        },
+                  child: Icon(SFSymbols.cloud_download,
+                      color: downloadData.inQuery(song)
+                          ? main_color
+                          : Colors.grey),
+                ),
                 padding: EdgeInsets.only(left: 30, right: 20),
                 title: Text(song.title,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-                onTap: () {},
+                onTap: () async {
+                  musicData.setPlaylistSongs(dataSongSorted, song,
+                      local: false);
+                  if (musicData.currentSong != null &&
+                      musicData.currentSong.song_id == song.song_id) {
+                    await musicData.playerResume();
+                  } else {
+                    await musicData.playerPlay(song);
+                  }
+                },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
-          actions: <Widget>[
-            SlideAction(
-              color: Colors.deepPurple,
-              child: Icon(SFSymbols.arrow_down, color: Colors.white),
-              onTap: () async {
-                if (downloadData.inQuery(song)) {
-                  if (downloadData.currentSong == song) {
-                    showSnackBar(context, 'Unable to remove from queue',
-                        seconds: 3);
-                  } else {
-                    downloadData.deleteFromQuery(song);
-                  }
-                } else {
-                  downloadData.query = song;
-                }
-              },
-            )
-          ],
           secondaryActions: <Widget>[
             SlideAction(
               color: main_color,
@@ -174,15 +185,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               width: MediaQuery.of(context).size.width * downloadData.progress,
               decoration: BoxDecoration(color: main_color.withOpacity(0.2)),
             )
-          : downloadData.inQuery(song)
-              ? Container(
-                  height: 60,
-                  width: 4,
-                  alignment: Alignment.centerRight,
-                  decoration:
-                      BoxDecoration(color: Colors.orange.withOpacity(0.5)),
-                )
-              : Container(),
+          : Container(),
     ]);
   }
 

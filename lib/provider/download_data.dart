@@ -24,7 +24,7 @@ class MusicDownloadData with ChangeNotifier {
   StreamSubscription _downloadSubscription;
   StreamSubscription _queryChange;
   StreamSubscription _stateChange;
-  MusicData _musicData;
+  MusicData musicData;
 
   final StreamController<DownloadState> _resultController =
       StreamController<DownloadState>.broadcast();
@@ -37,20 +37,22 @@ class MusicDownloadData with ChangeNotifier {
 
   set query(Song song) {
     _queryController.add(song);
+    notifyListeners();
   }
 
   set multiQuery(List<Song> songList) {
     songList.forEach((Song song) {
       _queryController.add(song);
     });
+    notifyListeners();
   }
 
   MusicDownloadData() {
     _downloadState = DownloadState.COMPLETED;
   }
 
-  init(MusicData musicData) {
-    _musicData = musicData;
+  init(MusicData data) {
+    musicData = data;
     loadMusic();
 
     _queryChange = onQueryChanged.listen((Song song) {
@@ -149,14 +151,13 @@ class MusicDownloadData with ChangeNotifier {
   downloadMulti(BuildContext context, List<Song> songList) async {}
 
   saveSong(Song song, Uint8List bytes) async {
-    try {
-      File file = await _songExist(song);
-      if (file != null) await file.writeAsBytes(bytes);
+    File file = await _songExist(song);
+    if (file != null) {
+      await file.writeAsBytes(bytes);
 
-      _musicData.localSongs.add(song);
+      musicData.loadSavedMusic();
+      musicData.localUpdate = true;
       return true;
-    } catch (e) {
-      print(e);
     }
     return false;
   }
@@ -166,10 +167,7 @@ class MusicDownloadData with ChangeNotifier {
     String filename = await formatFileName(song);
     File file = new File('$dir/songs/$filename');
 
-    if (!await file.exists()) {
-      song.path = filename;
-      return file;
-    }
+    if (!await file.exists()) return file;
     _state = DownloadState.EXIST;
     return null;
   }

@@ -77,7 +77,7 @@ class AppleSearchState extends State<AppleSearch> {
                   alignment: Alignment.centerRight,
                   margin: EdgeInsets.all(16),
                   child: Text(
-                    'Cansel',
+                    'Cancel',
                     style: TextStyle(
                         color: main_color,
                         fontSize: 17,

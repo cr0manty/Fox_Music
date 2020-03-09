@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/models/song.dart';
 import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/utils/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:provider/provider.dart';
@@ -29,8 +29,6 @@ class PlaylistPageState extends State<PlaylistPage> {
     });
   }
 
-  _updatePlaylistList(MusicData musicData) async {}
-
   _renamePlaylist(Playlist playlist, String playlistName) async {
     setState(() {
       playlist.title = playlistName;
@@ -52,7 +50,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     _loadPlaylist();
   }
 
-  _playlistDialog({Playlist playlist}) async {
+  _playlistDialog(MusicData musicData, {Playlist playlist}) async {
     final TextEditingController playlistName = new TextEditingController();
 
     if (playlist != null) {
@@ -89,6 +87,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 isDefaultAction: true,
                 child: Text(playlist == null ? 'Create' : 'Rename'),
                 onPressed: () {
+                  musicData.playlistUpdate = true;
                   if (playlistName.text.isNotEmpty) {
                     if (playlist != null)
                       _renamePlaylist(playlist, playlistName.text);
@@ -106,6 +105,10 @@ class PlaylistPageState extends State<PlaylistPage> {
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
+    if (musicData.playlistPageUpdate) {
+      _loadPlaylist();
+      musicData.playlistPageUpdate = false;
+    }
 
     return CupertinoPageScaffold(
         key: _scaffoldKey,
@@ -119,28 +122,37 @@ class PlaylistPageState extends State<PlaylistPage> {
                   color: Colors.white,
                   size: 25,
                 ),
-                onTap: () => _playlistDialog())),
+                onTap: () => _playlistDialog(musicData))),
         child: Material(
             color: Colors.transparent,
             child: SafeArea(
-                child: CustomScrollView(slivers: <Widget>[
-              CupertinoSliverRefreshControl(
-                onRefresh: () => _updatePlaylistList(musicData),
-              ),
-              _playlistList.length > 0
-                  ? SliverList(
-                      delegate: SliverChildListDelegate(List.generate(
-                      _playlistList.length,
-                      (index) => _buildPlaylistList(musicData, index),
-                    )))
-                  : SliverToBoxAdapter(
-                      child: Center(
-                          child: Text(
-                      'You have no playlists yet',
-                      style: TextStyle(color: Colors.grey, fontSize: 20),
-                      textAlign: TextAlign.center,
-                    )))
-            ]))));
+                child: _playlistList.length > 0
+                    ? ReorderableListView(
+                        scrollDirection: Axis.vertical,
+                        onReorder: (oldIndex, newIndex) {
+                          setState(
+                            () {
+                              if (newIndex > oldIndex) {
+                                newIndex -= 1;
+                              }
+                              final Playlist item =
+                                  _playlistList.removeAt(oldIndex);
+                              _playlistList.insert(newIndex, item);
+                            },
+                          );
+                        },
+                        children: List.generate(
+                          _playlistList.length,
+                          (index) => _buildPlaylistList(musicData, index),
+                        ))
+                    : Container(
+                        padding: EdgeInsets.only(top: 30),
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          'You have no playlists yet',
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        )))));
   }
 
   _setImage(Playlist playlist, File image) async {
@@ -157,7 +169,7 @@ class PlaylistPageState extends State<PlaylistPage> {
       File file = File(playlist.image);
       if (file.existsSync()) {
         return CircleAvatar(
-            radius: 25,
+            radius: 22,
             backgroundColor: Colors.grey,
             backgroundImage: Image.file(file).image);
       } else {
@@ -166,7 +178,7 @@ class PlaylistPageState extends State<PlaylistPage> {
       }
     }
     return CircleAvatar(
-        radius: 25,
+        radius: 22,
         child: Text(
           playlist.title[0].toUpperCase(),
           style: TextStyle(color: Colors.white, fontSize: 20),
@@ -174,100 +186,115 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: main_color);
   }
 
-  _buildPlaylistList(MusicData data, int index) {
+  _buildPlaylistList(MusicData musicData, int index) {
     Playlist playlist = _playlistList[index];
 
-    return Column(children: [
-      Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: Container(
-            child: ListTile(
-                title: Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 20, left: 7),
-                    child: Text(playlist.title,
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Color.fromRGBO(200, 200, 200, 1)))),
-                onTap: () async {
-                  Navigator.of(_scaffoldKey.currentContext).push(
-                      CupertinoPageRoute(
-                          builder: (context) =>
-                              ChangeNotifierProvider<MusicData>.value(
-                                  value: data,
-                                  child: MusicListPage(playlist: playlist))));
+    return Column(
+        key: Key('$index'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Slidable(
+            actionPane: SlidableDrawerActionPane(),
+            actionExtentRatio: 0.25,
+            child: Container(
+                child: TileList(
+              padding: EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
+              title: Text(playlist.title,
+                  style: TextStyle(
+                      fontSize: 18, color: Color.fromRGBO(200, 200, 200, 1))),
+              subtitle: Text('${playlist.songsAmount} songs',
+                  style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+              onTap: () async {
+                Navigator.of(_scaffoldKey.currentContext).push(
+                    CupertinoPageRoute(
+                        builder: (context) =>
+                            ChangeNotifierProvider<MusicData>.value(
+                                value: musicData,
+                                child: MusicListPage(playlist: playlist))));
+              },
+              leading: _showImage(playlist),
+              trailing: GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                      color: Colors.transparent,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      child: Icon(
+                        SFSymbols.shuffle,
+                        color: Colors.grey,
+                        size: 20,
+                      ))),
+            )),
+            actions: <Widget>[
+              SlideAction(
+                color: Colors.blue,
+                child: Icon(SFSymbols.play, color: Colors.white),
+                onTap: null,
+              ),
+              SlideAction(
+                color: second_color,
+                child: Icon(SFSymbols.pencil, color: Colors.white),
+                onTap: () => _playlistDialog(musicData, playlist: playlist),
+              ),
+            ],
+            secondaryActions: <Widget>[
+              SlideAction(
+                color: HexColor('#87479d'),
+                child: Icon(SFSymbols.photo, color: Colors.white),
+                onTap: () {
+                  FocusScope.of(_scaffoldKey.currentContext)
+                      .requestFocus(FocusNode());
+                  showCupertinoModalPopup(
+                      context: _scaffoldKey.currentContext,
+                      builder: (context) {
+                        return CupertinoActionSheet(
+                          actions: <Widget>[
+                            CupertinoActionSheetAction(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  File _image = await ImagePicker.pickImage(
+                                      source: ImageSource.camera);
+                                  _setImage(playlist, _image);
+                                },
+                                child: Text('Camera')),
+                            CupertinoActionSheetAction(
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  File _image = await ImagePicker.pickImage(
+                                      source: ImageSource.gallery);
+                                  _setImage(playlist, _image);
+                                },
+                                child: Text('Gallery')),
+                            CupertinoActionSheetAction(
+                                isDestructiveAction: true,
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                  await setState(() {
+                                    playlist.image = null;
+                                  });
+                                  await DBProvider.db.updatePlaylist(playlist);
+                                },
+                                child: Text('Delete'))
+                          ],
+                        );
+                      });
                 },
-                leading: _showImage(playlist))),
-        actions: <Widget>[
-          SlideAction(
-            color: Colors.blue,
-            child: Icon(SFSymbols.play, color: Colors.white),
-            onTap: null,
-          ),
-          SlideAction(
-            color: second_color,
-            child: Icon(SFSymbols.pencil, color: Colors.white),
-            onTap: () => _playlistDialog(playlist: playlist),
-          ),
-        ],
-        secondaryActions: <Widget>[
-          SlideAction(
-            color: Colors.pinkAccent,
-            child: Icon(SFSymbols.photo, color: Colors.white),
-            onTap: () {
-              FocusScope.of(_scaffoldKey.currentContext)
-                  .requestFocus(FocusNode());
-              showCupertinoModalPopup(
-                  context: _scaffoldKey.currentContext,
-                  builder: (context) {
-                    return CupertinoActionSheet(
-                      actions: <Widget>[
-                        CupertinoActionSheetAction(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              File _image = await ImagePicker.pickImage(
-                                  source: ImageSource.camera);
-                              _setImage(playlist, _image);
-                            },
-                            child: Text('Camera')),
-                        CupertinoActionSheetAction(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              File _image = await ImagePicker.pickImage(
-                                  source: ImageSource.gallery);
-                              _setImage(playlist, _image);
-                            },
-                            child: Text('Gallery')),
-                        CupertinoActionSheetAction(
-                            isDestructiveAction: true,
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              await setState(() {
-                                playlist.image = null;
-                              });
-                              await DBProvider.db.updatePlaylist(playlist);
-                            },
-                            child: Text('Delete'))
-                      ],
-                    );
+              ),
+              SlideAction(
+                color: main_color,
+                child: Icon(SFSymbols.trash, color: Colors.white),
+                onTap: () {
+                  setState(() {
+                    _playlistList.remove(playlist);
                   });
-            },
+                  DBProvider.db.deletePlaylist(playlist.id);
+                },
+              ),
+            ],
           ),
-          SlideAction(
-            color: main_color,
-            child: Icon(SFSymbols.trash, color: Colors.white),
-            onTap: () {
-              setState(() {
-                _playlistList.remove(playlist);
-              });
-              DBProvider.db.deletePlaylist(playlist.id);
-            },
-          ),
-        ],
-      ),
-      Padding(
-          padding: EdgeInsets.only(left: 12.0),
-          child: Divider(height: 1, color: Colors.grey))
-    ]);
+          Padding(
+              padding: EdgeInsets.only(left: 12.0),
+              child: Divider(height: 1, color: Colors.grey))
+        ]);
   }
 }

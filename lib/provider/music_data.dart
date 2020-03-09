@@ -9,7 +9,6 @@ import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
 import 'package:fox_music/functions/save/player_state.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/utils/database.dart';
 import 'package:media_metadata_plugin/media_metadata_plugin.dart';
 import 'package:random_string/random_string.dart';
 
@@ -19,12 +18,17 @@ class MusicData with ChangeNotifier {
   bool repeat = false;
   bool mix = false;
   bool initCC = false;
+  bool isLocal = true;
+
+  bool localUpdate = true;
+  bool playlistUpdate = true;
+  bool playlistPageUpdate = true;
+
   List<Song> withoutMix = [];
   List<Song> playlist = [];
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
   double volume = 1;
-
   Duration songPosition;
   Duration songDuration;
   var platform;
@@ -109,7 +113,8 @@ class MusicData with ChangeNotifier {
     }
   }
 
-  setPlaylistSongs(List<Song> songList, Song song) {
+  setPlaylistSongs(List<Song> songList, Song song, {bool local = true}) {
+    isLocal = local;
     if (songList != playlist) {
       playlist.clear();
       playlist.addAll(songList);
@@ -237,33 +242,50 @@ class MusicData with ChangeNotifier {
     return songDuration != null && songPosition != null;
   }
 
-  void playerPlay(Song song, {isLocal = true}) async {
-    await audioPlayer.play(song.path, isLocal: isLocal);
+  _stopAllPlayers() {
+    var players = AudioPlayer.players;
+
+    players.forEach((key, player) async {
+      await player.stop();
+    });
+  }
+
+  void playerPlay(Song song) async {
+    if (!isLocal && song.download.isNotEmpty) {
+      await _stopAllPlayers();
+      await audioPlayer.play(song.download, isLocal: isLocal);
+    } else if (isLocal) {
+      await _stopAllPlayers();
+      await audioPlayer.play(song.path, isLocal: isLocal);
+    } else {
+      playerPause();
+      return;
+    }
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
     initCC = true;
     notifyListeners();
   }
 
-  playerStop() async {
+  void playerStop() async {
     audioPlayer.stop();
     playerState = AudioPlayerState.STOPPED;
     notifyListeners();
   }
 
-  playerResume() async {
+  void playerResume() async {
     audioPlayer.resume();
     playerState = AudioPlayerState.PLAYING;
     notifyListeners();
   }
 
-  playerPause() async {
+  void playerPause() async {
     audioPlayer.pause();
     playerState = AudioPlayerState.PAUSED;
     notifyListeners();
   }
 
-  prev() {
+  void prev() {
     if (currentIndexPlaylist > 0)
       --currentIndexPlaylist;
     else
@@ -272,7 +294,7 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
-  next() {
+  void next() {
     if (currentIndexPlaylist < playlist.length - 1)
       ++currentIndexPlaylist;
     else
@@ -285,7 +307,7 @@ class MusicData with ChangeNotifier {
     return currentSong != null && currentSong.song_id == songId;
   }
 
-  seek({duration}) {
+  void seek({duration}) {
     if (currentSong != null) {
       int value = (duration != null && duration < 1
               ? durToInt(songDuration) * duration

@@ -9,7 +9,7 @@ import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_music36.db';
+  static const dbName = 'vk_musiс1.db';
 
   DBProvider._();
 
@@ -28,61 +28,14 @@ class DBProvider {
     String path = join(documentsDirectory.path, dbName);
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-      await db.execute("CREATE TABLE Song ("
-          "song_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-          "title TEXT,"
-          "artist TEXT,"
-          "duration INTEGER,"
-          "download TEXT,"
-          "path TEXT,"
-          "in_my_list INTEGER"
-          ")");
       await db.execute("CREATE TABLE Playlist ("
           "id INTEGER PRIMARY KEY,"
-          "title INTEGER,"
+          "title TEXT,"
           "image BLOB,"
-          "songList TEXT"
+          "songList TEXT,"
+          "songsAmount INTEGER"
           ")");
     });
-  }
-
-  newSong(Song song) async {
-    final db = await database;
-    var exist =
-        await db.query("Song", where: "song_id = ?", whereArgs: [song.song_id]);
-
-    if (exist.isEmpty) {
-      var res = await db.insert("Song", song.toJson());
-      return res;
-    }
-  }
-
-  songExist(Song song) async {
-    final db = await database;
-    var exist = await db.query("Song",
-        where: "title = ? and artist = ?",
-        whereArgs: [song.title, song.artist]);
-
-    return exist.isNotEmpty;
-  }
-
-  songNotExist(Song song) async {
-    bool result = await songExist(song);
-    return !result;
-  }
-
-  getPlaylistSongs(List<String> songIdList) async {
-    List<Song> songList = [];
-
-    await Future.wait(songIdList.map((String id) async {
-      if (id.isNotEmpty) {
-        int songId = await int.parse(id);
-        Song song = await getSong(songId);
-        if (song != null) songList.add(song);
-      }
-    }));
-
-    return songList;
   }
 
   newPlaylist(Playlist playlist) async {
@@ -92,24 +45,10 @@ class DBProvider {
     return res;
   }
 
-  getSong(int id) async {
-    final db = await database;
-    var res = await db.query("Song", where: "song_id = ?", whereArgs: [id]);
-    return res.isNotEmpty ? Song.fromJson(res.first) : null;
-  }
-
   getPlaylist(int id) async {
     final db = await database;
     var res = await db.query("Playlist", where: "id = ?", whereArgs: [id]);
     return res.isNotEmpty ? Playlist.fromJson(res.first) : null;
-  }
-
-  getAllSong() async {
-    final db = await database;
-    var res = await db.query("Song");
-    List<Song> list =
-        res.isNotEmpty ? res.map((c) => Song.fromJson(c)).toList() : [];
-    return list;
   }
 
   getAllPlaylist() async {
@@ -120,13 +59,6 @@ class DBProvider {
     return list;
   }
 
-  updateSong(Song song) async {
-    final db = await database;
-    var res = await db.update("Song", song.toJson(),
-        where: "song_id = ?", whereArgs: [song.song_id]);
-    return res;
-  }
-
   updatePlaylist(Playlist playlist) async {
     final db = await database;
     var res = await db.update("Playlist", playlist.toJson(),
@@ -134,19 +66,9 @@ class DBProvider {
     return res;
   }
 
-  deleteAllSongs() async {
-    final db = await database;
-    db.rawDelete("Delete * from Song");
-  }
-
   deleteAllPlaylist() async {
     final db = await database;
     db.rawDelete("Delete * from Playlist");
-  }
-
-  deleteSong(int id) async {
-    final db = await database;
-    db.delete("Song", where: "song_id = ?", whereArgs: [id]);
   }
 
   deletePlaylist(int id) async {
