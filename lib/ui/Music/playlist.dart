@@ -228,19 +228,19 @@ class PlaylistPageState extends State<PlaylistPage> {
             )),
             actions: <Widget>[
               SlideAction(
-                color: Colors.blue,
+                color: HexColor('#3a4e93'),
                 child: Icon(SFSymbols.play, color: Colors.white),
                 onTap: null,
               ),
               SlideAction(
-                color: second_color,
+                color: HexColor('#a04db5'),
                 child: Icon(SFSymbols.pencil, color: Colors.white),
                 onTap: () => _playlistDialog(musicData, playlist: playlist),
               ),
             ],
             secondaryActions: <Widget>[
               SlideAction(
-                color: HexColor('#87479d'),
+                color: HexColor('#5994ce'),
                 child: Icon(SFSymbols.photo, color: Colors.white),
                 onTap: () {
                   FocusScope.of(_scaffoldKey.currentContext)
@@ -282,7 +282,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 },
               ),
               SlideAction(
-                color: main_color,
+                color: HexColor('#e22368'),
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () {
                   musicData.playlistListUpdate = true;

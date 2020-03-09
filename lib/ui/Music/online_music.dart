@@ -163,7 +163,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               )),
           secondaryActions: <Widget>[
             SlideAction(
-              color: main_color,
+              color: HexColor('#e22368'),
               child: Icon(SFSymbols.trash, color: Colors.white),
               onTap: () async {
                 hideMusic(song.song_id);

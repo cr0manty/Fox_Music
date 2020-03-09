@@ -162,7 +162,7 @@ class PeoplePageState extends State<PeoplePage> {
         secondaryActions: song.in_my_list == 1
             ? <Widget>[
                 SlideAction(
-                  color: main_color,
+                  color: HexColor('#e22368'),
                   child: Icon(
                     SFSymbols.trash,
                     color: Colors.white,

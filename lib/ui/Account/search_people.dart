@@ -135,7 +135,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
           actions: <Widget>[
             IconSlideAction(
               caption: relationship.buttonName(),
-              color: Colors.blue,
+              color: HexColor('#3a4e93'),
               icon: SFSymbols.person,
               onTap: () => relationship.sendRequest(),
             ),
@@ -144,7 +144,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
               ? <Widget>[
                   IconSlideAction(
                     caption: 'Block',
-                    color: Colors.red,
+                    color: HexColor('#e22368'),
                     icon: Icons.block,
                     onTap: () => relationship.sendBlock(),
                   ),

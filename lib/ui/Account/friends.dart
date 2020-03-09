@@ -111,12 +111,12 @@ class FriendListPageState extends State<FriendListPage> {
                             .image))),
         secondaryActions: <Widget>[
           SlideAction(
-            color: Colors.indigo,
+            color: HexColor('#5994ce'),
             child: Icon(Icons.block, color: Colors.white),
             onTap: null,
           ),
           SlideAction(
-            color: main_color,
+            color: HexColor('#e22368'),
             child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: null,
           ),

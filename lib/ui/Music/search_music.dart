@@ -89,7 +89,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         actions: song.in_my_list == 0
             ? <Widget>[
                 SlideAction(
-                  color: Colors.blue,
+                  color: HexColor('#3a4e93'),
                   child: Icon(SFSymbols.plus, color: Colors.white),
                   onTap: () async {
                     bool isAdded = await addMusic(song.song_id);
@@ -108,7 +108,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         secondaryActions: song.in_my_list == 1
             ? <Widget>[
                 SlideAction(
-                  color: main_color,
+                  color: HexColor('#e22368'),
                   child: Icon(SFSymbols.trash, color: Colors.white),
                   onTap: () async {
                     bool isDeleted = await hideMusic(song.song_id);

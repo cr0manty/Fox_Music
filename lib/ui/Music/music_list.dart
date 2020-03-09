@@ -254,7 +254,7 @@ class MusicListPageState extends State<MusicListPage>
     List<Widget> actions = [];
     if (widget._pageType == PageType.SAVED) {
       actions.add(SlideAction(
-        color: HexColor('#604d9e'),
+        color: HexColor('#3a4e93'),
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
         onTap: () =>
@@ -262,7 +262,7 @@ class MusicListPageState extends State<MusicListPage>
       ));
     }
     actions.add(SlideAction(
-      color: HexColor('#6d7f1f'),
+      color: HexColor('#a04db5'),
       child: Icon(SFSymbols.pencil, color: Colors.white),
       onTap: () => _renameSongDialog(musicData, song),
     ));
@@ -311,7 +311,7 @@ class MusicListPageState extends State<MusicListPage>
           actions: _actionsPane(musicData, song),
           secondaryActions: <Widget>[
             SlideAction(
-              color: HexColor('#fdac07'),
+              color: HexColor('#5994ce'),
               child: Icon(
                 CupertinoIcons.share_up,
                 color: Colors.white,
@@ -319,7 +319,7 @@ class MusicListPageState extends State<MusicListPage>
               onTap: () => _shareSong(song),
             ),
             SlideAction(
-              color: main_color,
+              color: HexColor('#e22368'),
               child: Icon(
                 SFSymbols.trash,
                 color: Colors.white,
