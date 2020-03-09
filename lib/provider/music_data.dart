@@ -23,6 +23,7 @@ class MusicData with ChangeNotifier {
   bool localUpdate = true;
   bool playlistUpdate = true;
   bool playlistPageUpdate = true;
+  bool playlistListUpdate = true;
 
   List<Song> withoutMix = [];
   List<Song> playlist = [];

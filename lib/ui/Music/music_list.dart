@@ -37,18 +37,23 @@ class MusicListPageState extends State<MusicListPage>
   List<Playlist> _playlistList = [];
   bool init = true;
 
-  _addTrackToPlaylistDialog() {}
-
-  void _updateMusicList(MusicData musicData) {
+  void _updateMusicList(MusicData musicData) async {
     if (init) {
       musicData.playlistUpdate = true;
     }
     if (widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) {
-      _loadPlaylist(musicData, null);
+      _loadMusicList(musicData, null);
       musicData.playlistUpdate = false;
-    } else if (widget._pageType == PageType.SAVED && musicData.localUpdate) {
-      _loadPlaylist(musicData, null);
+    } if (widget._pageType == PageType.SAVED && musicData.localUpdate) {
+      _loadMusicList(musicData, null);
       musicData.localUpdate = false;
+    }
+    if (widget._pageType == PageType.SAVED && musicData.playlistListUpdate) {
+      List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
+
+      setState(() {
+        _playlistList = playlistList;
+      });
     }
   }
 
@@ -70,7 +75,7 @@ class MusicListPageState extends State<MusicListPage>
                     ? GestureDetector(
                         child:
                             Icon(SFSymbols.plus, color: Colors.white, size: 25),
-                        onTap: () => _addTrackToPlaylistDialog())
+                        onTap: () {})
                     : null),
             child: _buildBody(musicData)));
   }
@@ -80,7 +85,7 @@ class MusicListPageState extends State<MusicListPage>
     return SafeArea(
         child: CustomScrollView(slivers: <Widget>[
       CupertinoSliverRefreshControl(
-        onRefresh: () => _loadPlaylist(musicData, null, update: true),
+        onRefresh: () => _loadMusicList(musicData, null, update: true),
       ),
       _musicList.length > 0
           ? SliverList(
@@ -100,7 +105,7 @@ class MusicListPageState extends State<MusicListPage>
     ]));
   }
 
-  _loadPlaylist(MusicData musicData, Song song, {bool update = false}) async {
+  _loadMusicList(MusicData musicData, Song song, {bool update = false}) async {
     if (widget._pageType == PageType.SAVED) {
       List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
       if (update) await musicData.loadSavedMusic();
@@ -252,7 +257,8 @@ class MusicListPageState extends State<MusicListPage>
         color: HexColor('#604d9e'),
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
-        onTap: () => showPickerDialog(context, musicData, _playlistList, song.song_id),
+        onTap: () =>
+            showPickerDialog(context, musicData, _playlistList, song.song_id),
       ));
     }
     actions.add(SlideAction(
@@ -286,7 +292,7 @@ class MusicListPageState extends State<MusicListPage>
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
-                  _loadPlaylist(musicData, song);
+                  _loadMusicList(musicData, song);
 
                   setState(() {
                     musicData.isLocal = true;

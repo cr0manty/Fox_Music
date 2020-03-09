@@ -21,7 +21,8 @@ class PlaylistPageState extends State<PlaylistPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
 
-  _createPlaylist(String playlistName) async {
+  _createPlaylist(MusicData musicData, String playlistName) async {
+    musicData.playlistListUpdate = true;
     Playlist playlist = new Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
@@ -92,7 +93,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                     if (playlist != null)
                       _renamePlaylist(playlist, playlistName.text);
                     else
-                      _createPlaylist(playlistName.text);
+                      _createPlaylist(musicData, playlistName.text);
                   }
                   Navigator.pop(context);
                 }),
@@ -284,6 +285,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 color: main_color,
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () {
+                  musicData.playlistListUpdate = true;
                   setState(() {
                     _playlistList.remove(playlist);
                   });
