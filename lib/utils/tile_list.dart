@@ -50,15 +50,19 @@ class TileListState extends State<TileList> {
                         width: 20,
                       )
                     : Container(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    widget.title ?? Container(),
-                    Divider(height: 2, color: Colors.transparent),
-                    widget.subtitle ?? Container()
-                  ],
-                ),
+                Container(
+                    transform: widget.leading != null
+                        ? Matrix4.translationValues(-20, 0, 0)
+                        : Matrix4.zero(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        widget.title ?? Container(),
+                        Divider(height: 2, color: Colors.transparent),
+                        widget.subtitle ?? Container()
+                      ],
+                    )),
                 Expanded(child: SizedBox()),
                 Container(
                       child: widget.trailing,

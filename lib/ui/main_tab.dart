@@ -68,21 +68,24 @@ class MainPageState extends State<MainPage> {
       case 1:
         page = CupertinoTabView(
             builder: (BuildContext context) =>
-                ChangeNotifierProvider<MusicData>.value(
-                    value: musicData, child: MusicListPage()));
+            ChangeNotifierProvider<MusicData>.value(
+                value: musicData, child: MusicListPage()));
         break;
       case 2:
         page = CupertinoTabView(
-            builder: (BuildContext context) => _buildView(
-                musicData, accountData, downloadData, OnlineMusicListPage()));
+            builder: (BuildContext context) =>
+                _buildView(
+                    musicData, accountData, downloadData,
+                    OnlineMusicListPage()));
         break;
       case 3:
         page = CupertinoTabView(
-            builder: (BuildContext context) => _buildView(
-                musicData,
-                accountData,
-                downloadData,
-                accountData.user != null ? AccountPage() : SignIn()));
+            builder: (BuildContext context) =>
+                _buildView(
+                    musicData,
+                    accountData,
+                    downloadData,
+                    accountData.user != null ? AccountPage() : SignIn()));
         break;
     }
 
@@ -92,29 +95,40 @@ class MainPageState extends State<MainPage> {
   }
 
   Widget _buildPlayer(MusicData musicData) {
-    double duration = MediaQuery.of(context).size.width *
-        (durToInt(musicData.songPosition) / durToInt(musicData.songDuration));
+    double duration;
+    try {
+      duration = MediaQuery
+          .of(context)
+          .size
+          .width *
+          (durToInt(musicData.songPosition) / durToInt(musicData.songDuration));
+    } catch (e){
+      duration = 0;
+    }
+
     return musicData.currentSong != null && !keyboardActive
         ? Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: SafeArea(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
                   Container(
                     color: main_color,
                     width: duration,
                     height: 2,
                   ),
                   SwipeDetector(
-                      onTap: () => Navigator.of(context, rootNavigator: true)
-                          .push(BottomRoute(
+                      onTap: () =>
+                          Navigator.of(context, rootNavigator: true)
+                              .push(BottomRoute(
                               page: ChangeNotifierProvider<MusicData>.value(
                                   value: musicData, child: PlayerPage()))),
-                      onSwipeUp: () => Navigator.of(context, rootNavigator: true)
-                          .push(BottomRoute(
+                      onSwipeUp: () =>
+                          Navigator.of(context, rootNavigator: true)
+                              .push(BottomRoute(
                               page: ChangeNotifierProvider<MusicData>.value(
                                   value: musicData, child: PlayerPage()))),
                       onSwipeDown: () {
@@ -126,24 +140,25 @@ class MainPageState extends State<MainPage> {
                       child: ClipRect(
                           child: BackdropFilter(
                               filter:
-                                  ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                              ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                               child: Container(
                                   decoration: BoxDecoration(
                                       color: Colors.black26.withOpacity(0.3)),
                                   padding:
-                                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                   alignment: Alignment.bottomCenter,
                                   child: Row(
                                     children: <Widget>[
                                       Container(width: 10),
                                       Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Text(
                                             musicData.currentSong.title,
                                             style:
-                                                TextStyle(color: Colors.white),
+                                            TextStyle(color: Colors.white),
                                           ),
                                           Divider(
                                             height: 5,
@@ -160,37 +175,42 @@ class MainPageState extends State<MainPage> {
                                       GestureDetector(
                                         child: Container(
                                             color: Colors.transparent,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
+                                            height: MediaQuery
+                                                .of(context)
+                                                .size
+                                                .width *
                                                 0.12,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
+                                            width: MediaQuery
+                                                .of(context)
+                                                .size
+                                                .width *
                                                 0.12,
                                             child: Icon(
                                               musicData.playerState ==
-                                                      AudioPlayerState.PLAYING
+                                                  AudioPlayerState.PLAYING
                                                   ? SFSymbols.pause_fill
                                                   : SFSymbols.play_fill,
                                               color: Colors.white,
                                               size: 20,
                                             )),
-                                        onTap: () => musicData.playerState ==
-                                                AudioPlayerState.PLAYING
+                                        onTap: () =>
+                                        musicData.playerState ==
+                                            AudioPlayerState.PLAYING
                                             ? musicData.playerPause()
                                             : musicData.playerResume(),
                                       ),
                                       GestureDetector(
                                         child: Container(
                                             color: Colors.transparent,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
+                                            height: MediaQuery
+                                                .of(context)
+                                                .size
+                                                .width *
                                                 0.12,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
+                                            width: MediaQuery
+                                                .of(context)
+                                                .size
+                                                .width *
                                                 0.12,
                                             child: Icon(
                                               SFSymbols.forward_fill,

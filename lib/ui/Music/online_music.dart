@@ -122,27 +122,32 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               height: 60,
               child: TileList(
                 leading: GestureDetector(
-                  onTap: downloadData.inQuery(song)
-                      ? null
-                      : () async {
-                          if (downloadData.inQuery(song)) {
-                            if (downloadData.currentSong == song) {
-                              showSnackBar(
-                                  context, 'Unable to remove from queue',
-                                  seconds: 3);
+                    onTap: downloadData.inQuery(song)
+                        ? null
+                        : () async {
+                            if (downloadData.inQuery(song)) {
+                              if (downloadData.currentSong == song) {
+                                showSnackBar(
+                                    context, 'Unable to remove from queue',
+                                    seconds: 3);
+                              } else {
+                                downloadData.deleteFromQuery(song);
+                              }
                             } else {
-                              downloadData.deleteFromQuery(song);
+                              downloadData.query = song;
                             }
-                          } else {
-                            downloadData.query = song;
-                          }
-                          setState(() {});
-                        },
-                  child: Icon(SFSymbols.cloud_download,
-                      color: downloadData.inQuery(song)
-                          ? main_color
-                          : Colors.grey),
-                ),
+                            setState(() {});
+                          },
+                    child: Container(
+                      color: Colors.transparent,
+                      height: 60,
+                      width: 50,
+                      transform: Matrix4.translationValues(-15, 0, 0),
+                      child: Icon(SFSymbols.cloud_download,
+                          color: downloadData.inQuery(song)
+                              ? main_color
+                              : Colors.grey),
+                    )),
                 padding: EdgeInsets.only(left: 30, right: 20),
                 title: Text(song.title,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),

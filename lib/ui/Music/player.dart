@@ -313,9 +313,8 @@ class PlayerPageState extends State<PlayerPage> {
                                                 child: Container(
                                                     color: Colors.transparent,
                                                     padding: EdgeInsets.all(11),
-                                                    width:
-                                                       45,
-                                                    height: 45,
+                                                    width: screenHeight * 0.055,
+                                                    height: screenHeight * 0.055,
                                                     child: SvgPicture.asset(
                                                         'assets/svg/lyrics.svg',
                                                         color: Colors.grey))),
@@ -377,8 +376,8 @@ class PlayerPageState extends State<PlayerPage> {
                                                 child: Container(
                                                     color: Colors.transparent,
                                                     padding: EdgeInsets.all(11),
-                                                    width:45,
-                                                    height: 45,
+                                                    width: screenHeight * 0.055,
+                                                    height: screenHeight * 0.055,
                                                     child: SvgPicture.asset(
                                                         'assets/svg/add_to_playlist.svg',
                                                         color: Colors.grey))),
