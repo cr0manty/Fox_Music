@@ -1,28 +1,45 @@
-# VK Music App
+# Fox Music 
 
-Parse music from VK and show in app
+
 
 ## UI preview
-1. Intro page is designed to perform basic
- addressing of pages and determine user authorization.
+1. Launching the application opens the playlist tab, where the user can add а new playlist giving him a name.
+<br>
+ <img src="images/playlist1.jpg">
+ <img src="images/playlist2.jpg">
+   
+
+2. The tab "Media" is designed to store tracks that were downloaded from the cloud.
  <br>
- <img src="images/intro.png">
+ <img src="images/Media.jpg">
+
+3. The tab "Music" is used to search for network music and download it to your device. After downloading it will be stored in the "Media" tab.
+<br>
+ <img src="images/Music.jpg">
  
-2. Auth page is required for authorization and for registering a new user.
-<br>
- <img src="images/login.png">
- <img src="images/reg.png">
 
-3. The application also has an App Bar Menu, in which you can switch between pages 
-and update the list of tracks or download all the tracks that have already been 
-associated with the user account. Also, a little data about the user is displayed on top
-(picture, first name and last name).
+4. The tab "Account" is required for authorization and for registration of a new user.
+After registering an account, a profile opens on which there are buttons: "Search for music", "Search for friends", "Friends" and "Download all".
 <br>
- <img src="images/appbar_menu.png">
+ <img src="images/Account1.jpg">
+ <img src="images/Account2.jpg">
+ <img src="images/Account3.jpg">
+  
+5. The player has the ability to stop the track, return to the previous one, or go to the next, repeat and shuffle the tracks.
+At the bottom of the player is the volume control bar, adding a track to the playlist and the ability to add lyrics.
+  <br>
+ <img src="images/player1.jpg">
+ <img src="images/player2.jpg">
 
-4. The Music page has 3 tabs. The first tab is responsible for the list of music that has been 
-added to the application server and receives it using the request API. 
-The second displays a list of already downloaded songs.
-The third, in turn, exists to search for tracks among all existing ones (To be added later).
-<br>
- <img src="images/musiclist.png">
+6. Downloading music is accompanied by animation on the track
+ <br>
+ <img src="images/Downloading.jpg">
+ 
+###Small functionality of the application for music:
+
+1.	When you swipe music to the left or right, additional functions are shown, such as "Add to playlist", "Rename", "Share" and "Delete".
+   <br>
+ <img src="images/SmallFunctionality1.jpg">
+ <img src="images/SmallFunctionality2.jpg">
+ 
+2.	The application runs in the background.
