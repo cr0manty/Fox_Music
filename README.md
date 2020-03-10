@@ -1,6 +1,6 @@
 # Fox Music 
 
-
+An application for using music with the ability to download from the cloud and save it in the phone’s memory. Convenient storage of tracks in one place, allows you to listen to your favorite tracks offline, and the creation of playlists will allow you to distribute tracks into a variety of categories and for every taste of the listener.
 
 ## UI preview
 1. Launching the application opens the playlist tab, where the user can add а new playlist giving him a name.
