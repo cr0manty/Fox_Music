@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/models/song.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
@@ -187,6 +188,14 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: main_color);
   }
 
+  int _songsAmount(List<Song> songs, List<String> songsId) {
+
+  }
+
+  void _shufflePlaylist() {
+
+  }
+
   _buildPlaylistList(MusicData musicData, int index) {
     Playlist playlist = _playlistList[index];
 
@@ -213,9 +222,9 @@ class PlaylistPageState extends State<PlaylistPage> {
                                 value: musicData,
                                 child: MusicListPage(playlist: playlist))));
               },
-              leading: _showImage(playlist),
+              leading: Container(padding: EdgeInsets.only(right: 20),child: _showImage(playlist)),
               trailing: GestureDetector(
-                  onTap: () {},
+                  onTap: () => _shufflePlaylist(),
                   child: Container(
                       color: Colors.transparent,
                       padding:
@@ -257,7 +266,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       source: ImageSource.camera);
                                   _setImage(playlist, _image);
                                 },
-                                child: Text('Camera')),
+                                child: Text('Camera', style: TextStyle(color:Colors.blue))),
                             CupertinoActionSheetAction(
                                 onPressed: () async {
                                   Navigator.pop(context);
@@ -265,7 +274,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       source: ImageSource.gallery);
                                   _setImage(playlist, _image);
                                 },
-                                child: Text('Gallery')),
+                                child: Text('Gallery', style: TextStyle(color:Colors.blue))),
                             CupertinoActionSheetAction(
                                 isDestructiveAction: true,
                                 onPressed: () async {

@@ -43,12 +43,13 @@ profilePost({body}) async {
           await http.MultipartFile.fromPath('image', body['image'].path);
       request.files.add(multipartFile);
     }
-    body.remove('image');
-    body.forEach((key, value) {
-      request.fields[key] = value;
-    });
-    request.headers.addAll(formatToken(token));
+    await body.remove('image');
 
+    for (var field in body.entries) {
+      request.fields[field.key] = await field.value;
+    }
+
+    request.headers.addAll(formatToken(token));
 
     http.StreamedResponse response = await request.send();
     return response.statusCode == 201;

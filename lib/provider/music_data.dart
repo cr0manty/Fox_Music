@@ -47,6 +47,7 @@ class MusicData with ChangeNotifier {
     platform = thisPlatform;
     await initPlayer();
     await loadSavedMusic();
+    await _getState();
   }
 
   initPlayer() {
@@ -55,6 +56,11 @@ class MusicData with ChangeNotifier {
 
     _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
+      if (currentSong?.duration != duration.inSeconds &&
+          currentSong?.path != null) {
+        currentSong.duration = duration.inSeconds;
+        renameSong(currentSong);
+      }
       if (initCC) {
         setCCData(duration);
         initCC = false;
@@ -88,7 +94,6 @@ class MusicData with ChangeNotifier {
       playerState = state;
       notifyListeners();
     });
-    _getState();
   }
 
   _getState() async {
@@ -96,7 +101,6 @@ class MusicData with ChangeNotifier {
     if (data['repeat']) {
       repeatClick();
     }
-    updateVolume(data['volume']);
   }
 
   setCCData(Duration duration) {
@@ -196,7 +200,6 @@ class MusicData with ChangeNotifier {
     audioPlayer.setVolume(value);
     volume = value;
     notifyListeners();
-    savePlayerState(repeat, volume);
   }
 
   mixClick() {
@@ -222,7 +225,7 @@ class MusicData with ChangeNotifier {
     }
 
     notifyListeners();
-    savePlayerState(repeat, volume);
+    savePlayerState(repeat);
   }
 
   loadPlaylistTrack(List<String> songsListId) async {
@@ -262,9 +265,12 @@ class MusicData with ChangeNotifier {
       playerPause();
       return;
     }
-    playerState = AudioPlayerState.PLAYING;
-    currentSong = song;
-    initCC = true;
+    if (audioPlayer.state == AudioPlayerState.PLAYING) {
+      playerState = AudioPlayerState.PLAYING;
+      songDuration = Duration(seconds: 0);
+      currentSong = song;
+      initCC = true;
+    }
     notifyListeners();
   }
 

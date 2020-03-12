@@ -56,7 +56,10 @@ class AccountPageState extends State<AccountPage> {
                                               value: accountData,
                                               child: AccountEditPage())));
                             },
-                            child: Text('Edit')),
+                            child: Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.blue),
+                            )),
                         CupertinoActionSheetAction(
                             onPressed: () async {
                               await accountData.makeLogout();
@@ -64,7 +67,6 @@ class AccountPageState extends State<AccountPage> {
                             },
                             child: Text(
                               'Logout',
-                              style: TextStyle(color: Colors.red),
                             ))
                       ],
                     );
@@ -95,15 +97,14 @@ class AccountPageState extends State<AccountPage> {
           color: Colors.transparent,
           child: ListTile(
             leading: SvgPicture.asset('assets/svg/search_music.svg',
-                color: Colors.white,
-                height: 22,
-                width: 22),
+                color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true).push(CupertinoPageRoute(
-                  builder: (context) => MultiProvider(providers: [
-                        ChangeNotifierProvider<MusicDownloadData>.value(
-                            value: downloadData),
-                      ], child: SearchMusicPage())));
+              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
+                  .push(CupertinoPageRoute(
+                      builder: (context) => MultiProvider(providers: [
+                            ChangeNotifierProvider<MusicDownloadData>.value(
+                                value: downloadData),
+                          ], child: SearchMusicPage())));
             },
             title: Text(
               'Music Search',
@@ -115,17 +116,16 @@ class AccountPageState extends State<AccountPage> {
           color: Colors.transparent,
           child: ListTile(
             leading: SvgPicture.asset('assets/svg/search_friends.svg',
-                color: Colors.white,
-                height: 22,
-                width: 22),
+                color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true).push(CupertinoPageRoute(
-                  builder: (context) => MultiProvider(providers: [
-                        ChangeNotifierProvider<MusicDownloadData>.value(
-                            value: downloadData),
-                        ChangeNotifierProvider<AccountData>.value(
-                            value: accountData),
-                      ], child: SearchPeoplePage())));
+              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
+                  .push(CupertinoPageRoute(
+                      builder: (context) => MultiProvider(providers: [
+                            ChangeNotifierProvider<MusicDownloadData>.value(
+                                value: downloadData),
+                            ChangeNotifierProvider<AccountData>.value(
+                                value: accountData),
+                          ], child: SearchPeoplePage())));
             },
             title: Text(
               'People Search',

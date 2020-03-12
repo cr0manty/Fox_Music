@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
         DefaultWidgetsLocalizations.delegate,
       ],
       theme: CupertinoThemeData(
+        primaryColor: Color.fromRGBO(193, 39, 45, 1),
           brightness: Brightness.dark,
           scaffoldBackgroundColor: HexColor('#282828')),
       home: IntroPage(),

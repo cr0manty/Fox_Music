@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,7 +35,7 @@ class AccountEditPageState extends State<AccountEditPage> {
   File _image;
   bool _updating = false;
 
-  AccountPage() {
+  AccountEditPageState() {
     _lastNameFilter.addListener(_lastNameListen);
     _firstNameFilter.addListener(_firstNameListen);
     _emailFilter.addListener(_emailListen);
@@ -108,7 +107,7 @@ class AccountEditPageState extends State<AccountEditPage> {
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: main_color,
+          actionsForegroundColor: Color.fromRGBO(193, 39, 45, 1),
           middle: Text('Profile edit'),
           previousPageTitle: 'Back',
           trailing: CupertinoButton(
@@ -220,7 +219,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                                             source: ImageSource.camera);
                                         accountData.setNewImage(_image);
                                       },
-                                      child: Text('Camera')),
+                                      child: Text('Camera', style: TextStyle(color:Colors.blue))),
                                   CupertinoActionSheetAction(
                                       onPressed: () async {
                                         Navigator.pop(context);
@@ -229,7 +228,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                                         accountData.setNewImage(_image);
                                       },
                                       child: Text(
-                                        'Gallery',
+                                        'Gallery', style: TextStyle(color:Colors.blue)
                                       ))
                                 ],
                               );

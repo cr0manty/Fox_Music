@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 const main_color = Color.fromRGBO(193, 39, 45, 1);
-const second_color = Color.fromRGBO(153, 153, 153, 1);
 
 class HexColor extends Color {
   static int _getColorFromHex(String hexColor) {

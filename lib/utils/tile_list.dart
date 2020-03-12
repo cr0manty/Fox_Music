@@ -45,11 +45,6 @@ class TileListState extends State<TileList> {
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 widget.leading ?? Container(),
-                widget.leading != null
-                    ? SizedBox(
-                        width: 20,
-                      )
-                    : Container(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,

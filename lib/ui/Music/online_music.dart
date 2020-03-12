@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +12,8 @@ import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/api/music_list.dart';
-import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/ui/Account/auth_vk.dart';
 import 'package:fox_music/utils/apple_search.dart';
 
 class OnlineMusicListPage extends StatefulWidget {
@@ -30,14 +27,14 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   bool init = true;
   Song playedSong;
   List<Song> dataSongSorted = [];
-  bool isEmptySearch = true;
 
   @override
   Widget build(BuildContext context) {
     MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    if (isEmptySearch) dataSongSorted = downloadData.dataSong;
+
+    if (init) _filterSongs(downloadData);
 
     return Material(
         child: CupertinoPageScaffold(
@@ -82,19 +79,22 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                 )));
   }
 
-  void _filterSongs(MusicDownloadData downloadData, String value) {
-    if (value.isNotEmpty) {
+  void _filterSongs(MusicDownloadData downloadData, {String value}) {
+    if (value == null) {
+      dataSongSorted = downloadData.dataSong;
+    } else if (value.isNotEmpty) {
       String newValue = value.toLowerCase();
       setState(() {
-        isEmptySearch = false;
         dataSongSorted = downloadData.dataSong
             .where((song) =>
                 song.artist.toLowerCase().contains(newValue) ||
                 song.title.toLowerCase().contains(newValue))
             .toList();
       });
-    } else {
-      isEmptySearch = false;
+    } else if (value.isEmpty) {
+      setState(() {
+        dataSongSorted = downloadData.dataSong;
+      });
     }
   }
 
@@ -102,7 +102,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       MusicDownloadData downloadData, MusicData musicData, int index) {
     if (index == 0)
       return AppleSearch(
-          onChange: (value) => _filterSongs(downloadData, value));
+          onChange: (value) => _filterSongs(downloadData, value: value));
 
     Song song = dataSongSorted[index - 1];
     if (init) {

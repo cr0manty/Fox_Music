@@ -42,7 +42,8 @@ class AccountData with ChangeNotifier {
   }
 
   updateUserData(data) async {
-    if (await profilePost(body: data)) {
+    bool profile = await profilePost(body: data);
+    if (profile) {
       User newUser = await profileGet();
       if (newUser != null) {
         user = newUser;
