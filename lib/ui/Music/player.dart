@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fox_music/ui/Music/music_text.dart';
+import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/time.dart';
@@ -49,8 +51,6 @@ class PlayerPageState extends State<PlayerPage> {
           }
         : null;
   }
-
-  void _getSongText(Song song) {}
 
   @override
   Widget build(BuildContext context) {
@@ -305,16 +305,33 @@ class PlayerPageState extends State<PlayerPage> {
                                               MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
                                             GestureDetector(
-                                                onTap: musicData.currentSong !=
-                                                        null
-                                                    ? () => _getSongText(
-                                                        musicData.currentSong)
-                                                    : null,
+                                                onTap:
+                                                    musicData.currentSong !=
+                                                            null
+                                                        ? () async {
+                                                            var songLyrics =
+                                                                await DBProvider
+                                                                    .db
+                                                                    .songLyrics(musicData
+                                                                        .currentSong
+                                                                        .song_id);
+                                                            Navigator.of(
+                                                                    context,
+                                                                    rootNavigator:
+                                                                        true)
+                                                                .push(BottomRoute(
+                                                                    page: MusicTextPage(
+                                                                        songText: songLyrics.isEmpty
+                                                                            ? ''
+                                                                            : songLyrics[0].toString())));
+                                                          }
+                                                        : null,
                                                 child: Container(
                                                     color: Colors.transparent,
                                                     padding: EdgeInsets.all(11),
                                                     width: screenHeight * 0.055,
-                                                    height: screenHeight * 0.055,
+                                                    height:
+                                                        screenHeight * 0.055,
                                                     child: SvgPicture.asset(
                                                         'assets/svg/lyrics.svg',
                                                         color: Colors.grey))),
@@ -377,7 +394,8 @@ class PlayerPageState extends State<PlayerPage> {
                                                     color: Colors.transparent,
                                                     padding: EdgeInsets.all(11),
                                                     width: screenHeight * 0.056,
-                                                    height: screenHeight * 0.056,
+                                                    height:
+                                                        screenHeight * 0.056,
                                                     child: SvgPicture.asset(
                                                         'assets/svg/add_to_playlist.svg',
                                                         color: Colors.grey))),

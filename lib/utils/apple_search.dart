@@ -5,15 +5,15 @@ import 'package:fox_music/utils/hex_color.dart';
 
 class AppleSearch extends StatefulWidget {
   final ValueChanged<String> onChange;
+  final TextEditingController controller;
 
-  AppleSearch({this.onChange});
+  AppleSearch({@required this.controller, this.onChange});
 
   @override
   State<StatefulWidget> createState() => new AppleSearchState();
 }
 
 class AppleSearchState extends State<AppleSearch> {
-  TextEditingController _controller = TextEditingController();
   FocusNode _searchFocus = FocusNode();
   bool hasFocus = false;
 
@@ -30,7 +30,7 @@ class AppleSearchState extends State<AppleSearch> {
   }
 
   void _clearController() {
-    _controller.clear();
+    widget.controller.clear();
     widget.onChange('');
   }
 
@@ -43,7 +43,7 @@ class AppleSearchState extends State<AppleSearch> {
           width: width,
           padding: EdgeInsets.all(10),
           child: CupertinoTextField(
-            controller: _controller,
+            controller: widget.controller,
             suffixMode: OverlayVisibilityMode.editing,
             suffix: GestureDetector(
                 onTap: () => _clearController(),
@@ -72,6 +72,7 @@ class AppleSearchState extends State<AppleSearch> {
           ? GestureDetector(
               onTap: () {
                 _searchFocus.unfocus();
+                _clearController();
               },
               child: Container(
                   alignment: Alignment.centerRight,

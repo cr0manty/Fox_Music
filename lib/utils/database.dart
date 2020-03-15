@@ -9,7 +9,7 @@ import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_musiс1.db';
+  static const dbName = 'vk_musiс.db';
 
   DBProvider._();
 
@@ -34,6 +34,11 @@ class DBProvider {
           "image BLOB,"
           "songList TEXT,"
           "songsAmount INTEGER"
+          ")");
+       await db.execute("CREATE TABLE SongLyrics ("
+          "id INTEGER PRIMARY KEY,"
+          "songId int,"
+          "text TEXT"
           ")");
     });
   }
@@ -74,5 +79,11 @@ class DBProvider {
   deletePlaylist(int id) async {
     final db = await database;
     db.delete("Playlist", where: "id = ?", whereArgs: [id]);
+  }
+
+  songLyrics(int id) async  {
+    final db = await database;
+    var res = await db.query("SongLyrics", where: "songId = ?", whereArgs: [id]);
+    return res;
   }
 }

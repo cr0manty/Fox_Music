@@ -19,8 +19,7 @@ class FriendListPage extends StatefulWidget {
 
 class FriendListPageState extends State<FriendListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  GlobalKey<RefreshIndicatorState> _refreshKey =
-      GlobalKey<RefreshIndicatorState>();
+  TextEditingController controller = TextEditingController();
   List<Relationship> friendListSorted = [];
 
   @override
@@ -71,9 +70,11 @@ class FriendListPageState extends State<FriendListPage> {
   _buildUserCard(
       AccountData accountData, MusicDownloadData downloadData, int index) {
     if (index == 0) {
-      return AppleSearch(onChange: (value) {
-        _filterFriends(accountData, value);
-      });
+      return AppleSearch(
+          controller: controller,
+          onChange: (value) {
+            _filterFriends(accountData, value);
+          });
     }
     Relationship relationship = accountData.friendList[index - 1];
 

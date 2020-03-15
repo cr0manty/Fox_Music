@@ -1,3 +1,4 @@
+import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -36,7 +37,7 @@ profilePost({body}) async {
   try {
     final String token = await getToken();
     final uri = Uri.parse(PROFILE_URL);
-    http.MultipartRequest request = http.MultipartRequest('POST', uri);
+    CloseableMultipartRequest request = CloseableMultipartRequest('POST', uri);
 
     if (body['image'] != null) {
       http.MultipartFile multipartFile =

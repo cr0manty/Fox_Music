@@ -52,6 +52,14 @@ class AccountData with ChangeNotifier {
     }
   }
 
+  getUser({int userId}) async {
+    User newUser = await profileGet(friendId: userId);
+    if (newUser != null) {
+      user = newUser;
+    }
+    notifyListeners();
+  }
+
   setUser(newUser) {
     user = newUser;
     notifyListeners();

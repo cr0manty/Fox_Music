@@ -21,6 +21,8 @@ class SearchPeoplePage extends StatefulWidget {
 
 class SearchPeoplePageState extends State<SearchPeoplePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  TextEditingController controller = TextEditingController();
+
   Map<int, int> _friends = {};
   List<Relationship> _userList = [];
 
@@ -79,6 +81,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
 
     if (index == 0) {
       return AppleSearch(
+        controller: controller,
         onChange: (value) async {
           List<User> userList = await userSearchGet(value);
           _setFriendStatus(userList);

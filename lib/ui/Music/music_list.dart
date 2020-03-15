@@ -31,6 +31,7 @@ class MusicListPage extends StatefulWidget {
 
 class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
+  TextEditingController controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
@@ -44,7 +45,8 @@ class MusicListPageState extends State<MusicListPage>
     if (widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) {
       _loadMusicList(musicData, null);
       musicData.playlistUpdate = false;
-    } if (widget._pageType == PageType.SAVED && musicData.localUpdate) {
+    }
+    if (widget._pageType == PageType.SAVED && musicData.localUpdate) {
       _loadMusicList(musicData, null);
       musicData.localUpdate = false;
     }
@@ -122,6 +124,7 @@ class MusicListPageState extends State<MusicListPage>
       setState(() {
         _musicList = songList;
         _musicListSorted = _musicList;
+        _filterSongs(controller.text);
       });
     }
     if (song != null) {
@@ -129,7 +132,7 @@ class MusicListPageState extends State<MusicListPage>
     }
   }
 
-  _deleteSong(Song song) {
+  _deleteSong(MusicData musicData, Song song) {
     showDialog(
         context: context,
         builder: (BuildContext context) => new CupertinoAlertDialog(
@@ -149,6 +152,7 @@ class MusicListPageState extends State<MusicListPage>
                       onPressed: () {
                         Navigator.pop(context);
                         try {
+                          musicData.deleteSong(song);
                           File(song.path).deleteSync();
                           setState(() {
                             _musicList.remove(song);
@@ -221,10 +225,10 @@ class MusicListPageState extends State<MusicListPage>
     );
   }
 
-  void _filterSongs(String value) {
+  void _filterSongs(String value, {List<Song> musicList}) {
     String newValue = value.toLowerCase();
     setState(() {
-      _musicListSorted = _musicList
+      _musicListSorted = (musicList != null ? musicList : _musicList)
           .where((song) =>
               song.artist.toLowerCase().contains(newValue) ||
               song.title.toLowerCase().contains(newValue))
@@ -232,10 +236,12 @@ class MusicListPageState extends State<MusicListPage>
     });
   }
 
-  void deleteSongFromPlaylist(Song song) {
+  void deleteSongFromPlaylist(MusicData musicData, Song song) {
+    musicData.deleteSong(song);
     setState(() {
       widget.playlist.deleteSong(song.song_id);
       _musicList.remove(song);
+      _musicListSorted.remove(song);
     });
 
     DBProvider.db.updatePlaylist(widget.playlist);
@@ -271,7 +277,10 @@ class MusicListPageState extends State<MusicListPage>
 
   _buildSongListTile(int index, MusicData musicData) {
     if (index == 0) {
-      return AppleSearch(onChange: _filterSongs);
+      return AppleSearch(
+        onChange: _filterSongs,
+        controller: controller,
+      );
     }
 
     Song song = _musicListSorted[index - 1];
@@ -325,8 +334,8 @@ class MusicListPageState extends State<MusicListPage>
                 color: Colors.white,
               ),
               onTap: () => widget._pageType == PageType.SAVED
-                  ? _deleteSong(song)
-                  : deleteSongFromPlaylist(song),
+                  ? _deleteSong(musicData, song)
+                  : deleteSongFromPlaylist(musicData, song),
             ),
           ],
         ),

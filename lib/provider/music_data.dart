@@ -254,6 +254,23 @@ class MusicData with ChangeNotifier {
     });
   }
 
+  void deleteSong(Song song) {
+    playlist.remove(song);
+
+    if (currentSong == song) {
+      if (playlist.length == 0) {
+        currentSong = null;
+        playerStop();
+      } else {
+        playlist.remove(song);
+        next();
+      }
+    } else {
+      playlist.remove(song);
+      notifyListeners();
+    }
+  }
+
   void playerPlay(Song song) async {
     if (!isLocal && song.download.isNotEmpty) {
       await _stopAllPlayers();
@@ -265,12 +282,10 @@ class MusicData with ChangeNotifier {
       playerPause();
       return;
     }
-    if (audioPlayer.state == AudioPlayerState.PLAYING) {
-      playerState = AudioPlayerState.PLAYING;
-      songDuration = Duration(seconds: 0);
-      currentSong = song;
-      initCC = true;
-    }
+    playerState = AudioPlayerState.PLAYING;
+    songDuration = Duration(seconds: 0);
+    currentSong = song;
+    initCC = true;
     notifyListeners();
   }
 

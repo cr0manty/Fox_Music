@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,8 @@ class MusicDownloadData with ChangeNotifier {
   StreamSubscription _queryChange;
   StreamSubscription _stateChange;
   MusicData musicData;
+  CloseableMultipartRequest httpClient;
+  bool _isCanceled = false;
 
   final StreamController<DownloadState> _resultController =
       StreamController<DownloadState>.broadcast();
@@ -90,58 +93,84 @@ class MusicDownloadData with ChangeNotifier {
     notifyListeners();
   }
 
+  cancelDownload() {
+    if (currentSong != null && httpClient != null) {
+      currentSong = null;
+      progress = 0;
+      _isCanceled = true;
+      _state = DownloadState.COMPLETED;
+      _downloadSubscription?.cancel();
+      httpClient?.close();
+      httpClient = null;
+    }
+  }
+
   downloadSong(Song song) async {
     if (song.download.isEmpty) {
       _state = DownloadState.EMPTY;
-    } else if ((await _songExist(song)) != null) {
-      List<List<int>> chunks = new List();
-      currentSong = song;
-      int downloaded = 0;
+    }
+    List<List<int>> chunks = new List();
+    currentSong = song;
+    int downloaded = 0;
 
-      var httpClient = http.Client();
-      var request = http.Request('GET', Uri.parse(song.download));
-      var response = httpClient.send(request);
-      _state = DownloadState.STARTED;
-      notifyListeners();
+    httpClient = CloseableMultipartRequest('GET', Uri.parse(song.download));
+    var response = httpClient.send();
+    _state = DownloadState.STARTED;
+    notifyListeners();
 
-      _downloadSubscription =
-          await response.asStream().listen((http.StreamedResponse r) async {
-        await r.stream.listen((List<int> chunk) {
-          progress = downloaded / r.contentLength;
-          chunks.add(chunk);
-          downloaded += chunk.length;
-          notifyListeners();
-        }, onDone: () async {
-          final Uint8List bytes = Uint8List(r.contentLength);
-          int offset = 0;
-          for (List<int> chunk in chunks) {
-            bytes.setRange(offset, offset + chunk.length, chunk);
-            offset += chunk.length;
-          }
-
+    _downloadSubscription =
+        await response.asStream().listen((http.StreamedResponse r) async {
+      await r.stream.listen((List<int> chunk) {
+        progress = downloaded / r.contentLength;
+        chunks.add(chunk);
+        downloaded += chunk.length;
+        notifyListeners();
+      }, onDone: () async {
+        final Uint8List bytes = Uint8List(r.contentLength);
+        int offset = 0;
+        for (List<int> chunk in chunks) {
+          bytes.setRange(offset, offset + chunk.length, chunk);
+          offset += chunk.length;
+        }
+        if (!_isCanceled) {
           await saveSong(song, bytes);
           _state = DownloadState.COMPLETED;
 
           currentSong = null;
+          httpClient = null;
           progress = 0;
+          notifyListeners();
+        }
+        _isCanceled = false;
+        _downloadSubscription?.cancel();
+      }, onError: (error) {
+        _downloadSubscription?.cancel();
+        httpClient = null;
+        progress = 0;
+        currentSong = null;
+        _state = DownloadState.ERROR;
+        _query.remove(song);
 
-          notifyListeners();
-        }, onError: (error) {
-          progress = 0;
-          currentSong = null;
-          _state = DownloadState.ERROR;
-          notifyListeners();
-        });
+        notifyListeners();
       });
-    }
+    });
   }
 
   addToQuery(Song song) async {
-    _query.add(song);
+    if (song?.download == null || song.download.isEmpty) {
+      _state = DownloadState.EMPTY;
+      notifyListeners();
+    } else if ((await _songExist(song)) != null) {
+      query = song;
+    }
   }
 
-  addToQueryMulti(List<Song> songList) async {
-    _query.addAll(songList);
+  addToQueryMulti(List<Song> songList) {
+    songList.forEach((Song song) async {
+      if ((await _songExist(song)) != null) {
+        _query.add(song);
+      }
+    });
   }
 
   Stream<DownloadState> get onResultChanged => _resultController.stream;
@@ -169,6 +198,7 @@ class MusicDownloadData with ChangeNotifier {
 
     if (!await file.exists()) return file;
     _state = DownloadState.EXIST;
+    if (currentSong != song) currentSong = null;
     return null;
   }
 
@@ -176,17 +206,16 @@ class MusicDownloadData with ChangeNotifier {
     if (context != null) {
       switch (result) {
         case DownloadState.EMPTY:
-          showSnackBar(context, 'Empty download url');
+          infoDialog(context,'Error', 'Empty download url');
           break;
         case DownloadState.COMPLETED:
-          showSnackBar(context, 'Song downloaded!');
+          showSnackBar(context, 'Song downloaded');
           break;
         case DownloadState.ERROR:
           showSnackBar(context, 'Smth went wrong...');
           break;
         case DownloadState.EXIST:
-          infoDialog(context, 'Error', 'Song alredy downloaded!');
-          currentSong = null;
+          infoDialog(context, 'Error', 'Song alredy downloaded');
           break;
         default:
           break;

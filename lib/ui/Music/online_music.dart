@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/utils/circle_progress.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class OnlineMusicListPage extends StatefulWidget {
 }
 
 class OnlineMusicListPageState extends State<OnlineMusicListPage> {
+  TextEditingController controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _playerNotifyState;
   bool init = true;
@@ -47,36 +49,47 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   _buildBody(AccountData accountData, MusicDownloadData downloadData,
       MusicData musicData) {
     return accountData.user != null &&
-            (accountData.user.can_use_vk || accountData.user.is_staff)
+        (accountData.user.can_use_vk || accountData.user.is_staff)
         ? SafeArea(
-            child: CustomScrollView(slivers: <Widget>[
-            CupertinoSliverRefreshControl(onRefresh: () async {
-              await downloadData.loadMusic();
-              setState(() {
-                dataSongSorted = downloadData.dataSong;
-              });
-            }),
-            SliverList(
-                delegate: SliverChildListDelegate(List.generate(
-                    dataSongSorted.length + 1,
-                    (index) =>
-                        _buildSongListTile(downloadData, musicData, index))))
-          ]))
+        child: CustomScrollView(slivers: <Widget>[
+          CupertinoSliverRefreshControl(onRefresh: () async {
+            await downloadData.loadMusic();
+
+            setState(() {
+              dataSongSorted = downloadData.dataSong;
+              _filterSongs(downloadData, value: controller.text);
+            });
+          }),
+          SliverList(
+              delegate: SliverChildListDelegate(List.generate(
+                  dataSongSorted.length + 1,
+                      (index) =>
+                      _buildSongListTile(downloadData, musicData, index))))
+        ]))
         : Center(
-            child: Container(
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height * 0.2),
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.2),
-                  child: Text(
-                    'To listen you have to sign up or log in',
-                    style: TextStyle(color: Colors.grey, fontSize: 20),
-                    textAlign: TextAlign.center,
-                  ),
-                )));
+        child: Container(
+            alignment: Alignment.center,
+            margin: EdgeInsets.only(
+                bottom: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.2),
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 0.5,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  top: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 0.2),
+              child: Text(
+                'To listen you have to sign up or log in',
+                style: TextStyle(color: Colors.grey, fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            )));
   }
 
   void _filterSongs(MusicDownloadData downloadData, {String value}) {
@@ -87,8 +100,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       setState(() {
         dataSongSorted = downloadData.dataSong
             .where((song) =>
-                song.artist.toLowerCase().contains(newValue) ||
-                song.title.toLowerCase().contains(newValue))
+        song.artist.toLowerCase().contains(newValue) ||
+            song.title.toLowerCase().contains(newValue))
             .toList();
       });
     } else if (value.isEmpty) {
@@ -98,10 +111,49 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
     }
   }
 
-  _buildSongListTile(
-      MusicDownloadData downloadData, MusicData musicData, int index) {
+  Widget _drawDownloadIcon(MusicDownloadData downloadData, Song song) {
+    return Container(
+        color: Colors.transparent,
+        transform: Matrix4.translationValues(-5, 0, 0),
+        height: 60,
+        width: 50,
+        child: GestureDetector(
+            onTap: () async {
+              if (downloadData.inQuery(song)) {
+                await downloadData.deleteFromQuery(song);
+              } else if (downloadData.currentSong == song) {
+                await downloadData.cancelDownload();
+              } else {
+                await downloadData.addToQuery(song);
+              }
+            },
+            child: downloadData.currentSong == song
+                ? Container(
+                transform: Matrix4.translationValues(9, 0, 0),
+                child: CustomPaint(
+                    painter: ArcPainter(progress: downloadData.progress),
+                    child: Container(
+                      transform: Matrix4.translationValues(-13.5, -0.2, 0),
+                      child: Icon(
+                        SFSymbols.square_fill,
+                        color: Colors.grey,
+                        size: 10,
+                      ),
+                    )))
+                : Container(
+              transform: Matrix4.translationValues(-5, 0, 0),
+              child: Icon(SFSymbols.cloud_download,
+                  color: downloadData.inQuery(song)
+                      ? main_color
+                      : Colors.grey),
+            )));
+  }
+
+  _buildSongListTile(MusicDownloadData downloadData, MusicData musicData,
+      int index) {
     if (index == 0)
       return AppleSearch(
+          controller: controller,
           onChange: (value) => _filterSongs(downloadData, value: value));
 
     Song song = dataSongSorted[index - 1];
@@ -113,84 +165,48 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       init = false;
     }
 
-    return Stack(children: [
-      Column(children: <Widget>[
-        Slidable(
-          actionPane: SlidableDrawerActionPane(),
-          actionExtentRatio: 0.25,
-          child: Container(
-              height: 60,
-              child: TileList(
-                leading: GestureDetector(
-                    onTap: downloadData.inQuery(song)
-                        ? null
-                        : () async {
-                            if (downloadData.inQuery(song)) {
-                              if (downloadData.currentSong == song) {
-                                showSnackBar(
-                                    context, 'Unable to remove from queue',
-                                    seconds: 3);
-                              } else {
-                                downloadData.deleteFromQuery(song);
-                              }
-                            } else {
-                              downloadData.query = song;
-                            }
-                            setState(() {});
-                          },
-                    child: Container(
-                      color: Colors.transparent,
-                      height: 60,
-                      width: 50,
-                      transform: Matrix4.translationValues(-15, 0, 0),
-                      child: Icon(SFSymbols.cloud_download,
-                          color: downloadData.inQuery(song)
-                              ? main_color
-                              : Colors.grey),
-                    )),
-                padding: EdgeInsets.only(left: 30, right: 20),
-                title: Text(song.title,
-                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-                subtitle: Text(song.artist,
-                    style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-                onTap: () async {
-                  musicData.setPlaylistSongs(dataSongSorted, song,
-                      local: false);
-                  if (musicData.currentSong != null &&
-                      musicData.currentSong.song_id == song.song_id) {
-                    await musicData.playerResume();
-                  } else {
-                    await musicData.playerPlay(song);
-                  }
-                },
-                trailing: Text(formatDuration(song.duration),
-                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-              )),
-          secondaryActions: <Widget>[
-            SlideAction(
-              color: HexColor('#e22368'),
-              child: Icon(SFSymbols.trash, color: Colors.white),
+    return Column(children: <Widget>[
+      Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 0.25,
+        child: Container(
+            height: 60,
+            child: TileList(
+              leading: _drawDownloadIcon(downloadData, song),
+              padding: EdgeInsets.only(left: 30, right: 20),
+              title: Text(song.title,
+                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+              subtitle: Text(song.artist,
+                  style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
-                hideMusic(song.song_id);
-                setState(() {
-                  downloadData.dataSong.remove(song);
-                  dataSongSorted = downloadData.dataSong;
-                });
+                musicData.setPlaylistSongs(dataSongSorted, song, local: false);
+                if (musicData.currentSong != null &&
+                    musicData.currentSong.song_id == song.song_id) {
+                  await musicData.playerResume();
+                } else {
+                  await musicData.playerPlay(song);
+                }
               },
-            ),
-          ],
-        ),
-        Padding(
-            padding: EdgeInsets.only(left: 12.0),
-            child: Divider(height: 1, color: Colors.grey))
-      ]),
-      downloadData.currentSong == song
-          ? Container(
-              height: 60,
-              width: MediaQuery.of(context).size.width * downloadData.progress,
-              decoration: BoxDecoration(color: main_color.withOpacity(0.2)),
-            )
-          : Container(),
+              trailing: Text(formatDuration(song.duration),
+                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+            )),
+        secondaryActions: <Widget>[
+          SlideAction(
+            color: HexColor('#e22368'),
+            child: Icon(SFSymbols.trash, color: Colors.white),
+            onTap: () async {
+              hideMusic(song.song_id);
+              setState(() {
+                downloadData.dataSong.remove(song);
+                dataSongSorted = downloadData.dataSong;
+              });
+            },
+          ),
+        ],
+      ),
+      Padding(
+          padding: EdgeInsets.only(left: 12.0),
+          child: Divider(height: 1, color: Colors.grey))
     ]);
   }
 

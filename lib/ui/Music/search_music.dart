@@ -18,6 +18,8 @@ class SearchMusicPage extends StatefulWidget {
 
 class SearchMusicPageState extends State<SearchMusicPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  TextEditingController controller = TextEditingController();
+
   int addAmount = 0;
   List<Song> _songList = [];
 
@@ -30,8 +32,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         navigationBar: CupertinoNavigationBar(
           actionsForegroundColor: main_color,
           previousPageTitle: 'Back',
-                    middle: Text('Music Search'),
-
+          middle: Text('Music Search'),
         ),
         child: Material(
             color: Colors.transparent,
@@ -48,6 +49,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
   _buildSongListTile(MusicDownloadData downloadData, int index) {
     if (index == 0) {
       return AppleSearch(
+        controller: controller,
         onChange: (value) async {
           List<Song> songList = await musicSearchGet(value);
           setState(() {

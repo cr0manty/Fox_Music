@@ -130,31 +130,31 @@ class PlaylistPageState extends State<PlaylistPage> {
             child: SafeArea(
                 child: _playlistList.length > 0
                     ? ReorderableListView(
-                        scrollDirection: Axis.vertical,
-                        onReorder: (oldIndex, newIndex) {
-                          setState(
+                    scrollDirection: Axis.vertical,
+                    onReorder: (oldIndex, newIndex) {
+                      setState(
                             () {
-                              if (newIndex > oldIndex) {
-                                newIndex -= 1;
-                              }
-                              final Playlist item =
-                                  _playlistList.removeAt(oldIndex);
-                              _playlistList.insert(newIndex, item);
-                            },
-                          );
+                          if (newIndex > oldIndex) {
+                            newIndex -= 1;
+                          }
+                          final Playlist item =
+                          _playlistList.removeAt(oldIndex);
+                          _playlistList.insert(newIndex, item);
                         },
-                        children: List.generate(
-                          _playlistList.length,
+                      );
+                    },
+                    children: List.generate(
+                      _playlistList.length,
                           (index) => _buildPlaylistList(musicData, index),
-                        ))
+                    ))
                     : Container(
-                        padding: EdgeInsets.only(top: 30),
-                        alignment: Alignment.topCenter,
-                        child: Text(
-                          'You have no playlists yet',
-                          style: TextStyle(color: Colors.grey, fontSize: 20),
-                          textAlign: TextAlign.center,
-                        )))));
+                    padding: EdgeInsets.only(top: 30),
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      'You have no playlists yet',
+                      style: TextStyle(color: Colors.grey, fontSize: 20),
+                      textAlign: TextAlign.center,
+                    )))));
   }
 
   _setImage(Playlist playlist, File image) async {
@@ -173,7 +173,9 @@ class PlaylistPageState extends State<PlaylistPage> {
         return CircleAvatar(
             radius: 22,
             backgroundColor: Colors.grey,
-            backgroundImage: Image.file(file).image);
+            backgroundImage: Image
+                .file(file)
+                .image);
       } else {
         playlist.image = null;
         DBProvider.db.updatePlaylist(playlist);
@@ -186,10 +188,6 @@ class PlaylistPageState extends State<PlaylistPage> {
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
         backgroundColor: main_color);
-  }
-
-  int _songsAmount(List<Song> songs, List<String> songsId) {
-
   }
 
   void _shufflePlaylist() {
@@ -208,33 +206,34 @@ class PlaylistPageState extends State<PlaylistPage> {
             actionExtentRatio: 0.25,
             child: Container(
                 child: TileList(
-              padding: EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
-              title: Text(playlist.title,
-                  style: TextStyle(
-                      fontSize: 18, color: Color.fromRGBO(200, 200, 200, 1))),
-              subtitle: Text('${playlist.songsAmount} songs',
-                  style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-              onTap: () async {
-                Navigator.of(_scaffoldKey.currentContext).push(
-                    CupertinoPageRoute(
-                        builder: (context) =>
+                  padding: EdgeInsets.only(
+                      left: 16, right: 8, top: 4, bottom: 4),
+                  title: Text(playlist.title,
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Color.fromRGBO(200, 200, 200, 1))),
+                  onTap: () async {
+                    Navigator.of(_scaffoldKey.currentContext).push(
+                        CupertinoPageRoute(
+                            builder: (context) =>
                             ChangeNotifierProvider<MusicData>.value(
                                 value: musicData,
                                 child: MusicListPage(playlist: playlist))));
-              },
-              leading: Container(padding: EdgeInsets.only(right: 20),child: _showImage(playlist)),
-              trailing: GestureDetector(
-                  onTap: () => _shufflePlaylist(),
-                  child: Container(
-                      color: Colors.transparent,
-                      padding:
+                  },
+                  leading: Container(padding: EdgeInsets.only(right: 20),
+                      child: _showImage(playlist)),
+                  trailing: GestureDetector(
+                      onTap: () => _shufflePlaylist(),
+                      child: Container(
+                          color: Colors.transparent,
+                          padding:
                           EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                      child: Icon(
-                        SFSymbols.shuffle,
-                        color: Colors.grey,
-                        size: 20,
-                      ))),
-            )),
+                          child: Icon(
+                            SFSymbols.shuffle,
+                            color: Colors.grey,
+                            size: 20,
+                          ))),
+                )),
             actions: <Widget>[
               SlideAction(
                 color: HexColor('#3a4e93'),
@@ -266,7 +265,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       source: ImageSource.camera);
                                   _setImage(playlist, _image);
                                 },
-                                child: Text('Camera', style: TextStyle(color:Colors.blue))),
+                                child: Text('Camera', style: TextStyle(
+                                    color: Colors.blue))),
                             CupertinoActionSheetAction(
                                 onPressed: () async {
                                   Navigator.pop(context);
@@ -274,7 +274,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       source: ImageSource.gallery);
                                   _setImage(playlist, _image);
                                 },
-                                child: Text('Gallery', style: TextStyle(color:Colors.blue))),
+                                child: Text('Gallery', style: TextStyle(
+                                    color: Colors.blue))),
                             CupertinoActionSheetAction(
                                 isDestructiveAction: true,
                                 onPressed: () async {
