@@ -9,13 +9,16 @@ import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/models/song.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/utils/swipe_detector.dart';
 
 class PlayerPage extends StatefulWidget {
+  final AnimationController animationController;
+
+  PlayerPage({this.animationController});
+
   @override
   State<StatefulWidget> createState() => new PlayerPageState();
 }
@@ -96,9 +99,8 @@ class PlayerPageState extends State<PlayerPage> {
                             height: pictureHeight,
                             width: MediaQuery.of(context).size.width,
                             child: SwipeDetector(
-                              onSwipeDown: () {
-                                Navigator.pop(context);
-                              },
+                              onSwipeDown: () =>
+                                  widget.animationController.reverse(),
                               onSwipeLeft: musicData.currentSong != null
                                   ? () {
                                       musicData.next();

@@ -47,7 +47,7 @@ At the bottom of the player is the volume control bar, adding a track to the pla
  <br>
  <img src="images/Downloading.jpg" height="500px" width="300px">
  
-###Small functionality of the application for music:
+### Small functionality of the application for music:
 
 1.	When you swipe music to the left or right, additional functions are shown, such as "Add to playlist", "Rename", "Share" and "Delete".
    <br>

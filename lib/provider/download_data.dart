@@ -103,6 +103,7 @@ class MusicDownloadData with ChangeNotifier {
       httpClient?.close();
       httpClient = null;
     }
+    notifyListeners();
   }
 
   downloadSong(Song song) async {
@@ -198,7 +199,10 @@ class MusicDownloadData with ChangeNotifier {
 
     if (!await file.exists()) return file;
     _state = DownloadState.EXIST;
-    if (currentSong != song) currentSong = null;
+    if (currentSong == song) {
+      currentSong = null;
+      progress = 0;
+    }
     return null;
   }
 
@@ -206,7 +210,7 @@ class MusicDownloadData with ChangeNotifier {
     if (context != null) {
       switch (result) {
         case DownloadState.EMPTY:
-          infoDialog(context,'Error', 'Empty download url');
+          infoDialog(context, 'Error', 'Empty download url');
           break;
         case DownloadState.COMPLETED:
           showSnackBar(context, 'Song downloaded');
