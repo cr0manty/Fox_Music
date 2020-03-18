@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: CupertinoThemeData(
         primaryColor: Color.fromRGBO(193, 39, 45, 1),
           brightness: Brightness.dark,
-          scaffoldBackgroundColor: HexColor('#282828')),
+          scaffoldBackgroundColor: HexColor('#222222')),
       home: IntroPage(),
     );
   }
