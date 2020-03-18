@@ -58,7 +58,14 @@ class _IntroPageState extends State<IntroPage> {
           WidgetsBinding.instance.window.platformBrightness == Brightness.dark
               ? HexColor('#282828')
               : Colors.white,
-      child: Container(),
+      child: Container(
+          height: 0,
+          width: 0,
+          child: Stack(children: <Widget>[
+            ChangeNotifierProvider(
+                create: (_) => MusicData(), child: PlayerPage()),
+            Container(child: Image.asset('assets/images/audio-cover.png'))
+          ])),
     );
   }
 }

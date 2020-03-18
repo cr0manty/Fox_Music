@@ -29,20 +29,13 @@ class MainPage extends StatefulWidget {
   State<StatefulWidget> createState() => new MainPageState();
 }
 
-class MainPageState extends State<MainPage>
-    with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
+class MainPageState extends State<MainPage> {
   int currentIndex = 0;
   bool keyboardActive = false;
 
   @override
   void initState() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
     currentIndex = widget.lastIndex;
-
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool visible) {
         keyboardActive = visible;
@@ -94,21 +87,8 @@ class MainPageState extends State<MainPage>
     }
 
     return Stack(
-      children: <Widget>[
-        page,
-        _buildPlayer(musicData),
-      ],
+      children: <Widget>[page, _buildPlayer(musicData)],
     );
-  }
-
-  Widget _buildPlayerPage(MusicData musicData) {
-    return CupertinoFullscreenDialogTransition(
-        animation: _animationController,
-        child: ChangeNotifierProvider<MusicData>.value(
-            value: musicData,
-            child: PlayerPage(
-              animationController: _animationController,
-            )));
   }
 
   Widget _buildPlayer(MusicData musicData) {
@@ -137,8 +117,14 @@ class MainPageState extends State<MainPage>
                     height: 2,
                   ),
                   SwipeDetector(
-                      onTap: () => _animationController.forward(),
-                      onSwipeUp: () => _animationController.forward(),
+                      onTap: () => Navigator.of(context, rootNavigator: true)
+                          .push(BottomRoute(
+                              page: ChangeNotifierProvider<MusicData>.value(
+                                  value: musicData, child: PlayerPage()))),
+                      onSwipeUp: () => Navigator.of(context, rootNavigator: true)
+                          .push(BottomRoute(
+                              page: ChangeNotifierProvider<MusicData>.value(
+                                  value: musicData, child: PlayerPage()))),
                       onSwipeDown: () {
                         musicData.playerStop();
                         setState(() {
@@ -152,8 +138,8 @@ class MainPageState extends State<MainPage>
                               child: Container(
                                   decoration: BoxDecoration(
                                       color: Colors.black26.withOpacity(0.3)),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   alignment: Alignment.bottomCenter,
                                   child: Row(
                                     children: <Widget>[
@@ -235,26 +221,23 @@ class MainPageState extends State<MainPage>
 
     return WillPopScope(
         onWillPop: () => Future<bool>.value(true),
-        child: Stack(children: <Widget>[
-          CupertinoTabScaffold(
-              tabBar: CupertinoTabBar(
-                activeColor: main_color,
-                items: <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                      icon: Icon(SFSymbols.music_note_list),
-                      title: Text('Playlist')),
-                  BottomNavigationBarItem(
-                      icon: Icon(SFSymbols.folder), title: Text('Media')),
-                  BottomNavigationBarItem(
-                      icon: Icon(SFSymbols.music_note_2), title: Text('Music')),
-                  BottomNavigationBarItem(
-                      icon: Icon(SFSymbols.person_alt), title: Text('Account'))
-                ],
-              ),
-              tabBuilder: (BuildContext context, int index) {
-                return _switchTabs(musicData, downloadData, accountData, index);
-              }),
-          _buildPlayerPage(musicData)
-        ]));
+        child: CupertinoTabScaffold(
+            tabBar: CupertinoTabBar(
+              activeColor: main_color,
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                    icon: Icon(SFSymbols.music_note_list),
+                    title: Text('Playlist')),
+                BottomNavigationBarItem(
+                    icon: Icon(SFSymbols.folder), title: Text('Media')),
+                BottomNavigationBarItem(
+                    icon: Icon(SFSymbols.music_note_2), title: Text('Music')),
+                BottomNavigationBarItem(
+                    icon: Icon(SFSymbols.person_alt), title: Text('Account'))
+              ],
+            ),
+            tabBuilder: (BuildContext context, int index) {
+              return _switchTabs(musicData, downloadData, accountData, index);
+            }));
   }
 }
