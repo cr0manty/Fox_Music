@@ -117,7 +117,7 @@ class FriendListPageState extends State<FriendListPage> {
             onTap: null,
           ),
           SlideAction(
-            color: HexColor('#e22368'),
+            color: HexColor('#d62d2d'),
             child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: null,
           ),

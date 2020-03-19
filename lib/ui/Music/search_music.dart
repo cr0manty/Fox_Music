@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/models/downloaded_song.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/api/music_list.dart';
@@ -100,7 +101,11 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     } else if (isAdded) {
                       setState(() {
                         song.in_my_list = 1;
-                        downloadData.dataSong.insert(addAmount++, song);
+                        downloadData.dataSong.insert(
+                            addAmount++,
+                            DownloadedSong(
+                                song: song,
+                                downloaded: downloadData.checkLocal(song)));
                       });
                     }
                   },
@@ -110,7 +115,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         secondaryActions: song.in_my_list == 1
             ? <Widget>[
                 SlideAction(
-                  color: HexColor('#e22368'),
+                  color: HexColor('#d62d2d'),
                   child: Icon(SFSymbols.trash, color: Colors.white),
                   onTap: () async {
                     bool isDeleted = await hideMusic(song.song_id);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
+import 'package:fox_music/models/downloaded_song.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,7 @@ enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 
 class MusicDownloadData with ChangeNotifier {
   List<Song> _query = [];
-  List<Song> dataSong = [];
+  List<DownloadedSong> dataSong = [];
   Song currentSong;
   double progress = 0;
   DownloadState _downloadState;
@@ -28,6 +29,7 @@ class MusicDownloadData with ChangeNotifier {
   MusicData musicData;
   CloseableMultipartRequest httpClient;
   bool _isCanceled = false;
+  Timer _timer;
 
   final StreamController<DownloadState> _resultController =
       StreamController<DownloadState>.broadcast();
@@ -88,8 +90,20 @@ class MusicDownloadData with ChangeNotifier {
     notifyListeners();
   }
 
+  bool checkLocal(Song song) {
+    return musicData.localSongs.indexOf(song) != -1;
+  }
+
+  void loadDownloaded(List<Song> songs) {
+    dataSong.clear();
+    songs.forEach((song) => dataSong.add(DownloadedSong(
+        song: song, downloaded: musicData.localSongs.indexOf(song) != -1)));
+  }
+
   loadMusic() async {
-    dataSong = await musicListGet();
+    List<Song> songs = await musicListGet();
+    await loadDownloaded(songs);
+
     notifyListeners();
   }
 
@@ -98,6 +112,8 @@ class MusicDownloadData with ChangeNotifier {
       currentSong = null;
       progress = 0;
       _isCanceled = true;
+      _timer.cancel();
+
       _state = DownloadState.COMPLETED;
       _downloadSubscription?.cancel();
       httpClient?.close();
@@ -121,11 +137,19 @@ class MusicDownloadData with ChangeNotifier {
 
     _downloadSubscription =
         await response.asStream().listen((http.StreamedResponse r) async {
-      await r.stream.listen((List<int> chunk) {
+      r.stream.listen((List<int> chunk) {
         progress = downloaded / r.contentLength;
         chunks.add(chunk);
         downloaded += chunk.length;
-        notifyListeners();
+        _timer = Timer.periodic(
+            Duration(milliseconds: (r.contentLength / 50000).round()), (timer) {
+          if (httpClient == null || progress == 0) {
+            timer.cancel();
+            _timer.cancel();
+          } else {
+            notifyListeners();
+          }
+        });
       }, onDone: () async {
         final Uint8List bytes = Uint8List(r.contentLength);
         int offset = 0;
@@ -136,7 +160,7 @@ class MusicDownloadData with ChangeNotifier {
         if (!_isCanceled) {
           await saveSong(song, bytes);
           _state = DownloadState.COMPLETED;
-
+          _timer.cancel();
           currentSong = null;
           httpClient = null;
           progress = 0;

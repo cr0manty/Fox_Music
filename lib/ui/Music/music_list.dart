@@ -328,7 +328,7 @@ class MusicListPageState extends State<MusicListPage>
               onTap: () => _shareSong(song),
             ),
             SlideAction(
-              color: HexColor('#e22368'),
+              color: HexColor('#d62d2d'),
               child: Icon(
                 SFSymbols.trash,
                 color: Colors.white,
