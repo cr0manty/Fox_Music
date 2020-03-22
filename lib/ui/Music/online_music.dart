@@ -3,15 +3,12 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/models/downloaded_song.dart';
-import 'package:fox_music/utils/circle_progress.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/utils/tile_list.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/time.dart';
@@ -29,11 +26,10 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   StreamSubscription _playerNotifyState;
   bool init = true;
   Song playedSong;
-  List<DownloadedSong> dataSongSorted = [];
+  List<Song> dataSongSorted = [];
 
   @override
   Widget build(BuildContext context) {
-    MusicData musicData = Provider.of<MusicData>(context);
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
@@ -44,11 +40,10 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
                 actionsForegroundColor: main_color, middle: Text('Music')),
-            child: _buildBody(accountData, downloadData, musicData)));
+            child: _buildBody(accountData, downloadData)));
   }
 
-  _buildBody(AccountData accountData, MusicDownloadData downloadData,
-      MusicData musicData) {
+  _buildBody(AccountData accountData, MusicDownloadData downloadData) {
     return accountData.user != null &&
             (accountData.user.can_use_vk || accountData.user.is_staff)
         ? SafeArea(
@@ -64,8 +59,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             SliverList(
                 delegate: SliverChildListDelegate(List.generate(
                     dataSongSorted.length + 1,
-                    (index) =>
-                        _buildSongListTile(downloadData, musicData, index))))
+                    (index) => _buildSongListTile(downloadData, index))))
           ]))
         : Center(
             child: Container(
@@ -92,8 +86,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       setState(() {
         dataSongSorted = downloadData.dataSong
             .where((song) =>
-                song.song.artist.toLowerCase().contains(newValue) ||
-                song.song.title.toLowerCase().contains(newValue))
+                song.artist.toLowerCase().contains(newValue) ||
+                song.title.toLowerCase().contains(newValue))
             .toList();
       });
     } else if (value.isEmpty) {
@@ -104,7 +98,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   }
 
   Widget _drawDownloadIcon(
-      MusicDownloadData downloadData, DownloadedSong song) {
+      MusicDownloadData downloadData, Song song) {
     return Container(
         color: Colors.transparent,
         transform: Matrix4.translationValues(-5, 0, 0),
@@ -114,12 +108,12 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             onTap: song.downloaded
                 ? null
                 : () async {
-                    if (downloadData.inQuery(song.song)) {
-                      await downloadData.deleteFromQuery(song.song);
-                    } else if (downloadData.currentSong == song.song) {
+                    if (downloadData.inQuery(song)) {
+                      await downloadData.deleteFromQuery(song);
+                    } else if (downloadData.currentSong == song) {
                       await downloadData.cancelDownload();
                     } else {
-                      await downloadData.addToQuery(song.song);
+                      await downloadData.addToQuery(song);
                     }
                   },
             child: song.downloaded
@@ -127,49 +121,43 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                     transform: Matrix4.translationValues(-5, 0, 0),
                     child: Icon(SFSymbols.checkmark_alt, color: Colors.grey),
                   )
-                : downloadData.currentSong == song.song
+                : downloadData.currentSong == song
                     ? Container(
-                        transform: Matrix4.translationValues(9, 0, 0),
-                        child: CustomPaint(
-                            painter:
-                                ArcPainter(progress: downloadData.progress),
-                            child: Container(
-                              transform:
-                                  Matrix4.translationValues(-13.5, -0.2, 0),
+                        transform: Matrix4.translationValues(-5, 0, 0),
+                        child: CircularPercentIndicator(
+                          radius: 24.0,
+                          lineWidth: 2.0,
+                          backgroundColor: Colors.grey,
+                          percent: downloadData.progress,
+                          center: Container(
+                              transform: Matrix4.translationValues(0, -0.5, 0),
                               child: Icon(
                                 SFSymbols.square_fill,
+                                size: 11,
                                 color: Colors.grey,
-                                size: 10,
-                              ),
-                            )))
+                              )),
+                          progressColor: main_color,
+                        ))
                     : Container(
                         transform: Matrix4.translationValues(-5, 0, 0),
                         child: Icon(SFSymbols.cloud_download,
-                            color: downloadData.inQuery(song.song)
+                            color: downloadData.inQuery(song)
                                 ? main_color
                                 : Colors.grey),
                       )));
   }
 
-  List<Song> _createSongList() {
-    List<Song> songs = [];
-    dataSongSorted.forEach((song) {
-      songs.add(song.song);
-    });
-    return songs;
-  }
-
-  _buildSongListTile(
-      MusicDownloadData downloadData, MusicData musicData, int index) {
+  _buildSongListTile(MusicDownloadData downloadData, int index) {
     if (index == 0)
       return AppleSearch(
           controller: controller,
           onChange: (value) => _filterSongs(downloadData, value: value));
 
-    DownloadedSong song = dataSongSorted[index - 1];
+    Song song = dataSongSorted[index - 1];
     if (init) {
       _playerNotifyState = downloadData.onResultChanged.listen((result) {
-        if (result == DownloadState.COMPLETED) musicData.loadSavedMusic();
+        if (result == DownloadState.COMPLETED)
+          downloadData.musicData.loadSavedMusic();
         downloadData.showInfo(_scaffoldKey.currentContext, result);
       });
       init = false;
@@ -184,21 +172,23 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             child: TileList(
               leading: _drawDownloadIcon(downloadData, song),
               padding: EdgeInsets.only(left: 30, right: 20),
-              title: Text(song.song.title,
+              title: Text(song.title,
                   style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-              subtitle: Text(song.song.artist,
+              subtitle: Text(song.artist,
                   style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
-                musicData.setPlaylistSongs(_createSongList(), song.song,
+                downloadData.musicData.setPlaylistSongs(
+                    dataSongSorted, song,
                     local: false);
-                if (musicData.currentSong != null &&
-                    musicData.currentSong.song_id == song.song.song_id) {
-                  await musicData.playerResume();
+                if (downloadData.musicData.currentSong != null &&
+                    downloadData.musicData.currentSong.song_id ==
+                        song.song_id) {
+                  await downloadData.musicData.playerResume();
                 } else {
-                  await musicData.playerPlay(song.song);
+                  await downloadData.musicData.playerPlay(song);
                 }
               },
-              trailing: Text(formatDuration(song.song.duration),
+              trailing: Text(formatDuration(song.duration),
                   style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
             )),
         secondaryActions: <Widget>[
@@ -206,7 +196,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             color: HexColor('#d62d2d'),
             child: Icon(SFSymbols.trash, color: Colors.white),
             onTap: () async {
-              hideMusic(song.song.song_id);
+              hideMusic(song.song_id);
               setState(() {
                 downloadData.dataSong.remove(song);
                 dataSongSorted = downloadData.dataSong;

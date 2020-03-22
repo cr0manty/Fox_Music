@@ -73,12 +73,12 @@ class MusicData with ChangeNotifier {
     });
     _playerCompleteSubscription =
         audioPlayer.onPlayerCompletion.listen((event) {
-      if (!repeat) {
-        next();
-        initCC = true;
-      }
-      notifyListeners();
-    });
+          if (!repeat) {
+            next();
+            initCC = true;
+          }
+          notifyListeners();
+        });
 
     _playerError = audioPlayer.onPlayerError.listen((error) {
       print(error);
@@ -91,9 +91,9 @@ class MusicData with ChangeNotifier {
 
     _playerNotifyState =
         audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      playerState = state;
-      notifyListeners();
-    });
+          playerState = state;
+          notifyListeners();
+        });
   }
 
   _getState() async {
@@ -111,7 +111,7 @@ class MusicData with ChangeNotifier {
           title: currentSong.title,
           artist: currentSong.artist,
           imageUrl:
-              'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
+          'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
           forwardSkipInterval: const Duration(seconds: 5),
           backwardSkipInterval: const Duration(seconds: 5),
           duration: duration);
@@ -132,11 +132,11 @@ class MusicData with ChangeNotifier {
 
   bool _filterSongs(String artist, String title) {
     return localSongs
-            .where((song) =>
-                song.artist.toLowerCase().contains(artist.toLowerCase()) &&
-                song.title.toLowerCase().contains(title.toLowerCase()))
-            .toList()
-            .length >
+        .where((song) =>
+    song.artist.toLowerCase().contains(artist.toLowerCase()) &&
+        song.title.toLowerCase().contains(title.toLowerCase()))
+        .toList()
+        .length >
         0;
   }
 
@@ -171,7 +171,7 @@ class MusicData with ChangeNotifier {
       final song = formatSong(songPath.path);
       if (song == null) {
         var songData =
-            await MediaMetadataPlugin.getMediaMetaData(songPath.path);
+        await MediaMetadataPlugin.getMediaMetaData(songPath.path);
         if (_filterSongs(
             songData.artistName ?? '', songData.artistName ?? '')) {
           var rng = new Random();
@@ -182,9 +182,9 @@ class MusicData with ChangeNotifier {
               path: songPath.path,
               duration: songData.trackDuration,
               artist:
-                  songData.artistName != null && songData.artistName.isNotEmpty
-                      ? songData.artistName
-                      : randomAlpha(15),
+              songData.artistName != null && songData.artistName.isNotEmpty
+                  ? songData.artistName
+                  : randomAlpha(15),
               song_id: rng.nextInt(100000));
           localSongs.add(song);
           renameSong(song);
@@ -237,6 +237,16 @@ class MusicData with ChangeNotifier {
     return songList;
   }
 
+  loadPlaylistAddTrack(List<String> songsListId) async {
+    List<Song> songList = [];
+
+    await Future.wait(localSongs.map((Song song) async {
+      if (songsListId.contains(song.song_id.toString())) song.inPlaylist = true;
+      songList.add(song);
+    }));
+    return songList;
+  }
+
   loadPlaylist(List<Song> songList) {
     playlist = songList;
     notifyListeners();
@@ -258,12 +268,16 @@ class MusicData with ChangeNotifier {
     playlist.remove(song);
 
     if (currentSong == song) {
-      if (playlist.length == 0) {
-        currentSong = null;
-        playerStop();
+      if (playerState == AudioPlayerState.PLAYING) {
+        if (playlist.length == 0) {
+          currentSong = null;
+          playerStop();
+        } else {
+          playlist.remove(song);
+          next();
+        }
       } else {
-        playlist.remove(song);
-        next();
+        currentSong = null;
       }
     } else {
       playlist.remove(song);
@@ -332,8 +346,8 @@ class MusicData with ChangeNotifier {
   void seek({duration}) {
     if (currentSong != null) {
       int value = (duration != null && duration < 1
-              ? durToInt(songDuration) * duration
-              : 0)
+          ? durToInt(songDuration) * duration
+          : 0)
           .toInt();
       audioPlayer.seek(Duration(seconds: value));
       notifyListeners();

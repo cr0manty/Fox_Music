@@ -30,12 +30,12 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  int currentIndex = 0;
+  CupertinoTabController controller;
   bool keyboardActive = false;
 
   @override
   void initState() {
-    currentIndex = widget.lastIndex;
+    controller  = CupertinoTabController(initialIndex: widget.lastIndex);
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool visible) {
         keyboardActive = visible;
@@ -44,10 +44,9 @@ class MainPageState extends State<MainPage> {
     super.initState();
   }
 
-  Widget _buildView(MusicData musicData, AccountData accountData,
-      MusicDownloadData downloadData, Widget child) {
+  Widget _buildView(
+      AccountData accountData, MusicDownloadData downloadData, Widget child) {
     return MultiProvider(providers: [
-      ChangeNotifierProvider<MusicData>.value(value: musicData),
       ChangeNotifierProvider<MusicDownloadData>.value(value: downloadData),
       ChangeNotifierProvider<AccountData>.value(value: accountData),
     ], child: child);
@@ -56,7 +55,7 @@ class MainPageState extends State<MainPage> {
   Widget _switchTabs(MusicData musicData, MusicDownloadData downloadData,
       AccountData accountData, int index) {
     Widget page;
-    saveLastTab(index);
+    saveLastTab(index - 1);
 
     switch (index) {
       case 0:
@@ -68,40 +67,28 @@ class MainPageState extends State<MainPage> {
       case 1:
         page = CupertinoTabView(
             builder: (BuildContext context) =>
-                ChangeNotifierProvider<MusicData>.value(
-                    value: musicData, child: MusicListPage()));
+                ChangeNotifierProvider<MusicDownloadData>.value(
+                    value: downloadData, child: MusicListPage()));
         break;
       case 2:
         page = CupertinoTabView(
-            builder: (BuildContext context) => _buildView(
-                musicData, accountData, downloadData, OnlineMusicListPage()));
+            builder: (BuildContext context) =>
+                _buildView(accountData, downloadData, OnlineMusicListPage()));
         break;
       case 3:
         page = CupertinoTabView(
             builder: (BuildContext context) => _buildView(
-                musicData,
                 accountData,
                 downloadData,
                 accountData.user != null ? AccountPage() : SignIn()));
         break;
     }
-
     return Stack(
       children: <Widget>[page, _buildPlayer(musicData)],
     );
   }
 
   Widget _buildPlayer(MusicData musicData) {
-    double duration, widthDuration;
-    try {
-      duration = (durToInt(musicData.songPosition ?? -1) /
-          durToInt(musicData.songDuration ?? 1));
-      widthDuration =
-          MediaQuery.of(context).size.width * (duration >= 0 ? duration : 0);
-    } catch (e) {
-      widthDuration = 0;
-    }
-
     return musicData.currentSong != null && !keyboardActive
         ? Positioned(
             bottom: 0,
@@ -111,11 +98,6 @@ class MainPageState extends State<MainPage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                  Container(
-                    color: main_color,
-                    width: widthDuration,
-                    height: 2,
-                  ),
                   SwipeDetector(
                       onTap: () => Navigator.of(context, rootNavigator: true)
                           .push(BottomRoute(
@@ -137,7 +119,7 @@ class MainPageState extends State<MainPage> {
                                   ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                               child: Container(
                                   decoration: BoxDecoration(
-                                      color: Colors.black26.withOpacity(0.3)),
+                                      color: Colors.black26.withOpacity(0.22)),
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   alignment: Alignment.bottomCenter,
@@ -222,6 +204,7 @@ class MainPageState extends State<MainPage> {
     return WillPopScope(
         onWillPop: () => Future<bool>.value(true),
         child: CupertinoTabScaffold(
+          controller: controller,
             tabBar: CupertinoTabBar(
               activeColor: main_color,
               items: <BottomNavigationBarItem>[

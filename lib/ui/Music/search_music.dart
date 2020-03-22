@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/models/downloaded_song.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/api/music_list.dart';
@@ -83,8 +82,15 @@ class SearchMusicPageState extends State<SearchMusicPage> {
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-          onTap: () {
-            downloadData.query = song;
+          onTap: () async {
+            downloadData.musicData
+                .setPlaylistSongs(_songList, song, local: false);
+            if (downloadData.musicData.currentSong != null &&
+                downloadData.musicData.currentSong.song_id == song.song_id) {
+              await downloadData.musicData.playerResume();
+            } else {
+              await downloadData.musicData.playerPlay(song);
+            }
           },
           trailing: Text(formatDuration(song.duration),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
@@ -101,11 +107,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     } else if (isAdded) {
                       setState(() {
                         song.in_my_list = 1;
-                        downloadData.dataSong.insert(
-                            addAmount++,
-                            DownloadedSong(
-                                song: song,
-                                downloaded: downloadData.checkLocal(song)));
+                        downloadData.dataSong.insert(addAmount++, song);
                       });
                     }
                   },

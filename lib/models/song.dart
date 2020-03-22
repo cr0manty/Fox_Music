@@ -21,14 +21,19 @@ class Song {
   int duration;
   int song_id;
   int in_my_list;
+  bool downloaded;
+  bool inPlaylist;
 
-  Song({this.song_id,
-    this.artist,
-    this.title,
-    this.duration,
-    this.download,
-    this.path,
-    this.in_my_list});
+  Song(
+      {this.song_id,
+      this.artist,
+      this.title,
+      this.duration,
+      this.download,
+      this.path,
+      this.in_my_list})
+      : downloaded = false,
+        inPlaylist = false;
 
   @override
   int get hashCode => song_id.hashCode;
@@ -46,18 +51,16 @@ class Song {
     return '$formatArtist-$formatTitle.mp3';
   }
 
-  factory Song.fromJson(Map<String, dynamic> json) =>
-      new Song(
-          title: json['title'],
-          artist: json['artist'],
-          duration: json['duration'],
-          download: json['download'],
-          song_id: json['song_id'],
-          path: json['path'],
-          in_my_list: json['in_my_list']);
+  factory Song.fromJson(Map<String, dynamic> json) => new Song(
+      title: json['title'],
+      artist: json['artist'],
+      duration: json['duration'],
+      download: json['download'],
+      song_id: json['song_id'],
+      path: json['path'],
+      in_my_list: json['in_my_list']);
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'title': title,
         'artist': artist,
         'duration': duration,

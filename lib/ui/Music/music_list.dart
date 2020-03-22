@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/ui/Music/playlist_add_song.dart';
+import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
@@ -59,10 +62,18 @@ class MusicListPageState extends State<MusicListPage>
     }
   }
 
+  void _addToPlaylist(MusicData musicData) {
+    FocusScope.of(context).requestFocus(FocusNode());
+    Navigator.of(context, rootNavigator: true).push(BottomRoute(
+        page: ChangeNotifierProvider<MusicData>.value(
+            value: musicData,
+            child: AddToPlaylistPage(playlist: widget.playlist))));
+  }
+
   @override
   Widget build(BuildContext context) {
-    MusicData musicData = Provider.of<MusicData>(context);
-    _updateMusicList(musicData);
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+    _updateMusicList(downloadData.musicData);
 
     return Material(
         child: CupertinoPageScaffold(
@@ -77,33 +88,22 @@ class MusicListPageState extends State<MusicListPage>
                     ? GestureDetector(
                         child:
                             Icon(SFSymbols.plus, color: Colors.white, size: 25),
-                        onTap: () {})
+                        onTap: () => _addToPlaylist(downloadData.musicData))
                     : null),
-            child: _buildBody(musicData)));
+            child: _buildBody(downloadData)));
   }
 
-  //        onRefresh: () => _loadPlaylist(musicData, null, update: true),
-  _buildBody(MusicData musicData) {
+  _buildBody(MusicDownloadData downloadData) {
     return SafeArea(
         child: CustomScrollView(slivers: <Widget>[
       CupertinoSliverRefreshControl(
-        onRefresh: () => _loadMusicList(musicData, null, update: true),
+        onRefresh: () =>
+            _loadMusicList(downloadData.musicData, null, update: true),
       ),
-      _musicList.length > 0
-          ? SliverList(
-              delegate: SliverChildListDelegate(List.generate(
-                  _musicListSorted.length + 1,
-                  (index) => _buildSongListTile(index, musicData))))
-          : SliverToBoxAdapter(
-              child: Padding(
-                  padding: EdgeInsets.only(top: 30),
-                  child: Text(
-                    widget._pageType == PageType.SAVED
-                        ? 'No saved songs'
-                        : 'Empty playlist',
-                    style: TextStyle(color: Colors.grey, fontSize: 20),
-                    textAlign: TextAlign.center,
-                  )))
+      SliverList(
+          delegate: SliverChildListDelegate(List.generate(
+              _musicListSorted.length + 1,
+              (index) => _buildSongListTile(index, downloadData))))
     ]));
   }
 
@@ -132,7 +132,7 @@ class MusicListPageState extends State<MusicListPage>
     }
   }
 
-  _deleteSong(MusicData musicData, Song song) {
+  _deleteSong(MusicDownloadData downloadData, Song song) {
     showDialog(
         context: context,
         builder: (BuildContext context) => new CupertinoAlertDialog(
@@ -152,7 +152,8 @@ class MusicListPageState extends State<MusicListPage>
                       onPressed: () {
                         Navigator.pop(context);
                         try {
-                          musicData.deleteSong(song);
+                          downloadData.musicData.deleteSong(song);
+                          downloadData.downloadMark(song, downloaded: false);
                           File(song.path).deleteSync();
                           setState(() {
                             _musicList.remove(song);
@@ -275,7 +276,7 @@ class MusicListPageState extends State<MusicListPage>
     return actions;
   }
 
-  _buildSongListTile(int index, MusicData musicData) {
+  _buildSongListTile(int index, MusicDownloadData downloadData) {
     if (index == 0) {
       return AppleSearch(
         onChange: _filterSongs,
@@ -301,23 +302,24 @@ class MusicListPageState extends State<MusicListPage>
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
-                  _loadMusicList(musicData, song);
+                  _loadMusicList(downloadData.musicData, song);
 
                   setState(() {
-                    musicData.isLocal = true;
+                    downloadData.musicData.isLocal = true;
                   });
 
-                  if (musicData.currentSong != null &&
-                      musicData.currentSong.song_id == song.song_id) {
-                    await musicData.playerResume();
+                  if (downloadData.musicData.currentSong != null &&
+                      downloadData.musicData.currentSong.song_id ==
+                          song.song_id) {
+                    await downloadData.musicData.playerResume();
                   } else {
-                    await musicData.playerPlay(song);
+                    await downloadData.musicData.playerPlay(song);
                   }
                 },
                 trailing: Text(formatDuration(song.duration),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
-          actions: _actionsPane(musicData, song),
+          actions: _actionsPane(downloadData.musicData, song),
           secondaryActions: <Widget>[
             SlideAction(
               color: HexColor('#5994ce'),
@@ -334,8 +336,8 @@ class MusicListPageState extends State<MusicListPage>
                 color: Colors.white,
               ),
               onTap: () => widget._pageType == PageType.SAVED
-                  ? _deleteSong(musicData, song)
-                  : deleteSongFromPlaylist(musicData, song),
+                  ? _deleteSong(downloadData, song)
+                  : deleteSongFromPlaylist(downloadData.musicData, song),
             ),
           ],
         ),
@@ -343,7 +345,7 @@ class MusicListPageState extends State<MusicListPage>
             padding: EdgeInsets.only(left: 12.0),
             child: Divider(height: 1, color: Colors.grey))
       ]),
-      musicData.isPlaying(song.song_id)
+      downloadData.musicData.isPlaying(song.song_id)
           ? Container(
               height: 60,
               width: 3,

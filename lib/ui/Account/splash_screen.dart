@@ -28,9 +28,9 @@ class _IntroPageState extends State<IntroPage> {
       MusicData musicData = new MusicData();
       AccountData accountData = new AccountData();
       MusicDownloadData downloadData = new MusicDownloadData();
-      musicData.init(Theme.of(context).platform);
-      accountData.init();
-      downloadData.init(musicData);
+      await musicData.init(Theme.of(context).platform);
+      await accountData.init();
+      await downloadData.init(musicData);
 
       Navigator.popUntil(context, (Route<dynamic> route) => true);
       Navigator.of(context).pushAndRemoveUntil(

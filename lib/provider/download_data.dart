@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
-import 'package:fox_music/models/downloaded_song.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +18,7 @@ enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 
 class MusicDownloadData with ChangeNotifier {
   List<Song> _query = [];
-  List<DownloadedSong> dataSong = [];
+  List<Song> dataSong = [];
   Song currentSong;
   double progress = 0;
   DownloadState _downloadState;
@@ -96,8 +95,10 @@ class MusicDownloadData with ChangeNotifier {
 
   void loadDownloaded(List<Song> songs) {
     dataSong.clear();
-    songs.forEach((song) => dataSong.add(DownloadedSong(
-        song: song, downloaded: musicData.localSongs.indexOf(song) != -1)));
+    songs.forEach((song) {
+      song.downloaded = musicData.localSongs.indexOf(song) != -1;
+      dataSong.add(song);
+    });
   }
 
   loadMusic() async {
@@ -120,6 +121,10 @@ class MusicDownloadData with ChangeNotifier {
       httpClient = null;
     }
     notifyListeners();
+  }
+
+  void downloadMark(Song song, {bool downloaded = true}) {
+    dataSong[dataSong.indexOf(song)].downloaded = downloaded;
   }
 
   downloadSong(Song song) async {
@@ -161,6 +166,7 @@ class MusicDownloadData with ChangeNotifier {
           await saveSong(song, bytes);
           _state = DownloadState.COMPLETED;
           _timer.cancel();
+          downloadMark(currentSong);
           currentSong = null;
           httpClient = null;
           progress = 0;

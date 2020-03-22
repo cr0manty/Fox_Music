@@ -118,6 +118,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
                       style:
                           TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                   onTap: () {
+                    FocusScope.of(context).requestFocus(FocusNode());
                     Navigator.of(_scaffoldKey.currentContext).push(
                         CupertinoPageRoute(
                             builder: (BuildContext context) =>
