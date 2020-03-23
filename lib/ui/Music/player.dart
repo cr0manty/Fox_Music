@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/models/song.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -22,8 +23,14 @@ class PlayerPage extends StatefulWidget {
 
 class PlayerPageState extends State<PlayerPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  StreamSubscription _durationSubscription;
+  StreamSubscription _positionSubscription;
   List<Playlist> _playlistList = [];
+  Duration songPosition;
+  Duration songDuration;
   int selectItem = 1;
+  bool init = true;
+  bool initCC = true;
 
   _loadPlaylist() async {
     List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
@@ -40,6 +47,16 @@ class PlayerPageState extends State<PlayerPage> {
     _loadPlaylist();
   }
 
+  void seek(MusicData musicData, {duration}) {
+    setState(() {
+      int value = (duration != null && duration < 1
+              ? durToInt(songDuration) * duration
+              : 0)
+          .toInt();
+      musicData.audioPlayer.seek(Duration(seconds: value));
+    });
+  }
+
   _play(MusicData musicData) {
     return musicData.currentSong != null
         ? () async {
@@ -54,12 +71,35 @@ class PlayerPageState extends State<PlayerPage> {
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).requestFocus(FocusNode());
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
-    double sliderValue =
-        durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
-    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (init) {
+      _durationSubscription =
+          musicData.audioPlayer.onDurationChanged.listen((duration) {
+        setState(() {
+          songDuration = duration;
+        });
+        if (musicData.currentSong?.duration != duration.inSeconds &&
+            musicData.currentSong?.path != null) {
+          musicData.currentSong.duration = duration.inSeconds;
+          musicData.renameSong(musicData.currentSong);
+        }
+        if (initCC) {
+          musicData.setCCData(duration);
+          initCC = false;
+        }
+      });
+      _positionSubscription =
+          musicData.audioPlayer.onAudioPositionChanged.listen((p) {
+        setState(() {
+          songPosition = p;
+        });
+      });
+    }
+    double sliderValue = durToInt(songPosition) / durToInt(songDuration);
 
     return CupertinoPageScaffold(
         key: _scaffoldKey,
@@ -108,7 +148,7 @@ class PlayerPageState extends State<PlayerPage> {
                                   ? () {
                                       if (sliderValue < 0.3 &&
                                           sliderValue > 0.05) {
-                                        musicData.seek();
+                                        seek(musicData);
                                       } else {
                                         musicData.prev();
                                       }
@@ -141,9 +181,9 @@ class PlayerPageState extends State<PlayerPage> {
                               child: Slider(
                                 onChanged: (value) {},
                                 onChangeEnd: (double value) {
-                                  musicData.seek(duration: value);
+                                  seek(musicData, duration: value);
                                 },
-                                value: musicData.songPosition != null &&
+                                value: songPosition != null &&
                                         sliderValue > 0.0 &&
                                         sliderValue < 1.0
                                     ? sliderValue
@@ -157,17 +197,17 @@ class PlayerPageState extends State<PlayerPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Text(
-                                      musicData.songPosition != null &&
+                                      songPosition != null &&
                                               sliderValue > 0.0 &&
                                               sliderValue < 1.0
-                                          ? timeFormat(musicData.songPosition)
+                                          ? timeFormat(songPosition)
                                           : '00:00',
                                       style: TextStyle(
                                           color:
                                               Colors.white.withOpacity(0.7))),
                                   Text(
-                                      musicData.songDuration != null
-                                          ? timeFormat(musicData.songDuration)
+                                      songDuration != null
+                                          ? timeFormat(songDuration)
                                           : '00:00',
                                       style: TextStyle(
                                           color: Colors.white.withOpacity(0.7)))
@@ -235,7 +275,7 @@ class PlayerPageState extends State<PlayerPage> {
                                             ? () {
                                                 if (sliderValue < 0.3 &&
                                                     sliderValue > 0.02) {
-                                                  musicData.seek();
+                                                  seek(musicData);
                                                 } else {
                                                   musicData.prev();
                                                 }
@@ -407,5 +447,12 @@ class PlayerPageState extends State<PlayerPage> {
                 ))
           ],
         )));
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    _durationSubscription?.cancel();
+    super.dispose();
   }
 }

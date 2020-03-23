@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:provider/provider.dart';
-import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/api/login.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
-import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/utils/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 

@@ -3,7 +3,8 @@ import 'dart:io';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fox_music/functions/format/time.dart';
+import 'package:fox_music/models/playlist.dart';
+import 'package:fox_music/utils/database.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
@@ -30,14 +31,10 @@ class MusicData with ChangeNotifier {
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
   double volume = 1;
-  Duration songPosition;
-  Duration songDuration;
   var platform;
 
   AudioPlayerState playerState;
 
-  StreamSubscription _durationSubscription;
-  StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
   StreamSubscription _playerError;
   StreamSubscription _playerState;
@@ -54,31 +51,14 @@ class MusicData with ChangeNotifier {
     audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
     playerState = audioPlayer.state;
 
-    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
-      songDuration = duration;
-      if (currentSong?.duration != duration.inSeconds &&
-          currentSong?.path != null) {
-        currentSong.duration = duration.inSeconds;
-        renameSong(currentSong);
-      }
-      if (initCC) {
-        setCCData(duration);
-        initCC = false;
-      }
-      notifyListeners();
-    });
-    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
-      songPosition = p;
-      notifyListeners();
-    });
     _playerCompleteSubscription =
         audioPlayer.onPlayerCompletion.listen((event) {
-          if (!repeat) {
-            next();
-            initCC = true;
-          }
-          notifyListeners();
-        });
+      if (!repeat) {
+        next();
+        initCC = true;
+      }
+      notifyListeners();
+    });
 
     _playerError = audioPlayer.onPlayerError.listen((error) {
       print(error);
@@ -91,9 +71,9 @@ class MusicData with ChangeNotifier {
 
     _playerNotifyState =
         audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-          playerState = state;
-          notifyListeners();
-        });
+      playerState = state;
+      notifyListeners();
+    });
   }
 
   _getState() async {
@@ -111,7 +91,7 @@ class MusicData with ChangeNotifier {
           title: currentSong.title,
           artist: currentSong.artist,
           imageUrl:
-          'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
+              'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
           forwardSkipInterval: const Duration(seconds: 5),
           backwardSkipInterval: const Duration(seconds: 5),
           duration: duration);
@@ -132,11 +112,11 @@ class MusicData with ChangeNotifier {
 
   bool _filterSongs(String artist, String title) {
     return localSongs
-        .where((song) =>
-    song.artist.toLowerCase().contains(artist.toLowerCase()) &&
-        song.title.toLowerCase().contains(title.toLowerCase()))
-        .toList()
-        .length >
+            .where((song) =>
+                song.artist.toLowerCase().contains(artist.toLowerCase()) &&
+                song.title.toLowerCase().contains(title.toLowerCase()))
+            .toList()
+            .length >
         0;
   }
 
@@ -171,7 +151,7 @@ class MusicData with ChangeNotifier {
       final song = formatSong(songPath.path);
       if (song == null) {
         var songData =
-        await MediaMetadataPlugin.getMediaMetaData(songPath.path);
+            await MediaMetadataPlugin.getMediaMetaData(songPath.path);
         if (_filterSongs(
             songData.artistName ?? '', songData.artistName ?? '')) {
           var rng = new Random();
@@ -182,9 +162,9 @@ class MusicData with ChangeNotifier {
               path: songPath.path,
               duration: songData.trackDuration,
               artist:
-              songData.artistName != null && songData.artistName.isNotEmpty
-                  ? songData.artistName
-                  : randomAlpha(15),
+                  songData.artistName != null && songData.artistName.isNotEmpty
+                      ? songData.artistName
+                      : randomAlpha(15),
               song_id: rng.nextInt(100000));
           localSongs.add(song);
           renameSong(song);
@@ -202,17 +182,20 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
-  mixClick() {
-    mix = !mix;
+  mixClick({bool mixThis = false}) {
+    mix = mixThis ? !mix : mixThis;
     if (mix) {
       withoutMix = playlist;
       playlist..shuffle();
-      playlist.remove(currentSong);
-      playlist.insert(0, currentSong);
+      if (currentSong != null) {
+        playlist.remove(currentSong);
+        playlist.insert(0, currentSong);
+      }
     } else {
       playlist = withoutMix;
     }
-    currentIndexPlaylist = playlist.indexOf(currentSong);
+    currentIndexPlaylist =
+        currentSong != null ? playlist.indexOf(currentSong) : 0;
     notifyListeners();
   }
 
@@ -226,6 +209,22 @@ class MusicData with ChangeNotifier {
 
     notifyListeners();
     savePlayerState(repeat);
+  }
+
+  playPlaylist(Playlist thisPlaylist, {bool mix = false}) async {
+    Playlist newPlaylist = await DBProvider.db.getPlaylist(thisPlaylist.id);
+    List<String> songIdList = newPlaylist.splitSongList();
+    List<Song> songList = await loadPlaylistTrack(songIdList);
+    isLocal = true;
+    playlist = songList;
+
+    if (mix) mixClick(mixThis: true);
+
+    if (currentSong != null && currentSong.song_id == playlist[0].song_id) {
+      await playerResume();
+    } else {
+      await playerPlay(playlist[0]);
+    }
   }
 
   loadPlaylistTrack(List<String> songsListId) async {
@@ -250,10 +249,6 @@ class MusicData with ChangeNotifier {
   loadPlaylist(List<Song> songList) {
     playlist = songList;
     notifyListeners();
-  }
-
-  bool sliderValue() {
-    return songDuration != null && songPosition != null;
   }
 
   _stopAllPlayers() {
@@ -297,7 +292,6 @@ class MusicData with ChangeNotifier {
       return;
     }
     playerState = AudioPlayerState.PLAYING;
-    songDuration = Duration(seconds: 0);
     currentSong = song;
     initCC = true;
     notifyListeners();
@@ -343,23 +337,10 @@ class MusicData with ChangeNotifier {
     return currentSong != null && currentSong.song_id == songId;
   }
 
-  void seek({duration}) {
-    if (currentSong != null) {
-      int value = (duration != null && duration < 1
-          ? durToInt(songDuration) * duration
-          : 0)
-          .toInt();
-      audioPlayer.seek(Duration(seconds: value));
-      notifyListeners();
-    }
-  }
-
   @override
   void dispose() {
     audioPlayer?.stop();
-    _positionSubscription?.cancel();
     _playerCompleteSubscription?.cancel();
-    _durationSubscription?.cancel();
     _playerError?.cancel();
     _playerState?.cancel();
     _playerNotifyState?.cancel();

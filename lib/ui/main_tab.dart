@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/functions/save/last_tab.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
@@ -35,7 +34,8 @@ class MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    controller  = CupertinoTabController(initialIndex: widget.lastIndex);
+    controller = CupertinoTabController(
+        initialIndex: widget.lastIndex < 0 ? 0 : widget.lastIndex);
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool visible) {
         keyboardActive = visible;
@@ -204,7 +204,7 @@ class MainPageState extends State<MainPage> {
     return WillPopScope(
         onWillPop: () => Future<bool>.value(true),
         child: CupertinoTabScaffold(
-          controller: controller,
+            controller: controller,
             tabBar: CupertinoTabBar(
               activeColor: main_color,
               items: <BottomNavigationBarItem>[

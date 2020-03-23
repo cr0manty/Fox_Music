@@ -45,13 +45,10 @@ class MusicListPageState extends State<MusicListPage>
     if (init) {
       musicData.playlistUpdate = true;
     }
-    if (widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) {
+    if ((widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) ||
+        (widget._pageType == PageType.SAVED && musicData.localUpdate)) {
       _loadMusicList(musicData, null);
       musicData.playlistUpdate = false;
-    }
-    if (widget._pageType == PageType.SAVED && musicData.localUpdate) {
-      _loadMusicList(musicData, null);
-      musicData.localUpdate = false;
     }
     if (widget._pageType == PageType.SAVED && musicData.playlistListUpdate) {
       List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
@@ -121,11 +118,13 @@ class MusicListPageState extends State<MusicListPage>
           await DBProvider.db.getPlaylist(widget.playlist.id);
       List<String> songIdList = newPlaylist.splitSongList();
       List<Song> songList = await musicData.loadPlaylistTrack(songIdList);
-      setState(() {
-        _musicList = songList;
-        _musicListSorted = _musicList;
-        _filterSongs(controller.text);
-      });
+      if (mounted) {
+        setState(() {
+          _musicList = songList;
+          _musicListSorted = _musicList;
+          _filterSongs(controller.text);
+        });
+      }
     }
     if (song != null) {
       musicData.setPlaylistSongs(_musicList, song);
@@ -303,10 +302,7 @@ class MusicListPageState extends State<MusicListPage>
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
                   _loadMusicList(downloadData.musicData, song);
-
-                  setState(() {
-                    downloadData.musicData.isLocal = true;
-                  });
+                  downloadData.musicData.isLocal = true;
 
                   if (downloadData.musicData.currentSong != null &&
                       downloadData.musicData.currentSong.song_id ==

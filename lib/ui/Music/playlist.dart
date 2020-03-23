@@ -189,10 +189,6 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: main_color);
   }
 
-  void _shufflePlaylist() {
-
-  }
-
   _buildPlaylistList(MusicData musicData, int index) {
     Playlist playlist = _playlistList[index];
 
@@ -222,7 +218,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                   leading: Container(padding: EdgeInsets.only(right: 20),
                       child: _showImage(playlist)),
                   trailing: GestureDetector(
-                      onTap: () => _shufflePlaylist(),
+                      onTap: () => musicData.playPlaylist(playlist, mix: true),
                       child: Container(
                           color: Colors.transparent,
                           padding:
@@ -237,7 +233,7 @@ class PlaylistPageState extends State<PlaylistPage> {
               SlideAction(
                 color: HexColor('#3a4e93'),
                 child: Icon(SFSymbols.play, color: Colors.white),
-                onTap: null,
+                onTap: () => musicData.playPlaylist(playlist),
               ),
               SlideAction(
                 color: HexColor('#a04db5'),
