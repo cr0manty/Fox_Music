@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 infoDialog(BuildContext context, String title, String message) {
-  showDialog(
+  return showDialog(
       context: context,
       builder: (BuildContext context) => new CupertinoAlertDialog(
               title: Text(title),

@@ -2,6 +2,7 @@
 const BASE_URL  = 'http://3.17.149.189';
 
 const BASE_API_URL = '$BASE_URL/api';
+const APP_VERSION_URL = '$BASE_API_URL/current-app-version/';
 
 const AUTH_URL = '$BASE_API_URL/auth/';
 const REGISTRATION_URL = '$BASE_API_URL/reg/';

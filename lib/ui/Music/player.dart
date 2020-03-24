@@ -100,6 +100,16 @@ class PlayerPageState extends State<PlayerPage> {
             songPosition = p;
           });
       });
+      musicData.audioPlayer.onPlayerError.listen((msg) {
+        print('audioPlayer error : $msg');
+        setState(() {
+          musicData.currentSong = null;
+          musicData.playerStop();
+          songDuration = Duration(seconds: 0);
+          songPosition = Duration(seconds: 0);
+        });
+        if (mounted) Navigator.of(context).pop();
+      });
     }
     double sliderValue = durToInt(songPosition) / durToInt(songDuration);
 

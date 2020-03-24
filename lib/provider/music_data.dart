@@ -338,6 +338,7 @@ class MusicData with ChangeNotifier {
     _playerCompleteSubscription?.cancel();
     _playerState?.cancel();
     _playerNotifyState?.cancel();
+    audioPlayer?.release();
     super.dispose();
   }
 }
