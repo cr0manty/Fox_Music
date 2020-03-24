@@ -55,6 +55,7 @@ class MusicListPageState extends State<MusicListPage>
 
       setState(() {
         _playlistList = playlistList;
+              musicData.playlistListUpdate = false;
       });
     }
   }

@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fox_music/functions/get/last_tab.dart';
-import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/utils/fade_route.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
@@ -58,7 +57,11 @@ class _IntroPageState extends State<IntroPage> {
           WidgetsBinding.instance.window.platformBrightness == Brightness.dark
               ? HexColor('#282828')
               : Colors.white,
-      child: Container(),
+      child: Container(
+        child: Image.asset('assets/images/audio-cover.png'),
+        width: 0,
+        height: 0,
+      ),
     );
   }
 }

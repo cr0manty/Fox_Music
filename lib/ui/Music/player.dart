@@ -76,12 +76,13 @@ class PlayerPageState extends State<PlayerPage> {
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
 
-    if (init) {
+    if (init && mounted) {
       _durationSubscription =
           musicData.audioPlayer.onDurationChanged.listen((duration) {
-        setState(() {
-          songDuration = duration;
-        });
+        if (mounted)
+          setState(() {
+            songDuration = duration;
+          });
         if (musicData.currentSong?.duration != duration.inSeconds &&
             musicData.currentSong?.path != null) {
           musicData.currentSong.duration = duration.inSeconds;
@@ -94,9 +95,10 @@ class PlayerPageState extends State<PlayerPage> {
       });
       _positionSubscription =
           musicData.audioPlayer.onAudioPositionChanged.listen((p) {
-        setState(() {
-          songPosition = p;
-        });
+        if (mounted)
+          setState(() {
+            songPosition = p;
+          });
       });
     }
     double sliderValue = durToInt(songPosition) / durToInt(songDuration);
