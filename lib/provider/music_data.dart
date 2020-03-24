@@ -36,7 +36,6 @@ class MusicData with ChangeNotifier {
   AudioPlayerState playerState;
 
   StreamSubscription _playerCompleteSubscription;
-  StreamSubscription _playerError;
   StreamSubscription _playerState;
   StreamSubscription _playerNotifyState;
 
@@ -47,7 +46,7 @@ class MusicData with ChangeNotifier {
     await _getState();
   }
 
-  initPlayer() {
+  void initPlayer() {
     audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
     playerState = audioPlayer.state;
 
@@ -58,10 +57,6 @@ class MusicData with ChangeNotifier {
         initCC = true;
       }
       notifyListeners();
-    });
-
-    _playerError = audioPlayer.onPlayerError.listen((error) {
-      print(error);
     });
 
     _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
@@ -76,14 +71,14 @@ class MusicData with ChangeNotifier {
     });
   }
 
-  _getState() async {
+  void _getState() async {
     var data = await getPlayerState();
     if (data['repeat']) {
       repeatClick();
     }
   }
 
-  setCCData(Duration duration) {
+  void setCCData(Duration duration) {
     if (platform == TargetPlatform.iOS) {
       audioPlayer.startHeadlessService();
 
@@ -98,7 +93,7 @@ class MusicData with ChangeNotifier {
     }
   }
 
-  setPlaylistSongs(List<Song> songList, Song song, {bool local = true}) {
+  void setPlaylistSongs(List<Song> songList, Song song, {bool local = true}) {
     isLocal = local;
     if (songList != playlist) {
       playlist.clear();
@@ -182,7 +177,7 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
-  mixClick({bool mixThis = false}) {
+  void mixClick({bool mixThis = false}) {
     mix = mixThis ? !mix : mixThis;
     if (mix) {
       withoutMix = playlist;
@@ -199,7 +194,7 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
-  repeatClick() async {
+  void repeatClick() async {
     repeat = !repeat;
     if (repeat) {
       await audioPlayer.setReleaseMode(ReleaseMode.LOOP);
@@ -246,12 +241,12 @@ class MusicData with ChangeNotifier {
     return songList;
   }
 
-  loadPlaylist(List<Song> songList) {
+  void loadPlaylist(List<Song> songList) {
     playlist = songList;
     notifyListeners();
   }
 
-  _stopAllPlayers() {
+  void _stopAllPlayers() {
     var players = AudioPlayer.players;
 
     players.forEach((key, player) async {
@@ -341,7 +336,6 @@ class MusicData with ChangeNotifier {
   void dispose() {
     audioPlayer?.stop();
     _playerCompleteSubscription?.cancel();
-    _playerError?.cancel();
     _playerState?.cancel();
     _playerNotifyState?.cancel();
     super.dispose();
