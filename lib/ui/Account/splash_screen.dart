@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,10 +30,15 @@ class _IntroPageState extends State<IntroPage> {
     await connection.initialise();
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    var currentAppVersion =
-        connection.isOnline ? await appVersionGet() : await getLastVersion();
+    var currentAppVersion;
+
+    if (connection.isOnline) {
+      currentAppVersion = await appVersionGet();
+      saveLastVersion(currentAppVersion);
+    } else {
+      currentAppVersion = await getLastVersion();
+    }
     if (packageInfo.version != currentAppVersion['version']) {
-            saveLastVersion(currentAppVersion);
       await infoDialog(
           context, 'New version available', currentAppVersion['details']);
     }
@@ -45,7 +49,7 @@ class _IntroPageState extends State<IntroPage> {
     MusicDownloadData downloadData = new MusicDownloadData();
     await musicData.init(Theme.of(context).platform);
     await accountData.init();
-    await downloadData.init(musicData);
+    await downloadData.init(musicData, connection.isOnline);
 
     Navigator.popUntil(context, (Route<dynamic> route) => true);
     Navigator.of(context).pushAndRemoveUntil(

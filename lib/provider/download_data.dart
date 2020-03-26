@@ -55,9 +55,9 @@ class MusicDownloadData with ChangeNotifier {
     _downloadState = DownloadState.COMPLETED;
   }
 
-  init(MusicData data) {
+  init(MusicData data, bool online) {
     musicData = data;
-    loadMusic();
+    if (online) loadMusic();
 
     _queryChange = onQueryChanged.listen((Song song) {
       _query.add(song);

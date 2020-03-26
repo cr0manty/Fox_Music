@@ -202,7 +202,7 @@ class MainPageState extends State<MainPage> {
     AccountData accountData = Provider.of<AccountData>(context);
 
     return WillPopScope(
-        onWillPop: () => Future<bool>.value(true),
+        onWillPop: () async => false,
         child: CupertinoTabScaffold(
             controller: controller,
             tabBar: CupertinoTabBar(

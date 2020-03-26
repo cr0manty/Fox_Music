@@ -134,7 +134,7 @@ class AccountPageState extends State<AccountPage> {
               child: ListTile(
                 leading: Icon(SFSymbols.person_2_alt, color: Colors.white),
                 onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext)
+                  Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
                       .push(CupertinoPageRoute(
                           builder: (context) => MultiProvider(providers: [
                                 ChangeNotifierProvider<MusicDownloadData>.value(

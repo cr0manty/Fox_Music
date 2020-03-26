@@ -23,11 +23,9 @@ class PlayerPage extends StatefulWidget {
 
 class PlayerPageState extends State<PlayerPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  StreamSubscription _durationSubscription;
-  StreamSubscription _positionSubscription;
+
   List<Playlist> _playlistList = [];
-  Duration songPosition;
-  Duration songDuration;
+
   int selectItem = 1;
   bool init = true;
   bool initCC = true;
@@ -45,16 +43,6 @@ class PlayerPageState extends State<PlayerPage> {
   void initState() {
     super.initState();
     _loadPlaylist();
-  }
-
-  void seek(MusicData musicData, {duration}) {
-    setState(() {
-      int value = (duration != null && duration < 1
-              ? durToInt(songDuration) * duration
-              : 0)
-          .toInt();
-      musicData.audioPlayer.seek(Duration(seconds: value));
-    });
   }
 
   _play(MusicData musicData) {
@@ -76,42 +64,8 @@ class PlayerPageState extends State<PlayerPage> {
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
 
-    if (init && mounted) {
-      _durationSubscription =
-          musicData.audioPlayer.onDurationChanged.listen((duration) {
-        if (mounted)
-          setState(() {
-            songDuration = duration;
-          });
-        if (musicData.currentSong?.duration != duration.inSeconds &&
-            musicData.currentSong?.path != null) {
-          musicData.currentSong.duration = duration.inSeconds;
-          musicData.renameSong(musicData.currentSong);
-        }
-        if (initCC) {
-          musicData.setCCData(duration);
-          initCC = false;
-        }
-      });
-      _positionSubscription =
-          musicData.audioPlayer.onAudioPositionChanged.listen((p) {
-        if (mounted)
-          setState(() {
-            songPosition = p;
-          });
-      });
-      musicData.audioPlayer.onPlayerError.listen((msg) {
-        print('audioPlayer error : $msg');
-        setState(() {
-          musicData.currentSong = null;
-          musicData.playerStop();
-          songDuration = Duration(seconds: 0);
-          songPosition = Duration(seconds: 0);
-        });
-        if (mounted) Navigator.of(context).pop();
-      });
-    }
-    double sliderValue = durToInt(songPosition) / durToInt(songDuration);
+    double sliderValue =
+        durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
 
     return CupertinoPageScaffold(
         key: _scaffoldKey,
@@ -160,7 +114,7 @@ class PlayerPageState extends State<PlayerPage> {
                                   ? () {
                                       if (sliderValue < 0.3 &&
                                           sliderValue > 0.05) {
-                                        seek(musicData);
+                                        musicData.seek();
                                       } else {
                                         musicData.prev();
                                       }
@@ -193,9 +147,9 @@ class PlayerPageState extends State<PlayerPage> {
                               child: Slider(
                                 onChanged: (value) {},
                                 onChangeEnd: (double value) {
-                                  seek(musicData, duration: value);
+                                  musicData.seek(duration: value);
                                 },
-                                value: songPosition != null &&
+                                value: musicData.songPosition != null &&
                                         sliderValue > 0.0 &&
                                         sliderValue < 1.0
                                     ? sliderValue
@@ -209,17 +163,17 @@ class PlayerPageState extends State<PlayerPage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Text(
-                                      songPosition != null &&
+                                      musicData.songPosition != null &&
                                               sliderValue > 0.0 &&
                                               sliderValue < 1.0
-                                          ? timeFormat(songPosition)
+                                          ? timeFormat(musicData.songPosition)
                                           : '00:00',
                                       style: TextStyle(
                                           color:
                                               Colors.white.withOpacity(0.7))),
                                   Text(
-                                      songDuration != null
-                                          ? timeFormat(songDuration)
+                                      musicData.songDuration != null
+                                          ? timeFormat(musicData.songDuration)
                                           : '00:00',
                                       style: TextStyle(
                                           color: Colors.white.withOpacity(0.7)))
@@ -287,7 +241,7 @@ class PlayerPageState extends State<PlayerPage> {
                                             ? () {
                                                 if (sliderValue < 0.3 &&
                                                     sliderValue > 0.02) {
-                                                  seek(musicData);
+                                                  musicData.seek();
                                                 } else {
                                                   musicData.prev();
                                                 }
@@ -459,12 +413,5 @@ class PlayerPageState extends State<PlayerPage> {
                 ))
           ],
         )));
-  }
-
-  @override
-  void dispose() {
-    _positionSubscription?.cancel();
-    _durationSubscription?.cancel();
-    super.dispose();
   }
 }

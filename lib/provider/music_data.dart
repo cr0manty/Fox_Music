@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,11 +34,15 @@ class MusicData with ChangeNotifier {
   double volume = 1;
   var platform;
 
+  Duration songPosition;
+  Duration songDuration;
   AudioPlayerState playerState;
 
   StreamSubscription _playerCompleteSubscription;
   StreamSubscription _playerState;
   StreamSubscription _playerNotifyState;
+  StreamSubscription _durationSubscription;
+  StreamSubscription _positionSubscription;
 
   init(thisPlatform) async {
     platform = thisPlatform;
@@ -67,6 +72,30 @@ class MusicData with ChangeNotifier {
     _playerNotifyState =
         audioPlayer.onNotificationPlayerStateChanged.listen((state) {
       playerState = state;
+      notifyListeners();
+    });
+
+    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
+      songDuration = duration;
+      if (currentSong?.duration != duration.inSeconds &&
+          currentSong?.path != null) {
+        currentSong.duration = duration.inSeconds;
+      }
+      if (initCC) {
+        setCCData(duration);
+        initCC = false;
+      }
+    });
+    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
+      songPosition = p;
+      notifyListeners();
+    });
+    audioPlayer.onPlayerError.listen((msg) {
+      print('audioPlayer error : $msg');
+      currentSong = null;
+      playerStop();
+      songDuration = Duration(seconds: 0);
+      songPosition = Duration(seconds: 0);
       notifyListeners();
     });
   }
@@ -168,6 +197,15 @@ class MusicData with ChangeNotifier {
         localSongs.add(song);
       }
     });
+    notifyListeners();
+  }
+
+  void seek({duration}) {
+    int value = (duration != null && duration < 1
+            ? durToInt(songDuration) * duration
+            : 0)
+        .toInt();
+    audioPlayer.seek(Duration(seconds: value));
     notifyListeners();
   }
 
@@ -337,6 +375,8 @@ class MusicData with ChangeNotifier {
     audioPlayer?.stop();
     _playerCompleteSubscription?.cancel();
     _playerState?.cancel();
+    _positionSubscription?.cancel();
+    _durationSubscription?.cancel();
     _playerNotifyState?.cancel();
     audioPlayer?.release();
     super.dispose();
