@@ -124,29 +124,10 @@ class MainPageState extends State<MainPage> {
                                       EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   alignment: Alignment.bottomCenter,
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Container(width: 10),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            musicData.currentSong.title,
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                          Divider(
-                                            height: 5,
-                                          ),
-                                          Text(
-                                            musicData.currentSong.artist,
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 15),
-                                          ),
-                                        ],
-                                      ),
-                                      Expanded(child: SizedBox()),
                                       GestureDetector(
                                         child: Container(
                                             color: Colors.transparent,
@@ -171,6 +152,28 @@ class MainPageState extends State<MainPage> {
                                             ? musicData.playerPause()
                                             : musicData.playerResume(),
                                       ),
+                                      SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            musicData.currentSong.title,
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          Divider(
+                                            height: 5,
+                                          ),
+                                          Text(
+                                            musicData.currentSong.artist,
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 15),
+                                          ),
+                                        ],
+                                      ),
+                                      Expanded(child: SizedBox()),
                                       GestureDetector(
                                         child: Container(
                                             color: Colors.transparent,
