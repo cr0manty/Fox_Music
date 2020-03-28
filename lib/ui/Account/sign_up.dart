@@ -42,7 +42,7 @@ class SignUpState extends State<SignUp> {
                 children: <Widget>[
                   Center(
                       child: Container(
-                          height: MediaQuery.of(context).size.height * 0.3,
+                          height: MediaQuery.of(context).size.height * 0.25,
                           decoration: BoxDecoration(
                               image: DecorationImage(
                                   image: AssetImage(

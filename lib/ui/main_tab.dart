@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,9 +21,13 @@ import 'package:fox_music/utils/swipe_detector.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 
 class MainPage extends StatefulWidget {
+  final MusicData musicData;
+  final MusicDownloadData downloadData;
+  final AccountData accountData;
   final int lastIndex;
 
-  MainPage(this.lastIndex);
+  MainPage(
+      {this.lastIndex, this.downloadData, this.musicData, this.accountData});
 
   @override
   State<StatefulWidget> createState() => new MainPageState();
@@ -30,7 +35,12 @@ class MainPage extends StatefulWidget {
 
 class MainPageState extends State<MainPage> {
   CupertinoTabController controller;
+  StreamSubscription _showPlayer;
+  StreamSubscription _isPlaying;
+  StreamSubscription _loginIn;
   bool keyboardActive = false;
+  bool showPlayer = false;
+  bool isPlaying = false;
 
   @override
   void initState() {
@@ -41,26 +51,42 @@ class MainPageState extends State<MainPage> {
         keyboardActive = visible;
       },
     );
+    controller.addListener(() async {
+      saveLastTab(controller.index);
+    });
+    _showPlayer = widget.musicData.onPlayerActive.listen((active) {
+      setState(() {
+        showPlayer = active;
+      });
+    });
+
+    _isPlaying =
+        widget.musicData.audioPlayer.onPlayerStateChanged.listen((state) {
+      setState(() {
+        isPlaying = state == AudioPlayerState.PLAYING;
+      });
+    });
+
+    _loginIn = widget.accountData.onUserChangeAccount.listen((value) {
+      setState(() {});
+    });
     super.initState();
   }
 
-  Widget _buildView(
-      AccountData accountData, MusicDownloadData downloadData, Widget child) {
+  Widget _buildView(Widget child) {
     return MultiProvider(providers: [
-      ChangeNotifierProvider<MusicDownloadData>.value(value: downloadData),
-      ChangeNotifierProvider<AccountData>.value(value: accountData),
+      ChangeNotifierProvider<MusicDownloadData>.value(
+          value: widget.downloadData),
+      ChangeNotifierProvider<AccountData>.value(value: widget.accountData),
     ], child: child);
   }
 
-  Widget _switchTabs(MusicData musicData, MusicDownloadData downloadData,
-      AccountData accountData, int index) {
+  Widget _switchTabs(BuildContext context, int index) {
     Widget page;
-    saveLastTab(index - 1);
-
     switch (index) {
       case 0:
-        page = ChangeNotifierProvider<MusicData>.value(
-            value: musicData,
+        page = ChangeNotifierProvider<MusicDownloadData>.value(
+            value: widget.downloadData,
             child: CupertinoTabView(
                 builder: (BuildContext context) => PlaylistPage()));
         break;
@@ -68,49 +94,54 @@ class MainPageState extends State<MainPage> {
         page = CupertinoTabView(
             builder: (BuildContext context) =>
                 ChangeNotifierProvider<MusicDownloadData>.value(
-                    value: downloadData, child: MusicListPage()));
+                    value: widget.downloadData, child: MusicListPage()));
         break;
       case 2:
         page = CupertinoTabView(
             builder: (BuildContext context) =>
-                _buildView(accountData, downloadData, OnlineMusicListPage()));
+                _buildView(OnlineMusicListPage()));
         break;
       case 3:
         page = CupertinoTabView(
             builder: (BuildContext context) => _buildView(
-                accountData,
-                downloadData,
-                accountData.user != null ? AccountPage() : SignIn()));
+                widget.accountData.user != null ? AccountPage() : SignIn()));
         break;
     }
     return Stack(
-      children: <Widget>[page, _buildPlayer(musicData)],
+      children: <Widget>[page, _buildPlayer()],
     );
   }
 
-  Widget _buildPlayer(MusicData musicData) {
-    return musicData.currentSong != null && !keyboardActive
-        ? Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
+  bool get _playerShow => showPlayer && !keyboardActive;
+
+  Widget _buildPlayer() {
+    return Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: AnimatedOpacity(
+            opacity: _playerShow ? 1.0 : 0.0,
+            duration: Duration(milliseconds: 400),
             child: SafeArea(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                   SwipeDetector(
+                      enabled: _playerShow,
                       onTap: () => Navigator.of(context, rootNavigator: true)
                           .push(BottomRoute(
                               page: ChangeNotifierProvider<MusicData>.value(
-                                  value: musicData, child: PlayerPage()))),
+                                  value: widget.musicData,
+                                  child: PlayerPage()))),
                       onSwipeUp: () => Navigator.of(context, rootNavigator: true)
                           .push(BottomRoute(
                               page: ChangeNotifierProvider<MusicData>.value(
-                                  value: musicData, child: PlayerPage()))),
+                                  value: widget.musicData,
+                                  child: PlayerPage()))),
                       onSwipeDown: () {
-                        musicData.playerStop();
+                        widget.musicData.playerStop();
                         setState(() {
-                          musicData.currentSong = null;
+                          widget.musicData.currentSong = null;
                         });
                       },
                       child: ClipRect(
@@ -140,17 +171,20 @@ class MainPageState extends State<MainPage> {
                                                     .width *
                                                 0.12,
                                             child: Icon(
-                                              musicData.playerState ==
-                                                      AudioPlayerState.PLAYING
+                                              isPlaying
                                                   ? SFSymbols.pause_fill
                                                   : SFSymbols.play_fill,
                                               color: Colors.white,
                                               size: 20,
                                             )),
-                                        onTap: () => musicData.playerState ==
-                                                AudioPlayerState.PLAYING
-                                            ? musicData.playerPause()
-                                            : musicData.playerResume(),
+                                        onTap: _playerShow
+                                            ? () => widget.musicData
+                                                        .playerState ==
+                                                    AudioPlayerState.PLAYING
+                                                ? widget.musicData.playerPause()
+                                                : widget.musicData
+                                                    .playerResume()
+                                            : null,
                                       ),
                                       SizedBox(width: 10),
                                       Column(
@@ -158,7 +192,7 @@ class MainPageState extends State<MainPage> {
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Text(
-                                            musicData.currentSong.title,
+                                            widget.musicData.songData['title'],
                                             style:
                                                 TextStyle(color: Colors.white),
                                           ),
@@ -166,7 +200,7 @@ class MainPageState extends State<MainPage> {
                                             height: 5,
                                           ),
                                           Text(
-                                            musicData.currentSong.artist,
+                                            widget.musicData.songData['artist'],
                                             style: TextStyle(
                                                 color: Colors.grey,
                                                 fontSize: 15),
@@ -190,20 +224,17 @@ class MainPageState extends State<MainPage> {
                                               size: 20,
                                               color: Colors.white,
                                             )),
-                                        onTap: () => musicData.next(),
+                                        onTap: _playerShow
+                                            ? () => widget.musicData.next()
+                                            : null,
                                       )
                                     ],
                                   )))))
-                ])))
-        : Container();
+                ]))));
   }
 
   @override
   Widget build(BuildContext context) {
-    MusicData musicData = Provider.of<MusicData>(context);
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    AccountData accountData = Provider.of<AccountData>(context);
-
     return WillPopScope(
         onWillPop: () async => false,
         child: CupertinoTabScaffold(
@@ -222,8 +253,14 @@ class MainPageState extends State<MainPage> {
                     icon: Icon(SFSymbols.person_alt), title: Text('Account'))
               ],
             ),
-            tabBuilder: (BuildContext context, int index) {
-              return _switchTabs(musicData, downloadData, accountData, index);
-            }));
+            tabBuilder: _switchTabs));
+  }
+
+  @override
+  void dispose() {
+    _showPlayer?.cancel();
+    _isPlaying?.cancel();
+    _loginIn?.cancel();
+    super.dispose();
   }
 }

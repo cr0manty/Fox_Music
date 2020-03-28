@@ -48,14 +48,18 @@ class MusicListPageState extends State<MusicListPage>
     if ((widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) ||
         (widget._pageType == PageType.SAVED && musicData.localUpdate)) {
       _loadMusicList(musicData, null);
-      musicData.playlistUpdate = false;
+      if (widget._pageType == PageType.PLAYLIST) {
+        musicData.playlistUpdate = false;
+      } else {
+        musicData.localUpdate = false;
+      }
     }
     if (widget._pageType == PageType.SAVED && musicData.playlistListUpdate) {
       List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
 
       setState(() {
         _playlistList = playlistList;
-              musicData.playlistListUpdate = false;
+        musicData.playlistListUpdate = false;
       });
     }
   }
@@ -113,6 +117,7 @@ class MusicListPageState extends State<MusicListPage>
         _playlistList = playlistList;
         _musicList = musicData.localSongs;
         _musicListSorted = _musicList;
+        _filterSongs(controller.text);
       });
     } else {
       Playlist newPlaylist =

@@ -124,7 +124,7 @@ packages:
       name: flutter_spinkit
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.2"
+    version: "4.1.2+1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -169,7 +169,7 @@ packages:
       name: image_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.3+4"
+    version: "0.6.4"
   keyboard_visibility:
     dependency: "direct main"
     description:

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -15,11 +16,16 @@ enum AccountType { SELF_SHOW, SELF_EDIT }
 
 class AccountData with ChangeNotifier {
   List<Relationship> friendList = [];
-  User user;
+  User _user;
   File newImage;
   bool offlineMode = false;
   AccountType accountType;
   int messageCount = 0;
+
+  Stream<bool> get onUserChangeAccount => _userChangeAccount.stream;
+
+  final StreamController<bool> _userChangeAccount =
+      StreamController<bool>.broadcast();
 
   AccountData() {
     accountType = AccountType.SELF_SHOW;
@@ -47,6 +53,7 @@ class AccountData with ChangeNotifier {
       User newUser = await profileGet();
       if (newUser != null) {
         user = newUser;
+        _user = newUser;
       }
       notifyListeners();
     }
@@ -55,23 +62,30 @@ class AccountData with ChangeNotifier {
   getUser({int userId}) async {
     User newUser = await profileGet(friendId: userId);
     if (newUser != null) {
-      user = newUser;
+      _user = newUser;
     }
-    notifyListeners();
   }
 
-  setUser(newUser) {
-    user = newUser;
-    notifyListeners();
+  set user(User newUser) {
+    _user = newUser;
+    _userChangeAccount.add(_user != null);
   }
+
+  User get user => _user;
 
   makeLogout() {
     logout();
-    setUser(null);
+    user = null;
   }
 
   setNewImage(image) {
     newImage = image;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _userChangeAccount?.close();
+    super.dispose();
   }
 }

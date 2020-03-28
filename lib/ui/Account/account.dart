@@ -20,14 +20,14 @@ class AccountPage extends StatefulWidget {
 
 class AccountPageState extends State<AccountPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  bool init = true;
 
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
-    MusicData musicData = Provider.of<MusicData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
-    accountData.getUser();
+    if (init) accountData.getUser();
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(middle: Text('Profile')),
@@ -44,7 +44,8 @@ class AccountPageState extends State<AccountPage> {
                             CupertinoActionSheetAction(
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  Navigator.of(_scaffoldKey.currentContext)
+                                  Navigator.of(_scaffoldKey.currentContext,
+                                          rootNavigator: true)
                                       .push(CupertinoPageRoute(
                                           builder: (context) =>
                                               ChangeNotifierProvider<
@@ -73,15 +74,15 @@ class AccountPageState extends State<AccountPage> {
                         radius: 70,
                         backgroundColor: Colors.grey,
                         backgroundImage:
-                            Image.network(formatImage(accountData.user.image))
+                            Image.network(formatImage(accountData.user?.image))
                                 .image)),
               )),
           Padding(
               padding: EdgeInsets.only(bottom: 25),
               child: Center(
                   child: Text(
-                      accountData.user.last_name.isEmpty &&
-                              accountData.user.first_name.isEmpty
+                      accountData.user?.last_name?.isEmpty == null &&
+                              accountData.user?.first_name?.isEmpty == null
                           ? ''
                           : '${accountData.user.first_name} ${accountData.user.last_name}',
                       style: TextStyle(
@@ -154,7 +155,7 @@ class AccountPageState extends State<AccountPage> {
               child: ListTile(
                 leading:
                     Icon(SFSymbols.arrow_down_to_line, color: Colors.white),
-                onTap: () => _downloadAll(accountData, musicData, downloadData),
+                onTap: () => _downloadAll(accountData, downloadData),
                 title: Text(
                   'Download all',
                   style: TextStyle(color: Colors.white),
@@ -164,11 +165,10 @@ class AccountPageState extends State<AccountPage> {
         ]));
   }
 
-  _downloadAll(AccountData accountData, MusicData musicData,
-      MusicDownloadData downloadData) async {
+  _downloadAll(AccountData accountData, MusicDownloadData downloadData) async {
     if (accountData.user.can_use_vk) {
-      await musicData.loadSavedMusic();
-      downloadData.multiQuery = musicData.localSongs;
+      await downloadData.musicData.loadSavedMusic();
+      downloadData.multiQuery = downloadData.musicData.localSongs;
     } else {
       showDialog(
           context: _scaffoldKey.currentContext,

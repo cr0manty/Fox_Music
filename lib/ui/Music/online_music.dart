@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/api/add_new_song.dart';
+import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -28,6 +31,93 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   Song playedSong;
   List<Song> dataSongSorted = [];
 
+  _addSongLink(MusicDownloadData downloadData) {
+    final TextEditingController artist = new TextEditingController();
+    final TextEditingController title = new TextEditingController();
+    final TextEditingController duration = new TextEditingController();
+    final TextEditingController link = new TextEditingController();
+
+    showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+              title: Text('Add new song'),
+              content: Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Card(
+                      color: Colors.transparent,
+                      elevation: 0.0,
+                      child: Column(children: <Widget>[
+                        CupertinoTextField(
+                          controller: artist,
+                          placeholder: 'Artist name',
+                          decoration: BoxDecoration(
+                              color: HexColor('#303030'),
+                              borderRadius: BorderRadius.circular(9)),
+                        ),
+                        Divider(height: 10, color: Colors.transparent),
+                        CupertinoTextField(
+                          controller: title,
+                          placeholder: 'Song title',
+                          decoration: BoxDecoration(
+                              color: HexColor('#303030'),
+                              borderRadius: BorderRadius.circular(9)),
+                        ),
+                        Divider(height: 10, color: Colors.transparent),
+                        CupertinoTextField(
+                          controller: duration,
+                          keyboardType: TextInputType.number,
+                          placeholder: 'Duration in seconds',
+                          decoration: BoxDecoration(
+                              color: HexColor('#303030'),
+                              borderRadius: BorderRadius.circular(9)),
+                        ),
+                        Divider(height: 10, color: Colors.transparent),
+                        CupertinoTextField(
+                          controller: link,
+                          placeholder: 'mp3 link',
+                          decoration: BoxDecoration(
+                              color: HexColor('#303030'),
+                              borderRadius: BorderRadius.circular(9)),
+                        ),
+                      ]))),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                    isDestructiveAction: true,
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+                CupertinoDialogAction(
+                    isDefaultAction: true,
+                    child: Text('Add'),
+                    onPressed: () async {
+                      Map body = {
+                        "artist": artist.text,
+                        "title": title.text,
+                        "duration": int.parse(
+                            duration.text.isNotEmpty ? duration.text : '0'),
+                        "download": link.text
+                      };
+                      Navigator.pop(context);
+
+                      Map result = await addNewSong(body);
+
+                      if (result['success']) {
+                        infoDialog(_scaffoldKey.currentContext, 'Success',
+                            'Song successfully added');
+                        Song song = Song.fromJson(result['body']);
+                        setState(() {
+                          downloadData.dataSong.add(song);
+                        });
+                      } else {
+                        infoDialog(_scaffoldKey.currentContext, 'Error',
+                            result['body']['non_field_errors'][0].toString());
+                      }
+                    }),
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
@@ -39,7 +129,19 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-                actionsForegroundColor: main_color, middle: Text('Music')),
+              actionsForegroundColor: main_color,
+              middle: Text('Music'),
+              trailing: accountData.user == null
+                  ? null
+                  : GestureDetector(
+                      onTap: () => _addSongLink(downloadData),
+                      child: Icon(
+                        SFSymbols.plus,
+                        color: Colors.white,
+                        size: 25,
+                      ),
+                    ),
+            ),
             child: _buildBody(accountData, downloadData)));
   }
 
@@ -97,8 +199,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
     }
   }
 
-  Widget _drawDownloadIcon(
-      MusicDownloadData downloadData, Song song) {
+  Widget _drawDownloadIcon(MusicDownloadData downloadData, Song song) {
     return Container(
         color: Colors.transparent,
         transform: Matrix4.translationValues(-5, 0, 0),
@@ -177,9 +278,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               subtitle: Text(song.artist,
                   style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
-                downloadData.musicData.setPlaylistSongs(
-                    dataSongSorted, song,
-                    local: false);
+                downloadData.musicData
+                    .setPlaylistSongs(dataSongSorted, song, local: false);
                 if (downloadData.musicData.currentSong != null &&
                     downloadData.musicData.currentSong.song_id ==
                         song.song_id) {

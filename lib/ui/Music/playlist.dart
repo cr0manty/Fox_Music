@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/utils/database.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -21,8 +21,8 @@ class PlaylistPageState extends State<PlaylistPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
 
-  _createPlaylist(MusicData musicData, String playlistName) async {
-    musicData.playlistListUpdate = true;
+  _createPlaylist(MusicDownloadData downloadData, String playlistName) async {
+    downloadData.musicData.playlistListUpdate = true;
     Playlist playlist = new Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
@@ -51,14 +51,14 @@ class PlaylistPageState extends State<PlaylistPage> {
     _loadPlaylist();
   }
 
-  _playlistDialog(MusicData musicData, {Playlist playlist}) async {
+  _playlistDialog(MusicDownloadData downloadData, {Playlist playlist}) async {
     final TextEditingController playlistName = new TextEditingController();
 
     if (playlist != null) {
       playlistName.text = playlist.title;
     }
 
-    showDialog<bool>(
+    showCupertinoDialog(
       context: _scaffoldKey.currentContext,
       builder: (context) {
         return CupertinoAlertDialog(
@@ -88,12 +88,12 @@ class PlaylistPageState extends State<PlaylistPage> {
                 isDefaultAction: true,
                 child: Text(playlist == null ? 'Create' : 'Rename'),
                 onPressed: () {
-                  musicData.playlistUpdate = true;
+                  downloadData.musicData.playlistUpdate = true;
                   if (playlistName.text.isNotEmpty) {
                     if (playlist != null)
                       _renamePlaylist(playlist, playlistName.text);
                     else
-                      _createPlaylist(musicData, playlistName.text);
+                      _createPlaylist(downloadData, playlistName.text);
                   }
                   Navigator.pop(context);
                 }),
@@ -105,10 +105,10 @@ class PlaylistPageState extends State<PlaylistPage> {
 
   @override
   Widget build(BuildContext context) {
-    MusicData musicData = Provider.of<MusicData>(context);
-    if (musicData.playlistPageUpdate) {
+    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+    if (downloadData.musicData.playlistPageUpdate) {
       _loadPlaylist();
-      musicData.playlistPageUpdate = false;
+      downloadData.musicData.playlistPageUpdate = false;
     }
 
     return CupertinoPageScaffold(
@@ -123,28 +123,15 @@ class PlaylistPageState extends State<PlaylistPage> {
                   color: Colors.white,
                   size: 25,
                 ),
-                onTap: () => _playlistDialog(musicData))),
+                onTap: () => _playlistDialog(downloadData))),
         child: Material(
             color: Colors.transparent,
             child: SafeArea(
                 child: _playlistList.length > 0
-                    ? ReorderableListView(
-                    scrollDirection: Axis.vertical,
-                    onReorder: (oldIndex, newIndex) {
-                      setState(
-                            () {
-                          if (newIndex > oldIndex) {
-                            newIndex -= 1;
-                          }
-                          final Playlist item =
-                          _playlistList.removeAt(oldIndex);
-                          _playlistList.insert(newIndex, item);
-                        },
-                      );
-                    },
+                    ? ListView(
                     children: List.generate(
                       _playlistList.length,
-                          (index) => _buildPlaylistList(musicData, index),
+                          (index) => _buildPlaylistList(downloadData, index),
                     ))
                     : Container(
                     padding: EdgeInsets.only(top: 30),
@@ -189,7 +176,7 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: main_color);
   }
 
-  _buildPlaylistList(MusicData musicData, int index) {
+  _buildPlaylistList(MusicDownloadData downloadData, int index) {
     Playlist playlist = _playlistList[index];
 
     return Column(
@@ -211,14 +198,14 @@ class PlaylistPageState extends State<PlaylistPage> {
                     Navigator.of(_scaffoldKey.currentContext).push(
                         CupertinoPageRoute(
                             builder: (context) =>
-                            ChangeNotifierProvider<MusicData>.value(
-                                value: musicData,
+                            ChangeNotifierProvider<MusicDownloadData>.value(
+                                value: downloadData,
                                 child: MusicListPage(playlist: playlist))));
                   },
                   leading: Container(padding: EdgeInsets.only(right: 20),
                       child: _showImage(playlist)),
                   trailing: GestureDetector(
-                      onTap: () => musicData.playPlaylist(playlist, mix: true),
+                      onTap: () => downloadData.musicData.playPlaylist(playlist, mix: true),
                       child: Container(
                           color: Colors.transparent,
                           padding:
@@ -233,12 +220,12 @@ class PlaylistPageState extends State<PlaylistPage> {
               SlideAction(
                 color: HexColor('#3a4e93'),
                 child: Icon(SFSymbols.play, color: Colors.white),
-                onTap: () => musicData.playPlaylist(playlist),
+                onTap: () => downloadData.musicData.playPlaylist(playlist),
               ),
               SlideAction(
                 color: HexColor('#a04db5'),
                 child: Icon(SFSymbols.pencil, color: Colors.white),
-                onTap: () => _playlistDialog(musicData, playlist: playlist),
+                onTap: () => _playlistDialog(downloadData, playlist: playlist),
               ),
             ],
             secondaryActions: <Widget>[
@@ -290,7 +277,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 color: HexColor('#d62d2d'),
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () {
-                  musicData.playlistListUpdate = true;
+                  downloadData.musicData.playlistListUpdate = true;
                   setState(() {
                     _playlistList.remove(playlist);
                   });

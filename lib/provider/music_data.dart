@@ -16,12 +16,14 @@ import 'package:random_string/random_string.dart';
 
 class MusicData with ChangeNotifier {
   AudioPlayer audioPlayer;
-  Song currentSong;
+  Song _song;
+
+  Map songData;
   bool repeat = false;
   bool mix = false;
+
   bool initCC = false;
   bool isLocal = true;
-
   bool localUpdate = true;
   bool playlistUpdate = true;
   bool playlistPageUpdate = true;
@@ -32,7 +34,7 @@ class MusicData with ChangeNotifier {
   List<Song> localSongs = [];
   int currentIndexPlaylist = 0;
   double volume = 1;
-  var platform;
+  TargetPlatform platform;
 
   Duration songPosition;
   Duration songDuration;
@@ -43,6 +45,18 @@ class MusicData with ChangeNotifier {
   StreamSubscription _playerNotifyState;
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
+
+  Stream<bool> get onPlayerActive => _playerActive.stream;
+
+  final StreamController<bool> _playerActive =
+      StreamController<bool>.broadcast();
+
+  set currentSong(Song song) {
+    _song = song;
+    _playerActive.add(song != null);
+  }
+
+  get currentSong => _song;
 
   init(thisPlatform) async {
     platform = thisPlatform;
@@ -98,12 +112,15 @@ class MusicData with ChangeNotifier {
       songPosition = Duration(seconds: 0);
       notifyListeners();
     });
+    songData = {'title': '', 'artist': ''};
   }
 
   void _getState() async {
     var data = await getPlayerState();
     if (data['repeat']) {
       repeatClick();
+    } else {
+      await audioPlayer.setReleaseMode(ReleaseMode.STOP);
     }
   }
 
@@ -253,11 +270,10 @@ class MusicData with ChangeNotifier {
 
     if (mix) mixClick(mixThis: true);
 
-    if (currentSong != null && currentSong.song_id == playlist[0].song_id) {
-      await playerResume();
-    } else {
-      await playerPlay(playlist[0]);
+    if (currentSong != null && playerState == AudioPlayerState.PLAYING) {
+      await playerStop();
     }
+    await playerPlay(playlist[0]);
   }
 
   loadPlaylistTrack(List<String> songsListId) async {
@@ -326,6 +342,8 @@ class MusicData with ChangeNotifier {
     }
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
+    songData = {'title': currentSong.title, 'artist': currentSong.artist};
+
     initCC = true;
     notifyListeners();
   }
@@ -379,6 +397,7 @@ class MusicData with ChangeNotifier {
     _durationSubscription?.cancel();
     _playerNotifyState?.cancel();
     audioPlayer?.release();
+    _playerActive?.close();
     super.dispose();
   }
 }

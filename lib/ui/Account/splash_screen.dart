@@ -54,11 +54,11 @@ class _IntroPageState extends State<IntroPage> {
     Navigator.popUntil(context, (Route<dynamic> route) => true);
     Navigator.of(context).pushAndRemoveUntil(
         FadeRoute(
-            page: MultiProvider(providers: [
-          ChangeNotifierProvider<MusicData>.value(value: musicData),
-          ChangeNotifierProvider<AccountData>.value(value: accountData),
-          ChangeNotifierProvider<MusicDownloadData>.value(value: downloadData),
-        ], child: MainPage(lastIndex))),
+            page: MainPage(
+                lastIndex: lastIndex,
+                musicData: musicData,
+                downloadData: downloadData,
+                accountData: accountData)),
         (Route<dynamic> route) => false);
   }
 

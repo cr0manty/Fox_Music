@@ -28,7 +28,6 @@ class SignInState extends State<SignIn> {
   bool _disabled = false;
   bool freeSpace = false;
 
-
   @override
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
@@ -45,7 +44,7 @@ class SignInState extends State<SignIn> {
                 children: <Widget>[
                   Center(
                       child: Container(
-                          height: MediaQuery.of(context).size.height * 0.3,
+                          height: MediaQuery.of(context).size.height * 0.25,
                           decoration: BoxDecoration(
                               image: DecorationImage(
                                   image: AssetImage(
@@ -165,7 +164,7 @@ class SignInState extends State<SignIn> {
     final user = await loginPost(_username, _password);
     if (user != null) {
       await downloadData.loadMusic();
-      accountData.setUser(user);
+      accountData.user = user;
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");

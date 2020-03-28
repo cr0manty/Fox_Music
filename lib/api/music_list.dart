@@ -70,7 +70,7 @@ hideMusic(int id) async {
   try {
     String token = await getToken();
     final response =
-    await http.post(SONG_DELETE_URL + '$id', headers: formatToken(token));
+    await http.post(SONG_DELETE_URL + '$id/', headers: formatToken(token));
     return response.statusCode == 201;
   } catch (e) {
     print(e);
@@ -82,7 +82,7 @@ addMusic(int id) async {
   try {
     String token = await getToken();
     final response =
-    await http.post(SONG_ADD_URL + '$id', headers: formatToken(token));
+    await http.post(SONG_ADD_URL + '$id/', headers: formatToken(token));
     if (response.statusCode == 409) return null;
     return response.statusCode == 201;
   } catch (e) {

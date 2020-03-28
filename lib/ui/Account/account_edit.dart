@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fox_music/utils/apple_text.dart';
+import 'package:fox_music/utils/hex_color.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -144,36 +146,34 @@ class AccountEditPageState extends State<AccountEditPage> {
 
   _changeAreaForm() {
     return [
-      TextFormField(
+      AppleTextInput(
         controller: _firstNameFilter,
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-            labelText: 'First name',
-            labelStyle: TextStyle(color: Colors.white)),
+        labelText: 'First name',
+        hintText: 'Enter first name',
       ),
-      TextFormField(
-        style: TextStyle(color: Colors.white),
+      Divider(height: 10, color: Colors.transparent),
+      AppleTextInput(
         controller: _lastNameFilter,
-        decoration: InputDecoration(
-            labelText: 'Last name', labelStyle: TextStyle(color: Colors.white)),
+        labelText: 'Last name',
+        hintText: 'Enter last name',
       ),
-      TextFormField(
-        style: TextStyle(color: Colors.white),
+      Divider(height: 10, color: Colors.transparent),
+      AppleTextInput(
         controller: _emailFilter,
-        decoration: InputDecoration(
-            labelText: 'Email', labelStyle: TextStyle(color: Colors.white)),
+        labelText: 'Email',
+        hintText: 'Enter email',
       ),
-      TextFormField(
-        style: TextStyle(color: Colors.white),
+      Divider(height: 10, color: Colors.transparent),
+      AppleTextInput(
         controller: _usernameFilter,
-        decoration: InputDecoration(
-            labelText: 'Login', labelStyle: TextStyle(color: Colors.white)),
+        labelText: 'Username',
+        hintText: 'Enter username',
       ),
-      TextFormField(
-        style: TextStyle(color: Colors.white),
+      Divider(height: 10, color: Colors.transparent),
+      AppleTextInput(
         controller: _passwordFilter,
-        decoration: InputDecoration(
-            labelText: 'Password', labelStyle: TextStyle(color: Colors.white)),
+        labelText: 'Password',
+        hintText: 'Enter password',
         validator: (value) {
           if (value.isNotEmpty) {
             if (value.length < 8) {
@@ -183,20 +183,20 @@ class AccountEditPageState extends State<AccountEditPage> {
           return null;
         },
       ),
-      TextFormField(
+      Divider(height: 10, color: Colors.transparent),
+      AppleTextInput(
         controller: _passwordConfirmFilter,
-        decoration: InputDecoration(
-            labelText: 'Password confirm',
-            labelStyle: TextStyle(color: Colors.white)),
+        labelText: 'Password confirm',
+        hintText: 'Confirm password',
       ),
-      SizedBox(height: 30)
+      SizedBox(height: 50)
     ];
   }
 
   _buildSelfEdit(AccountData accountData) {
     return Container(
         child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(8.0),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -218,7 +218,9 @@ class AccountEditPageState extends State<AccountEditPage> {
                                             source: ImageSource.camera);
                                         accountData.setNewImage(_image);
                                       },
-                                      child: Text('Camera', style: TextStyle(color:Colors.blue))),
+                                      child: Text('Camera',
+                                          style:
+                                              TextStyle(color: Colors.blue))),
                                   CupertinoActionSheetAction(
                                       onPressed: () async {
                                         Navigator.pop(context);
@@ -226,9 +228,8 @@ class AccountEditPageState extends State<AccountEditPage> {
                                             source: ImageSource.gallery);
                                         accountData.setNewImage(_image);
                                       },
-                                      child: Text(
-                                        'Gallery', style: TextStyle(color:Colors.blue)
-                                      ))
+                                      child: Text('Gallery',
+                                          style: TextStyle(color: Colors.blue)))
                                 ],
                               );
                             });
@@ -257,7 +258,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                 ModalProgressHUD(
                     progressIndicator: CupertinoActivityIndicator(radius: 20),
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(8.0),
                       child: Form(
                           key: _formKey,
                           child: Column(
