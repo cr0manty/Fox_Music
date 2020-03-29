@@ -175,6 +175,10 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: main_color);
   }
 
+  void _mixPlaylistSong(MusicDownloadData downloadData, Playlist playlist) async {
+    downloadData.musicData.playPlaylist(playlist, mix: true);
+  }
+
   _buildPlaylistList(MusicDownloadData downloadData, int index) {
     Playlist playlist = _playlistList[index];
 
@@ -204,7 +208,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                   leading: Container(padding: EdgeInsets.only(right: 20),
                       child: _showImage(playlist)),
                   trailing: GestureDetector(
-                      onTap: () => downloadData.musicData.playPlaylist(playlist, mix: true),
+                      onTap: () => _mixPlaylistSong(downloadData, playlist),
                       child: Container(
                           color: Colors.transparent,
                           padding:

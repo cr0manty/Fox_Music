@@ -9,7 +9,7 @@ import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_musiс1.db';
+  static const dbName = 'vk_musiс.db';
 
   DBProvider._();
 
@@ -26,7 +26,7 @@ class DBProvider {
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, dbName);
-    return await openDatabase(path, version: 1, onOpen: (db) {},
+    return await openDatabase(path, version: 2, onOpen: (db) {},
         onCreate: (Database db, int version) async {
           await db.execute("CREATE TABLE Playlist ("
               "id INTEGER PRIMARY KEY,"

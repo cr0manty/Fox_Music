@@ -23,12 +23,13 @@ class PlayerPage extends StatefulWidget {
 
 class PlayerPageState extends State<PlayerPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
   List<Playlist> _playlistList = [];
 
   int selectItem = 1;
   bool init = true;
   bool initCC = true;
+  bool startSlide = false;
+  double newSliderValue = 0.0;
 
   _loadPlaylist() async {
     List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
@@ -100,13 +101,10 @@ class PlayerPageState extends State<PlayerPage> {
                                 thumbColor: Colors.white.withOpacity(0.6),
                                 thumbShape: RoundSliderThumbShape(
                                     enabledThumbRadius: 4.0),
-                                overlayColor: Colors.red.withAlpha(12),
-                                overlayShape: RoundSliderOverlayShape(
-                                    overlayRadius: 17.0),
+                                overlayColor: Colors.transparent,
                               ),
                               child: Slider(
-                                onChanged: (value) {},
-                                onChangeEnd: musicData.updateVolume,
+                                onChanged: musicData.updateVolume,
                                 value: musicData.volume != null &&
                                         musicData.volume > 0.0 &&
                                         musicData.volume <= 1.0
@@ -197,7 +195,7 @@ class PlayerPageState extends State<PlayerPage> {
                       size: screenHeight * 0.045,
                     ))),
             GestureDetector(
-                onTap: musicData.mixClick,
+                onTap: () => musicData.mixClick(),
                 child: Container(
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
@@ -235,6 +233,13 @@ class PlayerPageState extends State<PlayerPage> {
         ));
   }
 
+  double _sliderValue(MusicData musicData, double sliderValue) {
+    double value = startSlide ? newSliderValue : sliderValue;
+    return musicData.songPosition != null && value > 0.0 && value < 1.0
+        ? value
+        : 0;
+  }
+
   Widget _slider(MusicData musicData, double sliderValue) {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
@@ -243,19 +248,23 @@ class PlayerPageState extends State<PlayerPage> {
         trackHeight: 3.0,
         thumbColor: main_color.withOpacity(0.6),
         thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.0),
-        overlayColor: Colors.red.withAlpha(12),
+        overlayColor: Colors.transparent,
         overlayShape: RoundSliderOverlayShape(overlayRadius: 17.0),
       ),
       child: Slider(
-        onChanged: (value) {},
-        onChangeEnd: (double value) {
+        onChanged: (value) => setState(() {
+          newSliderValue = value;
+        }),
+        onChangeStart: (value) => setState(() {
+          startSlide = true;
+          newSliderValue = value;
+        }),
+        onChangeEnd: (value) => setState(() {
+          startSlide = false;
+          newSliderValue = value;
           musicData.seek(duration: value);
-        },
-        value: musicData.songPosition != null &&
-                sliderValue > 0.0 &&
-                sliderValue < 1.0
-            ? sliderValue
-            : 0,
+        }),
+        value: _sliderValue(musicData, sliderValue),
       ),
     );
   }

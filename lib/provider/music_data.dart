@@ -232,8 +232,8 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
-  void mixClick({bool mixThis = false}) {
-    mix = mixThis ? !mix : mixThis;
+  void mixClick({bool mixThis}) {
+    mix = mixThis == null ? !mix : mixThis;
     if (mix) {
       withoutMix = playlist;
       playlist..shuffle();
@@ -256,7 +256,7 @@ class MusicData with ChangeNotifier {
     } else {
       await audioPlayer.setReleaseMode(ReleaseMode.STOP);
     }
-
+    audioPlayer.release();
     notifyListeners();
     savePlayerState(repeat);
   }
@@ -268,11 +268,11 @@ class MusicData with ChangeNotifier {
     isLocal = true;
     playlist = songList;
 
-    if (mix) mixClick(mixThis: true);
-
     if (currentSong != null && playerState == AudioPlayerState.PLAYING) {
       await playerStop();
     }
+    if (mix) mixClick(mixThis: true);
+
     await playerPlay(playlist[0]);
   }
 
@@ -343,6 +343,7 @@ class MusicData with ChangeNotifier {
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
     songData = {'title': currentSong.title, 'artist': currentSong.artist};
+    audioPlayer.setVolume(volume);
 
     initCC = true;
     notifyListeners();
@@ -350,7 +351,10 @@ class MusicData with ChangeNotifier {
 
   void playerStop() async {
     audioPlayer.stop();
+    audioPlayer.setReleaseMode(ReleaseMode.STOP);
+    audioPlayer.release();
     playerState = AudioPlayerState.STOPPED;
+    currentSong = null;
     notifyListeners();
   }
 

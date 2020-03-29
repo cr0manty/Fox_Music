@@ -89,8 +89,7 @@ class MusicListPageState extends State<MusicListPage>
                 previousPageTitle: 'Back',
                 trailing: widget._pageType == PageType.PLAYLIST
                     ? GestureDetector(
-                        child:
-                            Icon(SFSymbols.plus, size: 25),
+                        child: Icon(SFSymbols.plus, size: 25),
                         onTap: () => _addToPlaylist(downloadData.musicData))
                     : null),
             child: _buildBody(downloadData)));
@@ -162,6 +161,7 @@ class MusicListPageState extends State<MusicListPage>
                           downloadData.downloadMark(song, downloaded: false);
                           File(song.path).deleteSync();
                           setState(() {
+                            downloadData.musicData.localUpdate = true;
                             _musicList.remove(song);
                           });
                         } catch (e) {
@@ -244,7 +244,6 @@ class MusicListPageState extends State<MusicListPage>
   }
 
   void deleteSongFromPlaylist(MusicData musicData, Song song) {
-    musicData.deleteSong(song);
     setState(() {
       widget.playlist.deleteSong(song.song_id);
       _musicList.remove(song);

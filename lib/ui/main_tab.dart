@@ -33,19 +33,27 @@ class MainPage extends StatefulWidget {
   State<StatefulWidget> createState() => new MainPageState();
 }
 
-class MainPageState extends State<MainPage> {
+class MainPageState extends State<MainPage>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+  AnimationController animationController;
+  Animation<Offset> offset;
   CupertinoTabController controller;
   StreamSubscription _showPlayer;
   StreamSubscription _isPlaying;
   StreamSubscription _loginIn;
   bool keyboardActive = false;
-  bool showPlayer = false;
   bool isPlaying = false;
 
   @override
   void initState() {
+    super.initState();
+
     controller = CupertinoTabController(
         initialIndex: widget.lastIndex < 0 ? 0 : widget.lastIndex);
+    animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 350));
+    offset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0))
+        .animate(animationController);
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool visible) {
         keyboardActive = visible;
@@ -54,10 +62,13 @@ class MainPageState extends State<MainPage> {
     controller.addListener(() async {
       saveLastTab(controller.index);
     });
+
     _showPlayer = widget.musicData.onPlayerActive.listen((active) {
-      setState(() {
-        showPlayer = active;
-      });
+      if (active) {
+        animationController.reverse();
+      } else {
+        animationController.forward();
+      }
     });
 
     _isPlaying =
@@ -70,7 +81,8 @@ class MainPageState extends State<MainPage> {
     _loginIn = widget.accountData.onUserChangeAccount.listen((value) {
       setState(() {});
     });
-    super.initState();
+    animationController.forward();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   Widget _buildView(Widget child) {
@@ -107,130 +119,134 @@ class MainPageState extends State<MainPage> {
                 widget.accountData.user != null ? AccountPage() : SignIn()));
         break;
     }
-    return Stack(
-      children: <Widget>[page, _buildPlayer()],
-    );
+    return Stack(children: <Widget>[page, _buildPlayer()]);
   }
 
-  bool get _playerShow => showPlayer && !keyboardActive;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        isPlaying =
+            widget.musicData.audioPlayer.state == AudioPlayerState.PLAYING;
+      });
+    }
+  }
 
   Widget _buildPlayer() {
-    return Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: AnimatedOpacity(
-            opacity: _playerShow ? 1.0 : 0.0,
-            duration: Duration(milliseconds: 400),
-            child: SafeArea(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                  SwipeDetector(
-                      enabled: _playerShow,
-                      onTap: () => Navigator.of(context, rootNavigator: true)
-                          .push(BottomRoute(
-                              page: ChangeNotifierProvider<MusicData>.value(
-                                  value: widget.musicData,
-                                  child: PlayerPage()))),
-                      onSwipeUp: () => Navigator.of(context, rootNavigator: true)
-                          .push(BottomRoute(
-                              page: ChangeNotifierProvider<MusicData>.value(
-                                  value: widget.musicData,
-                                  child: PlayerPage()))),
-                      onSwipeDown: () {
-                        widget.musicData.playerStop();
-                        setState(() {
-                          widget.musicData.currentSong = null;
-                        });
-                      },
-                      child: ClipRect(
-                          child: BackdropFilter(
-                              filter:
-                                  ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.black26.withOpacity(0.22)),
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  alignment: Alignment.bottomCenter,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      GestureDetector(
-                                        child: Container(
-                                            color: Colors.transparent,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.12,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.12,
-                                            child: Icon(
-                                              isPlaying
-                                                  ? SFSymbols.pause_fill
-                                                  : SFSymbols.play_fill,
-                                              color: Colors.white,
-                                              size: 20,
-                                            )),
-                                        onTap: _playerShow
-                                            ? () => widget.musicData
-                                                        .playerState ==
-                                                    AudioPlayerState.PLAYING
-                                                ? widget.musicData.playerPause()
-                                                : widget.musicData
-                                                    .playerResume()
-                                            : null,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+    return !keyboardActive
+        ? Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SlideTransition(
+                position: offset,
+                child: SafeArea(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                      SwipeDetector(
+                          onTap: () => Navigator.of(context, rootNavigator: true)
+                              .push(BottomRoute(
+                                  page: ChangeNotifierProvider<MusicData>.value(
+                                      value: widget.musicData,
+                                      child: PlayerPage()))),
+                          onSwipeUp: () => Navigator.of(context,
+                                  rootNavigator: true)
+                              .push(BottomRoute(
+                                  page: ChangeNotifierProvider<MusicData>.value(
+                                      value: widget.musicData,
+                                      child: PlayerPage()))),
+                          onSwipeDown: () {
+                            widget.musicData.playerStop();
+                            setState(() {
+                              widget.musicData.currentSong = null;
+                              animationController.forward();
+                            });
+                          },
+                          child: ClipRect(
+                              child: BackdropFilter(
+                                  filter: ImageFilter.blur(
+                                      sigmaX: 10.0, sigmaY: 10.0),
+                                  child: Container(
+                                      decoration: BoxDecoration(color: Colors.black26.withOpacity(0.22)),
+                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      alignment: Alignment.bottomCenter,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                          Text(
-                                            widget.musicData.songData['title'],
-                                            style:
-                                                TextStyle(color: Colors.white),
+                                          GestureDetector(
+                                              child: Container(
+                                                  color: Colors.transparent,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.12,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.12,
+                                                  child: Icon(
+                                                    isPlaying
+                                                        ? SFSymbols.pause_fill
+                                                        : SFSymbols.play_fill,
+                                                    color: Colors.white,
+                                                    size: 20,
+                                                  )),
+                                              onTap: () => widget.musicData
+                                                          .playerState ==
+                                                      AudioPlayerState.PLAYING
+                                                  ? widget.musicData
+                                                      .playerPause()
+                                                  : widget.musicData
+                                                      .playerResume()),
+                                          SizedBox(width: 10),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                widget.musicData
+                                                    .songData['title'],
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              Divider(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                widget.musicData
+                                                    .songData['artist'],
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 15),
+                                              ),
+                                            ],
                                           ),
-                                          Divider(
-                                            height: 5,
-                                          ),
-                                          Text(
-                                            widget.musicData.songData['artist'],
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 15),
-                                          ),
+                                          Expanded(child: SizedBox()),
+                                          GestureDetector(
+                                              child: Container(
+                                                  color: Colors.transparent,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.12,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.12,
+                                                  child: Icon(
+                                                    SFSymbols.forward_fill,
+                                                    size: 20,
+                                                    color: Colors.white,
+                                                  )),
+                                              onTap: () =>
+                                                  widget.musicData.next())
                                         ],
-                                      ),
-                                      Expanded(child: SizedBox()),
-                                      GestureDetector(
-                                        child: Container(
-                                            color: Colors.transparent,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.12,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.12,
-                                            child: Icon(
-                                              SFSymbols.forward_fill,
-                                              size: 20,
-                                              color: Colors.white,
-                                            )),
-                                        onTap: _playerShow
-                                            ? () => widget.musicData.next()
-                                            : null,
-                                      )
-                                    ],
-                                  )))))
-                ]))));
+                                      )))))
+                    ]))))
+        : Container();
   }
 
   @override
@@ -261,6 +277,10 @@ class MainPageState extends State<MainPage> {
     _showPlayer?.cancel();
     _isPlaying?.cancel();
     _loginIn?.cancel();
+    controller.dispose();
+    animationController.dispose();
+
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 }

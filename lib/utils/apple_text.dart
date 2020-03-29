@@ -29,7 +29,13 @@ class AppleTextInput extends StatefulWidget {
 }
 
 class AppleTextInputState extends State<AppleTextInput> {
-  bool isEmpty = true;
+  bool isEmpty;
+  
+  @override
+  void initState() {
+    isEmpty = widget.controller.text.isEmpty;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
