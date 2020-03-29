@@ -17,6 +17,7 @@ class SignUpState extends State<SignUp> {
   final TextEditingController _lastNameFilter = new TextEditingController();
   final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
+  final TextEditingController _passwordConfirm = new TextEditingController();
   String _firstName = "";
   String _lastName = "";
   String _username = "";
@@ -32,27 +33,30 @@ class SignUpState extends State<SignUp> {
           actionsForegroundColor: main_color,
           previousPageTitle: 'Back',
         ),
-        child: ModalProgressHUD(
-            progressIndicator: CupertinoActivityIndicator(radius: 20),
-            child: SafeArea(
-                child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  Center(
-                      child: Container(
-                          height: MediaQuery.of(context).size.height * 0.25,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: AssetImage(
-                                      'assets/images/app-logo.png'))))),
-                  _buildForm(),
-                  _buildButtons()
-                ],
-              ),
-            )),
-            inAsyncCall: _disabled));
+        child: GestureDetector(
+            onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+            child: ModalProgressHUD(
+                progressIndicator: CupertinoActivityIndicator(radius: 20),
+                child: SafeArea(
+                    child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Center(
+                          child: Container(
+                              height: MediaQuery.of(context).size.height * 0.25,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/app-logo.png'))))),
+                      _buildForm(),
+                      _buildButtons(),
+                      SizedBox(height: 30)
+                    ],
+                  ),
+                )),
+                inAsyncCall: _disabled)));
   }
 
   _buildForm() {
@@ -129,6 +133,36 @@ class SignUpState extends State<SignUp> {
                 if (value.isEmpty) {
                   return "Password can't be empty";
                 }
+                if (value != _passwordConfirm.text) {
+                  return "Password does not match";
+                }
+                return null;
+              },
+              suffixIcon: _password.isEmpty
+                  ? null
+                  : GestureDetector(
+                      child: Icon(
+                          _obscureText
+                              ? Icons.remove_red_eye
+                              : Icons.visibility_off,
+                          color: HexColor('#8c8c8c')),
+                      onTap: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      }),
+              inputAction: TextInputAction.send,
+            ),
+            Divider(height: 20, color: Colors.transparent),
+            AppleTextInput(
+              controller: _passwordConfirm,
+              hintText: 'Confirm your password',
+              obscureText: _obscureText,
+              labelText: 'Confirm password',
+              validator: (value) {
+                if (value != _passwordFilter.text) {
+                  return "Password does not match";
+                }
                 return null;
               },
               suffixIcon: _password.isEmpty
@@ -166,6 +200,7 @@ class SignUpState extends State<SignUp> {
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
               color: main_color,
               onPressed: () {
+                FocusScope.of(context).requestFocus(FocusNode());
                 if (_formKey.currentState.validate()) {
                   _createAccountPressed();
                 }

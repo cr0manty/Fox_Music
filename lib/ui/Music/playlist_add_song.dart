@@ -34,11 +34,11 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
   void _onSave(MusicData musicData) {
     String songList = '';
     _musicList.forEach((Song song) {
-      if (song.inPlaylist)
-        songList += '${song.song_id},';
+      if (song.inPlaylist) songList += '${song.song_id},';
     });
     widget.playlist.songList = songList;
     musicData.playlistUpdate = true;
+    musicData.localUpdate = true;
 
     DBProvider.db.updatePlaylist(widget.playlist);
     Navigator.of(context).pop();

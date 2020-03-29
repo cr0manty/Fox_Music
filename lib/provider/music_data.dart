@@ -288,10 +288,10 @@ class MusicData with ChangeNotifier {
   loadPlaylistAddTrack(List<String> songsListId) async {
     List<Song> songList = [];
 
-    await Future.wait(localSongs.map((Song song) async {
-      if (songsListId.contains(song.song_id.toString())) song.inPlaylist = true;
+    localSongs.forEach((Song song) {
+      song.inPlaylist = songsListId.contains(song.song_id.toString());
       songList.add(song);
-    }));
+    });
     return songList;
   }
 

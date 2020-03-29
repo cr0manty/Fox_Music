@@ -120,7 +120,6 @@ class PlaylistPageState extends State<PlaylistPage> {
             trailing: GestureDetector(
                 child: Icon(
                   SFSymbols.plus,
-                  color: Colors.white,
                   size: 25,
                 ),
                 onTap: () => _playlistDialog(downloadData))),

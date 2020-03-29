@@ -19,18 +19,15 @@ class Playlist {
   String title;
   String image;
   String songList;
-  int songsAmount;
 
-  Playlist({this.id, this.image, this.title, this.songList, this.songsAmount}) {
+  Playlist({this.id, this.image, this.title, this.songList}) {
     songList ??= '';
-    songsAmount ??= 0;
   }
 
   factory Playlist.fromJson(Map<String, dynamic> json) => new Playlist(
       title: json['title'],
       id: json['id'],
       image: json['image'],
-      songsAmount: json['songsAmount'],
       songList: json['songList']);
 
   Map<String, dynamic> toJson() => {
@@ -38,11 +35,10 @@ class Playlist {
         'title': title,
         'image': image,
         'songList': songList,
-        'songsAmount': songsAmount,
       };
 
   List<String> splitSongList() {
-    return songList.split(',');
+    return songList.split(',')..removeWhere((songId) => songId.isEmpty);
   }
 
   bool inList(int id) {
@@ -57,23 +53,19 @@ class Playlist {
   addSong(int id) {
     if (notInList(id)) {
       songList += '$id,';
-      songsAmount++;
       DBProvider.db.updatePlaylist(this);
     }
   }
 
   deleteSong(int id) {
     String newList = '';
-    int amount = 0;
 
     if (inList(id)) {
       final list = splitSongList();
       list.forEach((data) {
         if (data != id.toString()) {
-          newList += data;
-          amount++;
+          newList += '$data,';
         }
-        songsAmount = amount;
       });
     }
     DBProvider.db.updatePlaylist(this);

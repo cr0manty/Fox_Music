@@ -35,30 +35,38 @@ class SignInState extends State<SignIn> {
 
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(middle: Text('Auth')),
-        child: ModalProgressHUD(
-            progressIndicator: CupertinoActivityIndicator(radius: 20),
-            child: SafeArea(
-                child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: ListView(
-                children: <Widget>[
-                  Center(
-                      child: Container(
-                          height: MediaQuery.of(context).size.height * 0.25,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: AssetImage(
-                                      'assets/images/app-logo.png'))))),
-                  _buildForm(),
-                  _buildButtons(accountData, downloadData),
-                  freeSpace
-                      ? SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.1)
-                      : Container()
-                ],
-              ),
-            )),
-            inAsyncCall: _disabled));
+        child: GestureDetector(
+            onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+            child: ModalProgressHUD(
+                progressIndicator: CupertinoActivityIndicator(radius: 20),
+                child: SafeArea(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: ListView(
+                        children: <Widget>[
+                          Center(
+                              child: Container(
+                                  height: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .height * 0.25,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          image: AssetImage(
+                                              'assets/images/app-logo.png'))))),
+                          _buildForm(),
+                          _buildButtons(accountData, downloadData),
+                          freeSpace
+                              ? SizedBox(
+                              height: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .height * 0.1)
+                              : Container()
+                        ],
+                      ),
+                    )),
+                inAsyncCall: _disabled)));
   }
 
   Widget _buildForm() {
@@ -104,16 +112,16 @@ class SignInState extends State<SignIn> {
                 suffixIcon: _password.isEmpty
                     ? null
                     : GestureDetector(
-                        child: Icon(
-                            _obscureText
-                                ? Icons.remove_red_eye
-                                : Icons.visibility_off,
-                            color: HexColor('#8c8c8c')),
-                        onTap: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        }),
+                    child: Icon(
+                        _obscureText
+                            ? Icons.remove_red_eye
+                            : Icons.visibility_off,
+                        color: HexColor('#8c8c8c')),
+                    onTap: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    }),
                 inputAction: TextInputAction.send,
               ),
             ]));
@@ -125,8 +133,8 @@ class SignInState extends State<SignIn> {
     });
   }
 
-  Widget _buildButtons(
-      AccountData accountData, MusicDownloadData downloadData) {
+  Widget _buildButtons(AccountData accountData,
+      MusicDownloadData downloadData) {
     return Align(
         alignment: FractionalOffset.bottomCenter,
         child: Column(children: <Widget>[
@@ -136,8 +144,9 @@ class SignInState extends State<SignIn> {
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
               color: main_color,
               onPressed: () {
+                FocusScope.of(context).requestFocus(FocusNode());
                 if (_formKey.currentState.validate()) {
-                  _loginPressed(accountData, downloadData);
+                _loginPressed(accountData, downloadData);
                 }
               },
               child: Text('Login', style: TextStyle(color: Colors.white)),
@@ -151,10 +160,10 @@ class SignInState extends State<SignIn> {
             onPressed: _disabled
                 ? null
                 : () {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    Navigator.of(context, rootNavigator: true)
-                        .push(BottomRoute(page: SignUp()));
-                  },
+              FocusScope.of(context).requestFocus(FocusNode());
+              Navigator.of(context, rootNavigator: true)
+                  .push(BottomRoute(page: SignUp()));
+            },
           ),
         ]));
   }

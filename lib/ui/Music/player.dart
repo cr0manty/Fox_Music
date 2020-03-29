@@ -57,9 +57,263 @@ class PlayerPageState extends State<PlayerPage> {
         : null;
   }
 
+  Widget _bottomButtons(MusicData musicData, double screenHeight) {
+    return Expanded(
+        child: Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    GestureDetector(
+                        onTap: musicData.currentSong != null
+                            ? () async {
+                                var songLyrics = await DBProvider.db
+                                    .songLyrics(musicData.currentSong.song_id);
+                                Navigator.of(context, rootNavigator: true)
+                                    .push(BottomRoute(
+                                        page: MusicTextPage(
+                                  songText: songLyrics.isEmpty
+                                      ? ''
+                                      : songLyrics[0]['text'].toString(),
+                                  songId: musicData.currentSong.song_id,
+                                )));
+                              }
+                            : null,
+                        child: Container(
+                            color: Colors.transparent,
+                            padding: EdgeInsets.all(11),
+                            width: screenHeight * 0.055,
+                            height: screenHeight * 0.055,
+                            child: SvgPicture.asset('assets/svg/lyrics.svg',
+                                color: Colors.grey))),
+                    Expanded(
+                        child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 20),
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: Colors.white.withOpacity(0.6),
+                                inactiveTrackColor:
+                                    Color.fromRGBO(100, 100, 100, 0.6),
+                                trackHeight: 3.0,
+                                thumbColor: Colors.white.withOpacity(0.6),
+                                thumbShape: RoundSliderThumbShape(
+                                    enabledThumbRadius: 4.0),
+                                overlayColor: Colors.red.withAlpha(12),
+                                overlayShape: RoundSliderOverlayShape(
+                                    overlayRadius: 17.0),
+                              ),
+                              child: Slider(
+                                onChanged: (value) {},
+                                onChangeEnd: musicData.updateVolume,
+                                value: musicData.volume != null &&
+                                        musicData.volume > 0.0 &&
+                                        musicData.volume <= 1.0
+                                    ? musicData.volume
+                                    : 0,
+                              ),
+                            ))),
+                    GestureDetector(
+                        onTap: musicData.currentSong != null
+                            ? () => showPickerDialog(context, musicData,
+                                _playlistList, musicData.currentSong.song_id)
+                            : null,
+                        child: Container(
+                            color: Colors.transparent,
+                            padding: EdgeInsets.all(11),
+                            width: screenHeight * 0.056,
+                            height: screenHeight * 0.056,
+                            child: SvgPicture.asset(
+                                'assets/svg/add_to_playlist.svg',
+                                color: Colors.grey))),
+                  ],
+                ))));
+  }
+
+  Widget _mainMusicControls(
+      MusicData musicData, double screenHeight, double sliderValue) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+                onTap: musicData.repeatClick,
+                child: Container(
+                  color: Colors.transparent,
+                  height: screenHeight * 0.07,
+                  width: screenHeight * 0.07,
+                  child: Icon(SFSymbols.repeat,
+                      size: screenHeight * 0.03,
+                      color: musicData.repeat ? main_color : Colors.grey),
+                )),
+            GestureDetector(
+                onTap: musicData.currentSong != null
+                    ? () {
+                        if (sliderValue < 0.3 && sliderValue > 0.02) {
+                          musicData.seek();
+                        } else {
+                          musicData.prev();
+                        }
+                      }
+                    : null,
+                child: Container(
+                    color: Colors.transparent,
+                    height: screenHeight * 0.07,
+                    width: screenHeight * 0.1,
+                    child: Icon(
+                      SFSymbols.backward_fill,
+                      color: Colors.grey,
+                      size: screenHeight * 0.045,
+                    ))),
+            GestureDetector(
+              onTap: _play(musicData),
+              child: Container(
+                  color: Colors.transparent,
+                  height: screenHeight * 0.07,
+                  width: screenHeight * 0.1,
+                  child: Icon(
+                    musicData.playerState == AudioPlayerState.PLAYING
+                        ? SFSymbols.pause_fill
+                        : SFSymbols.play_fill,
+                    color: Colors.grey,
+                    size: screenHeight * 0.045,
+                  )),
+            ),
+            GestureDetector(
+                onTap: musicData.currentSong != null
+                    ? () {
+                        musicData.next();
+                      }
+                    : null,
+                child: Container(
+                    color: Colors.transparent,
+                    height: screenHeight * 0.07,
+                    width: screenHeight * 0.1,
+                    child: Icon(
+                      SFSymbols.forward_fill,
+                      color: Colors.grey,
+                      size: screenHeight * 0.045,
+                    ))),
+            GestureDetector(
+                onTap: musicData.mixClick,
+                child: Container(
+                  color: Colors.transparent,
+                  height: screenHeight * 0.07,
+                  width: screenHeight * 0.07,
+                  child: Icon(SFSymbols.shuffle,
+                      size: screenHeight * 0.03,
+                      color: musicData.mix ? main_color : Colors.grey),
+                ))
+          ],
+        ));
+  }
+
+  Widget _songDetails(MusicData musicData, double screenHeight) {
+    return Container(
+        height: screenHeight * 0.125,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              musicData.currentSong != null ? musicData.currentSong.title : '',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: screenHeight * 0.03,
+                  color: Color.fromRGBO(200, 200, 200, 1)),
+            ),
+            Text(
+              musicData.currentSong != null ? musicData.currentSong.artist : '',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: screenHeight * 0.025,
+                  color: Color.fromRGBO(150, 150, 150, 1)),
+            )
+          ],
+        ));
+  }
+
+  Widget _slider(MusicData musicData, double sliderValue) {
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+        activeTrackColor: main_color.withOpacity(0.6),
+        inactiveTrackColor: Color.fromRGBO(100, 100, 100, 0.6),
+        trackHeight: 3.0,
+        thumbColor: main_color.withOpacity(0.6),
+        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.0),
+        overlayColor: Colors.red.withAlpha(12),
+        overlayShape: RoundSliderOverlayShape(overlayRadius: 17.0),
+      ),
+      child: Slider(
+        onChanged: (value) {},
+        onChangeEnd: (double value) {
+          musicData.seek(duration: value);
+        },
+        value: musicData.songPosition != null &&
+                sliderValue > 0.0 &&
+                sliderValue < 1.0
+            ? sliderValue
+            : 0,
+      ),
+    );
+  }
+
+  Widget _songTimeLine(MusicData musicData, double sliderValue) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+              musicData.songPosition != null &&
+                      sliderValue > 0.0 &&
+                      sliderValue < 1.0
+                  ? timeFormat(musicData.songPosition)
+                  : '00:00',
+              style: TextStyle(color: Colors.white.withOpacity(0.7))),
+          Text(
+              musicData.songDuration != null
+                  ? timeFormat(musicData.songDuration)
+                  : '00:00',
+              style: TextStyle(color: Colors.white.withOpacity(0.7)))
+        ],
+      ),
+    );
+  }
+
+  Widget _mainControls(
+      MusicData musicData, double pictureHeight, double sliderValue) {
+    return Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+            height: pictureHeight,
+            width: MediaQuery.of(context).size.width,
+            child: SwipeDetector(
+              onSwipeDown: () {
+                Navigator.pop(context);
+              },
+              onSwipeLeft: musicData.currentSong != null
+                  ? () {
+                      musicData.next();
+                    }
+                  : null,
+              onSwipeRight: musicData.currentSong != null
+                  ? () {
+                      if (sliderValue < 0.3 && sliderValue > 0.05) {
+                        musicData.seek();
+                      } else {
+                        musicData.prev();
+                      }
+                    }
+                  : null,
+              onTap: _play(musicData),
+            )));
+  }
+
   @override
   Widget build(BuildContext context) {
-    FocusScope.of(context).requestFocus(FocusNode());
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
@@ -68,6 +322,7 @@ class PlayerPageState extends State<PlayerPage> {
         durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
 
     return CupertinoPageScaffold(
+        resizeToAvoidBottomInset: false,
         key: _scaffoldKey,
         child: Material(
             child: Column(
@@ -96,318 +351,32 @@ class PlayerPageState extends State<PlayerPage> {
                         2
                       ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
                     ),
-                    Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                            height: pictureHeight,
-                            width: MediaQuery.of(context).size.width,
-                            child: SwipeDetector(
-                              onSwipeDown: () {
-                                Navigator.pop(context);
-                              },
-                              onSwipeLeft: musicData.currentSong != null
-                                  ? () {
-                                      musicData.next();
-                                    }
-                                  : null,
-                              onSwipeRight: musicData.currentSong != null
-                                  ? () {
-                                      if (sliderValue < 0.3 &&
-                                          sliderValue > 0.05) {
-                                        musicData.seek();
-                                      } else {
-                                        musicData.prev();
-                                      }
-                                    }
-                                  : null,
-                              onTap: _play(musicData),
-                            ))),
+                    _mainControls(musicData, pictureHeight, sliderValue),
                     Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
                           height: screenHeight - pictureHeight,
                           decoration: BoxDecoration(
                               color: Color.fromRGBO(50, 50, 50, 0.9)),
-                          child:
-                              Column(mainAxisSize: MainAxisSize.min, children: <
-                                  Widget>[
-                            SliderTheme(
-                              data: SliderTheme.of(context).copyWith(
-                                activeTrackColor: main_color.withOpacity(0.6),
-                                inactiveTrackColor:
-                                    Color.fromRGBO(100, 100, 100, 0.6),
-                                trackHeight: 3.0,
-                                thumbColor: main_color.withOpacity(0.6),
-                                thumbShape: RoundSliderThumbShape(
-                                    enabledThumbRadius: 4.0),
-                                overlayColor: Colors.red.withAlpha(12),
-                                overlayShape: RoundSliderOverlayShape(
-                                    overlayRadius: 17.0),
-                              ),
-                              child: Slider(
-                                onChanged: (value) {},
-                                onChangeEnd: (double value) {
-                                  musicData.seek(duration: value);
-                                },
-                                value: musicData.songPosition != null &&
-                                        sliderValue > 0.0 &&
-                                        sliderValue < 1.0
-                                    ? sliderValue
-                                    : 0,
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                      musicData.songPosition != null &&
-                                              sliderValue > 0.0 &&
-                                              sliderValue < 1.0
-                                          ? timeFormat(musicData.songPosition)
-                                          : '00:00',
-                                      style: TextStyle(
-                                          color:
-                                              Colors.white.withOpacity(0.7))),
-                                  Text(
-                                      musicData.songDuration != null
-                                          ? timeFormat(musicData.songDuration)
-                                          : '00:00',
-                                      style: TextStyle(
-                                          color: Colors.white.withOpacity(0.7)))
-                                ],
-                              ),
-                            ),
-                            Container(
-                                height: screenHeight * 0.125,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      musicData.currentSong != null
-                                          ? musicData.currentSong.title
-                                          : '',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: screenHeight * 0.03,
-                                          color:
-                                              Color.fromRGBO(200, 200, 200, 1)),
-                                    ),
-                                    Text(
-                                      musicData.currentSong != null
-                                          ? musicData.currentSong.artist
-                                          : '',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: screenHeight * 0.025,
-                                          color:
-                                              Color.fromRGBO(150, 150, 150, 1)),
-                                    )
-                                  ],
-                                )),
-                            musicData.currentSong != null
-                                ? Container(
-                                    child: Text(
-                                      '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 12),
-                                    ),
-                                  )
-                                : Container(),
-                            Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    GestureDetector(
-                                        onTap: musicData.repeatClick,
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          height: screenHeight * 0.07,
-                                          width: screenHeight * 0.07,
-                                          child: Icon(SFSymbols.repeat,
-                                              size: screenHeight * 0.03,
-                                              color: musicData.repeat
-                                                  ? main_color
-                                                  : Colors.grey),
-                                        )),
-                                    GestureDetector(
-                                        onTap: musicData.currentSong != null
-                                            ? () {
-                                                if (sliderValue < 0.3 &&
-                                                    sliderValue > 0.02) {
-                                                  musicData.seek();
-                                                } else {
-                                                  musicData.prev();
-                                                }
-                                              }
-                                            : null,
-                                        child: Container(
-                                            color: Colors.transparent,
-                                            height: screenHeight * 0.07,
-                                            width: screenHeight * 0.1,
-                                            child: Icon(
-                                              SFSymbols.backward_fill,
-                                              color: Colors.grey,
-                                              size: screenHeight * 0.045,
-                                            ))),
-                                    GestureDetector(
-                                      onTap: _play(musicData),
-                                      child: Container(
-                                          color: Colors.transparent,
-                                          height: screenHeight * 0.07,
-                                          width: screenHeight * 0.1,
-                                          child: Icon(
-                                            musicData.playerState ==
-                                                    AudioPlayerState.PLAYING
-                                                ? SFSymbols.pause_fill
-                                                : SFSymbols.play_fill,
-                                            color: Colors.grey,
-                                            size: screenHeight * 0.045,
-                                          )),
-                                    ),
-                                    GestureDetector(
-                                        onTap: musicData.currentSong != null
-                                            ? () {
-                                                musicData.next();
-                                              }
-                                            : null,
-                                        child: Container(
-                                            color: Colors.transparent,
-                                            height: screenHeight * 0.07,
-                                            width: screenHeight * 0.1,
-                                            child: Icon(
-                                              SFSymbols.forward_fill,
-                                              color: Colors.grey,
-                                              size: screenHeight * 0.045,
-                                            ))),
-                                    GestureDetector(
-                                        onTap: musicData.mixClick,
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          height: screenHeight * 0.07,
-                                          width: screenHeight * 0.07,
-                                          child: Icon(SFSymbols.shuffle,
-                                              size: screenHeight * 0.03,
-                                              color: musicData.mix
-                                                  ? main_color
-                                                  : Colors.grey),
-                                        ))
-                                  ],
-                                )),
-                            Expanded(
-                                child: Align(
-                                    alignment: FractionalOffset.bottomCenter,
-                                    child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 16),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            GestureDetector(
-                                                onTap:
-                                                    musicData.currentSong !=
-                                                            null
-                                                        ? () async {
-                                                            var songLyrics =
-                                                                await DBProvider
-                                                                    .db
-                                                                    .songLyrics(musicData
-                                                                        .currentSong
-                                                                        .song_id);
-                                                            Navigator.of(
-                                                                    context,
-                                                                    rootNavigator:
-                                                                        true)
-                                                                .push(BottomRoute(
-                                                                    page: MusicTextPage(
-                                                                        songText: songLyrics.isEmpty
-                                                                            ? ''
-                                                                            : songLyrics[0].toString())));
-                                                          }
-                                                        : null,
-                                                child: Container(
-                                                    color: Colors.transparent,
-                                                    padding: EdgeInsets.all(11),
-                                                    width: screenHeight * 0.055,
-                                                    height:
-                                                        screenHeight * 0.055,
-                                                    child: SvgPicture.asset(
-                                                        'assets/svg/lyrics.svg',
-                                                        color: Colors.grey))),
-                                            Expanded(
-                                                child: Container(
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 20),
-                                                    child: SliderTheme(
-                                                      data: SliderTheme.of(
-                                                              context)
-                                                          .copyWith(
-                                                        activeTrackColor: Colors
-                                                            .white
-                                                            .withOpacity(0.6),
-                                                        inactiveTrackColor:
-                                                            Color.fromRGBO(100,
-                                                                100, 100, 0.6),
-                                                        trackHeight: 3.0,
-                                                        thumbColor: Colors.white
-                                                            .withOpacity(0.6),
-                                                        thumbShape:
-                                                            RoundSliderThumbShape(
-                                                                enabledThumbRadius:
-                                                                    4.0),
-                                                        overlayColor: Colors.red
-                                                            .withAlpha(12),
-                                                        overlayShape:
-                                                            RoundSliderOverlayShape(
-                                                                overlayRadius:
-                                                                    17.0),
-                                                      ),
-                                                      child: Slider(
-                                                        onChanged: (value) {},
-                                                        onChangeEnd: musicData
-                                                            .updateVolume,
-                                                        value: musicData.volume !=
-                                                                    null &&
-                                                                musicData
-                                                                        .volume >
-                                                                    0.0 &&
-                                                                musicData
-                                                                        .volume <=
-                                                                    1.0
-                                                            ? musicData.volume
-                                                            : 0,
-                                                      ),
-                                                    ))),
-                                            GestureDetector(
-                                                onTap: musicData.currentSong !=
-                                                        null
-                                                    ? () => showPickerDialog(
-                                                        context,
-                                                        musicData,
-                                                        _playlistList,
-                                                        musicData.currentSong
-                                                            .song_id)
-                                                    : null,
-                                                child: Container(
-                                                    color: Colors.transparent,
-                                                    padding: EdgeInsets.all(11),
-                                                    width: screenHeight * 0.056,
-                                                    height:
-                                                        screenHeight * 0.056,
-                                                    child: SvgPicture.asset(
-                                                        'assets/svg/add_to_playlist.svg',
-                                                        color: Colors.grey))),
-                                          ],
-                                        ))))
-                          ]),
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                _slider(musicData, sliderValue),
+                                _songTimeLine(musicData, sliderValue),
+                                _songDetails(musicData, screenHeight),
+                                musicData.currentSong != null
+                                    ? Container(
+                                        child: Text(
+                                          '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                        ),
+                                      )
+                                    : Container(),
+                                _mainMusicControls(
+                                    musicData, screenHeight, sliderValue),
+                                _bottomButtons(musicData, screenHeight)
+                              ]),
                         ))
                   ],
                 ))

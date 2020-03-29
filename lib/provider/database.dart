@@ -28,18 +28,18 @@ class DBProvider {
     String path = join(documentsDirectory.path, dbName);
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-      await db.execute("CREATE TABLE Playlist ("
-          "id INTEGER PRIMARY KEY,"
-          "title TEXT,"
-          "image BLOB,"
-          "songList TEXT"
-          ")");
-       await db.execute("CREATE TABLE SongLyrics ("
-          "id INTEGER PRIMARY KEY,"
-          "songId int,"
-          "text TEXT"
-          ")");
-    });
+          await db.execute("CREATE TABLE Playlist ("
+              "id INTEGER PRIMARY KEY,"
+              "title TEXT,"
+              "image BLOB,"
+              "songList TEXT"
+              ")");
+          await db.execute("CREATE TABLE SongLyrics ("
+              "id INTEGER PRIMARY KEY,"
+              "songId int,"
+              "text TEXT"
+              ")");
+        });
   }
 
   newPlaylist(Playlist playlist) async {
@@ -59,7 +59,7 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Playlist");
     List<Playlist> list =
-        res.isNotEmpty ? res.map((c) => Playlist.fromJson(c)).toList() : [];
+    res.isNotEmpty ? res.map((c) => Playlist.fromJson(c)).toList() : [];
     return list;
   }
 
@@ -80,9 +80,31 @@ class DBProvider {
     db.delete("Playlist", where: "id = ?", whereArgs: [id]);
   }
 
-  songLyrics(int id) async  {
+  songLyrics(int id) async {
     final db = await database;
-    var res = await db.query("SongLyrics", where: "songId = ?", whereArgs: [id]);
+    var res =
+    await db.query("SongLyrics", where: "songId = ?", whereArgs: [id]);
     return res;
+  }
+
+  songLyricsUpdate(int id, String text) async {
+    final db = await database;
+    final exist = await songLyrics(id);
+    if (exist.isEmpty) {
+      bool result = await songLyricsCreate(id, text);
+      return result;
+    } else {
+      int updateCount = await db.rawUpdate(
+          'UPDATE SongLyrics SET text = ? WHERE songId = ?', [text, id]);
+      return updateCount > 0;
+    }
+  }
+
+  songLyricsCreate(int songId, String text) async {
+    final db = await database;
+    int id = new Random().nextInt(20000000);
+    var res = await db
+        .insert("SongLyrics", {'id': id, 'songId': songId, 'text': text});
+    return res > 0;
   }
 }

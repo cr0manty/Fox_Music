@@ -137,7 +137,6 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                       onTap: () => _addSongLink(downloadData),
                       child: Icon(
                         SFSymbols.plus,
-                        color: Colors.white,
                         size: 25,
                       ),
                     ),

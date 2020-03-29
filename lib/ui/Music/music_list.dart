@@ -76,6 +76,7 @@ class MusicListPageState extends State<MusicListPage>
   Widget build(BuildContext context) {
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
     _updateMusicList(downloadData.musicData);
+    init = false;
 
     return Material(
         child: CupertinoPageScaffold(
@@ -89,7 +90,7 @@ class MusicListPageState extends State<MusicListPage>
                 trailing: widget._pageType == PageType.PLAYLIST
                     ? GestureDetector(
                         child:
-                            Icon(SFSymbols.plus, color: Colors.white, size: 25),
+                            Icon(SFSymbols.plus, size: 25),
                         onTap: () => _addToPlaylist(downloadData.musicData))
                     : null),
             child: _buildBody(downloadData)));
@@ -248,9 +249,8 @@ class MusicListPageState extends State<MusicListPage>
       widget.playlist.deleteSong(song.song_id);
       _musicList.remove(song);
       _musicListSorted.remove(song);
+      musicData.localUpdate = true;
     });
-
-    DBProvider.db.updatePlaylist(widget.playlist);
   }
 
   _shareSong(Song song) async {
