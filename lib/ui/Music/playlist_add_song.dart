@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/provider/database.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/utils/apple_search.dart';

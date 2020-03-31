@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Music/playlist_add_song.dart';
 import 'package:fox_music/utils/bottom_route.dart';
-import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/provider/database.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/utils/apple_search.dart';

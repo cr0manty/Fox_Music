@@ -12,7 +12,7 @@ import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/music_data.dart';
-import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/provider/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/utils/swipe_detector.dart';
 
@@ -58,6 +58,16 @@ class PlayerPageState extends State<PlayerPage> {
         : null;
   }
 
+  Future _songText(MusicData musicData) async {
+    var songLyrics =
+        await DBProvider.db.getSongText(musicData.currentSong.song_id);
+    Navigator.of(context, rootNavigator: true).push(BottomRoute(
+        page: MusicTextPage(
+      songText: songLyrics.isEmpty ? '' : songLyrics[0]['text'].toString(),
+      songId: musicData.currentSong.song_id,
+    )));
+  }
+
   Widget _bottomButtons(MusicData musicData, double screenHeight) {
     return Expanded(
         child: Align(
@@ -69,18 +79,7 @@ class PlayerPageState extends State<PlayerPage> {
                   children: <Widget>[
                     GestureDetector(
                         onTap: musicData.currentSong != null
-                            ? () async {
-                                var songLyrics = await DBProvider.db
-                                    .songLyrics(musicData.currentSong.song_id);
-                                Navigator.of(context, rootNavigator: true)
-                                    .push(BottomRoute(
-                                        page: MusicTextPage(
-                                  songText: songLyrics.isEmpty
-                                      ? ''
-                                      : songLyrics[0]['text'].toString(),
-                                  songId: musicData.currentSong.song_id,
-                                )));
-                              }
+                            ? () => _songText(musicData)
                             : null,
                         child: Container(
                             color: Colors.transparent,

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/provider/database.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';

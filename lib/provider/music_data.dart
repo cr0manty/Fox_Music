@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/utils/database.dart';
+import 'package:fox_music/provider/database.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
@@ -73,8 +73,11 @@ class MusicData with ChangeNotifier {
         audioPlayer.onPlayerCompletion.listen((event) {
       if (!repeat) {
         next();
-        initCC = true;
+      } else {
+        playerPlay(currentSong);
       }
+      audioPlayer.setVolume(volume);
+      initCC = true;
       notifyListeners();
     });
 
@@ -251,12 +254,6 @@ class MusicData with ChangeNotifier {
 
   void repeatClick() async {
     repeat = !repeat;
-    if (repeat) {
-      await audioPlayer.setReleaseMode(ReleaseMode.LOOP);
-    } else {
-      await audioPlayer.setReleaseMode(ReleaseMode.STOP);
-    }
-    audioPlayer.release();
     notifyListeners();
     savePlayerState(repeat);
   }
@@ -268,12 +265,14 @@ class MusicData with ChangeNotifier {
     isLocal = true;
     playlist = songList;
 
-    if (currentSong != null && playerState == AudioPlayerState.PLAYING) {
-      await playerStop();
-    }
-    if (mix) mixClick(mixThis: true);
+    if (songList.length != 0) {
+      if (currentSong != null && playerState == AudioPlayerState.PLAYING) {
+        await playerStop();
+      }
+      if (mix) mixClick(mixThis: true);
 
-    await playerPlay(playlist[0]);
+      await playerPlay(playlist[0]);
+    }
   }
 
   loadPlaylistTrack(List<String> songsListId) async {
@@ -343,7 +342,6 @@ class MusicData with ChangeNotifier {
     playerState = AudioPlayerState.PLAYING;
     currentSong = song;
     songData = {'title': currentSong.title, 'artist': currentSong.artist};
-    audioPlayer.setVolume(volume);
 
     initCC = true;
     notifyListeners();

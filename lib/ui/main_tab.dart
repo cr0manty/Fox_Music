@@ -156,8 +156,8 @@ class MainPageState extends State<MainPage>
                                   page: ChangeNotifierProvider<MusicData>.value(
                                       value: widget.musicData,
                                       child: PlayerPage()))),
-                          onSwipeDown: () {
-                            widget.musicData.playerStop();
+                          onSwipeDown: () async {
+                            await widget.musicData.playerStop();
                             setState(() {
                               widget.musicData.currentSong = null;
                               animationController.forward();

@@ -9,7 +9,7 @@ import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/playlist.dart';
 
 class DBProvider {
-  static const dbName = 'vk_musiс.db';
+  static const dbName = 'fox_music.db';
 
   DBProvider._();
 
@@ -26,20 +26,20 @@ class DBProvider {
   initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, dbName);
-    return await openDatabase(path, version: 2, onOpen: (db) {},
+    return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-          await db.execute("CREATE TABLE Playlist ("
-              "id INTEGER PRIMARY KEY,"
-              "title TEXT,"
-              "image BLOB,"
-              "songList TEXT"
-              ")");
-          await db.execute("CREATE TABLE SongLyrics ("
-              "id INTEGER PRIMARY KEY,"
-              "songId int,"
-              "text TEXT"
-              ")");
-        });
+      await db.execute("CREATE TABLE Playlist ("
+          "id INTEGER PRIMARY KEY,"
+          "title TEXT,"
+          "image BLOB,"
+          "songList TEXT"
+          ")");
+      await db.execute("CREATE TABLE SongLyrics ("
+          "id INTEGER PRIMARY KEY,"
+          "songId int,"
+          "text TEXT"
+          ")");
+    });
   }
 
   newPlaylist(Playlist playlist) async {
@@ -59,7 +59,7 @@ class DBProvider {
     final db = await database;
     var res = await db.query("Playlist");
     List<Playlist> list =
-    res.isNotEmpty ? res.map((c) => Playlist.fromJson(c)).toList() : [];
+        res.isNotEmpty ? res.map((c) => Playlist.fromJson(c)).toList() : [];
     return list;
   }
 
@@ -80,17 +80,18 @@ class DBProvider {
     db.delete("Playlist", where: "id = ?", whereArgs: [id]);
   }
 
-  songLyrics(int id) async {
+  getSongText(int songId) async {
     final db = await database;
     var res =
-    await db.query("SongLyrics", where: "songId = ?", whereArgs: [id]);
+        await db.rawQuery("SELECT * FROM SongLyrics WHERE songId = ?",  [songId]);
     return res;
   }
 
   songLyricsUpdate(int id, String text) async {
+    final exist = await getSongText(id);
     final db = await database;
-    final exist = await songLyrics(id);
-    if (exist.isEmpty) {
+
+    if (exist != null) {
       bool result = await songLyricsCreate(id, text);
       return result;
     } else {
