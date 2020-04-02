@@ -329,6 +329,7 @@ class MusicData with ChangeNotifier {
   }
 
   void playerPlay(Song song) async {
+    audioPlayer.release();
     if (!isLocal && song.download.isNotEmpty) {
       await _stopAllPlayers();
       await audioPlayer.play(song.download, isLocal: isLocal);
@@ -349,7 +350,6 @@ class MusicData with ChangeNotifier {
 
   void playerStop() async {
     audioPlayer.stop();
-    audioPlayer.setReleaseMode(ReleaseMode.STOP);
     audioPlayer.release();
     playerState = AudioPlayerState.STOPPED;
     currentSong = null;
