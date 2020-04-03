@@ -31,7 +31,7 @@ class ConnectionsCheck with ChangeNotifier {
       isOnline = false;
     } else {
       try {
-        final result = await InternetAddress.lookup('dop.faifly.com')
+        final result = await InternetAddress.lookup('3.17.149.189')
             .timeout(Duration(seconds: 45));
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           isOnline = true;
