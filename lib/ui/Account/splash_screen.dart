@@ -8,7 +8,6 @@ import 'package:fox_music/functions/save/version.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/fade_route.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
 
 import 'package:fox_music/provider/music_data.dart';
@@ -47,7 +46,7 @@ class _IntroPageState extends State<IntroPage> {
     MusicData musicData = new MusicData();
     AccountData accountData = new AccountData();
     MusicDownloadData downloadData = new MusicDownloadData();
-    await musicData.init(Theme.of(context).platform);
+    await musicData.init();
     await accountData.init();
     await downloadData.init(musicData, connection.isOnline);
 

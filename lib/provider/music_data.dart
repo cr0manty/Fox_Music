@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/playlist.dart';
@@ -13,32 +12,31 @@ import 'package:fox_music/functions/save/player_state.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:media_metadata_plugin/media_metadata_plugin.dart';
 import 'package:random_string/random_string.dart';
+import 'package:audio_manager/audio_manager.dart';
+
+enum PlayerState { PLAYING, STOP, BUFFERING }
 
 class MusicData with ChangeNotifier {
-  AudioPlayer audioPlayer;
+  PlayerState playerState;
   Song _song;
 
   Map songData;
   bool repeat = false;
   bool mix = false;
 
-  bool initCC = false;
   bool isLocal = true;
   bool localUpdate = true;
   bool playlistUpdate = true;
   bool playlistPageUpdate = true;
   bool playlistListUpdate = true;
 
-  List<Song> withoutMix = [];
-  List<Song> playlist = [];
   List<Song> localSongs = [];
-  int currentIndexPlaylist = 0;
+  List<Song> playlist = [];
   double volume = 1;
-  TargetPlatform platform;
+  int selectedIndex;
 
   Duration songPosition;
   Duration songDuration;
-  AudioPlayerState playerState;
 
   StreamSubscription _playerCompleteSubscription;
   StreamSubscription _playerState;
@@ -48,7 +46,12 @@ class MusicData with ChangeNotifier {
 
   Stream<bool> get onPlayerActive => _playerActive.stream;
 
+  Stream<bool> get onPlayerChangeState => _playerStateStream.stream;
+
   final StreamController<bool> _playerActive =
+      StreamController<bool>.broadcast();
+
+  final StreamController<bool> _playerStateStream =
       StreamController<bool>.broadcast();
 
   set currentSong(Song song) {
@@ -58,62 +61,59 @@ class MusicData with ChangeNotifier {
 
   get currentSong => _song;
 
-  init(thisPlatform) async {
-    platform = thisPlatform;
-    await initPlayer();
+  init() async {
+    playerState = PlayerState.STOP;
+    await _initPlayer();
     await loadSavedMusic();
     await _getState();
   }
 
-  void initPlayer() {
-    audioPlayer = AudioPlayer(playerId: 'usingThisIdForPlayer');
-    playerState = audioPlayer.state;
-
-    _playerCompleteSubscription =
-        audioPlayer.onPlayerCompletion.listen((event) {
-      if (!repeat) {
-        next();
-      } else {
-        playerPlay(currentSong);
+  void _initPlayer() {
+    AudioManager.instance.onEvents((events, args) {
+      switch (events) {
+        case AudioManagerEvents.start:
+          songDuration = AudioManager.instance.duration;
+          songPosition = AudioManager.instance.position;
+          playerState = PlayerState.BUFFERING;
+          notifyListeners();
+          break;
+        case AudioManagerEvents.ready:
+          playerState = PlayerState.PLAYING;
+          songDuration = AudioManager.instance.duration;
+          songPosition = AudioManager.instance.position;
+          notifyListeners();
+          break;
+        case AudioManagerEvents.seekComplete:
+          songPosition = AudioManager.instance.position;
+          notifyListeners();
+          break;
+        case AudioManagerEvents.playstatus:
+          if (AudioManager.instance.isPlaying) {
+            playerState = PlayerState.PLAYING;
+          } else {
+            playerState = PlayerState.STOP;
+          }
+          notifyListeners();
+          break;
+        case AudioManagerEvents.timeupdate:
+          songDuration = args["duration"];
+          songPosition = args["position"];
+          notifyListeners();
+          break;
+        case AudioManagerEvents.error:
+          print('audioPlayer error : $args');
+          currentSong = null;
+          playerStop();
+          songDuration = Duration(seconds: 0);
+          songPosition = Duration(seconds: 0);
+          notifyListeners();
+          break;
+        case AudioManagerEvents.ended:
+          notifyListeners();
+          break;
+        default:
+          break;
       }
-      audioPlayer.setVolume(volume);
-      initCC = true;
-      notifyListeners();
-    });
-
-    _playerState = audioPlayer.onPlayerStateChanged.listen((state) {
-      playerState = state;
-      notifyListeners();
-    });
-
-    _playerNotifyState =
-        audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      playerState = state;
-      notifyListeners();
-    });
-
-    _durationSubscription = audioPlayer.onDurationChanged.listen((duration) {
-      songDuration = duration;
-      if (currentSong?.duration != duration.inSeconds &&
-          currentSong?.path != null) {
-        currentSong.duration = duration.inSeconds;
-      }
-      if (initCC) {
-        setCCData(duration);
-        initCC = false;
-      }
-    });
-    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
-      songPosition = p;
-      notifyListeners();
-    });
-    audioPlayer.onPlayerError.listen((msg) {
-      print('audioPlayer error : $msg');
-      currentSong = null;
-      playerStop();
-      songDuration = Duration(seconds: 0);
-      songPosition = Duration(seconds: 0);
-      notifyListeners();
     });
     songData = {'title': '', 'artist': ''};
   }
@@ -122,34 +122,27 @@ class MusicData with ChangeNotifier {
     var data = await getPlayerState();
     if (data['repeat']) {
       repeatClick();
-    } else {
-      await audioPlayer.setReleaseMode(ReleaseMode.STOP);
-    }
-  }
-
-  void setCCData(Duration duration) {
-    if (platform == TargetPlatform.iOS) {
-      audioPlayer.startHeadlessService();
-
-      audioPlayer.setNotification(
-          title: currentSong.title,
-          artist: currentSong.artist,
-          imageUrl:
-              'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg',
-          forwardSkipInterval: const Duration(seconds: 5),
-          backwardSkipInterval: const Duration(seconds: 5),
-          duration: duration);
     }
   }
 
   void setPlaylistSongs(List<Song> songList, Song song, {bool local = true}) {
-    isLocal = local;
     if (songList != playlist) {
-      playlist.clear();
-      playlist.addAll(songList);
-      if (mix) mixClick();
+      isLocal = local;
+      playlist = songList;
+      List<AudioInfo> _list = [];
 
-      currentIndexPlaylist = playlist.indexOf(song);
+      songList.forEach((Song song) {
+        String url = local ? 'file://${song.path}' : song.download;
+        String image = song.image != null && song.image.isNotEmpty
+            ? song.image
+            : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
+        _list.add(AudioInfo(url,
+            title: song.title, desc: song.artist, coverUrl: image));
+      });
+
+      AudioManager.instance.audioList = _list;
+      AudioManager.instance.play(auto: false);
+
       notifyListeners();
     }
   }
@@ -225,12 +218,12 @@ class MusicData with ChangeNotifier {
             ? durToInt(songDuration) * duration
             : 0)
         .toInt();
-    audioPlayer.seek(Duration(seconds: value));
+    AudioManager.instance.seekTo(Duration(seconds: value));
     notifyListeners();
   }
 
   void updateVolume(double value) {
-    audioPlayer.setVolume(value);
+    AudioManager.instance.setVolume(value);
     volume = value;
     notifyListeners();
   }
@@ -238,22 +231,20 @@ class MusicData with ChangeNotifier {
   void mixClick({bool mixThis}) {
     mix = mixThis == null ? !mix : mixThis;
     if (mix) {
-      withoutMix = playlist;
-      playlist..shuffle();
-      if (currentSong != null) {
-        playlist.remove(currentSong);
-        playlist.insert(0, currentSong);
-      }
+      AudioManager.instance.nextMode(playMode: PlayMode.shuffle);
     } else {
-      playlist = withoutMix;
+      AudioManager.instance.nextMode(playMode: PlayMode.sequence);
     }
-    currentIndexPlaylist =
-        currentSong != null ? playlist.indexOf(currentSong) : 0;
     notifyListeners();
   }
 
   void repeatClick() async {
     repeat = !repeat;
+    if (repeat)
+      AudioManager.instance.nextMode(playMode: PlayMode.single);
+    else
+      AudioManager.instance.nextMode(playMode: PlayMode.sequence);
+
     notifyListeners();
     savePlayerState(repeat);
   }
@@ -265,13 +256,24 @@ class MusicData with ChangeNotifier {
     isLocal = true;
     playlist = songList;
 
+    List<AudioInfo> _list = [];
+
     if (songList.length != 0) {
-      if (currentSong != null && playerState == AudioPlayerState.PLAYING) {
+      if (currentSong != null && playerState == PlayerState.PLAYING) {
         await playerStop();
       }
-      if (mix) mixClick(mixThis: true);
 
-      await playerPlay(playlist[0]);
+      songList.forEach((Song song) {
+        String image = song.image != null && song.image.isNotEmpty
+            ? song.image
+            : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
+        _list.add(AudioInfo('file://${song.path}',
+            title: song.title, desc: song.artist, coverUrl: image));
+      });
+      AudioManager.instance.audioList = _list;
+
+      if (mix) mixClick(mixThis: true);
+      playerPlay();
     }
   }
 
@@ -296,93 +298,116 @@ class MusicData with ChangeNotifier {
 
   void loadPlaylist(List<Song> songList) {
     playlist = songList;
-    notifyListeners();
-  }
 
-  void _stopAllPlayers() {
-    var players = AudioPlayer.players;
+    List<AudioInfo> _list = [];
 
-    players.forEach((key, player) async {
-      await player.stop();
+    songList.forEach((Song song) {
+      String image = song.image != null && song.image.isNotEmpty
+          ? song.image
+          : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
+      _list.add(AudioInfo('file://${song.path}',
+          title: song.title, desc: song.artist, coverUrl: image));
     });
+    AudioManager.instance.audioList = _list;
+    notifyListeners();
   }
 
   void deleteSong(Song song) {
-    playlist.remove(song);
-
-    if (currentSong == song) {
-      if (playerState == AudioPlayerState.PLAYING) {
-        if (playlist.length == 0) {
-          currentSong = null;
-          playerStop();
-        } else {
-          playlist.remove(song);
-          next();
-        }
-      } else {
-        currentSong = null;
-      }
-    } else {
-      playlist.remove(song);
-      notifyListeners();
-    }
+//    playlist.remove(song);
+//
+//    if (currentSong == song) {
+//      if (playerState == AudioPlayerState.PLAYING) {
+//        if (playlist.length == 0) {
+//          currentSong = null;
+//          playerStop();
+//        } else {
+//          playlist.remove(song);
+//          next();
+//        }
+//      } else {
+//        currentSong = null;
+//      }
+//    } else {
+//      playlist.remove(song);
+//      notifyListeners();
+//    }
   }
 
-  void playerPlay(Song song) async {
-    audioPlayer.release();
-    if (!isLocal && song.download.isNotEmpty) {
-      await _stopAllPlayers();
-      await audioPlayer.play(song.download, isLocal: isLocal);
-    } else if (isLocal) {
-      await _stopAllPlayers();
-      await audioPlayer.play(song.path, isLocal: isLocal);
-    } else {
-      playerPause();
-      return;
-    }
-    playerState = AudioPlayerState.PLAYING;
-    currentSong = song;
-    songData = {'title': currentSong.title, 'artist': currentSong.artist};
+  void playerPlay({int index = 0, Song song}) async {
+    if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
 
-    initCC = true;
-    notifyListeners();
+    if ((AudioManager.instance.audioList.length > index || index == -1) &&
+        song != null) {
+      String url = song.path != null && song.path.isNotEmpty
+          ? 'file://${song.path}'
+          : song.download;
+
+      selectedIndex = index;
+      currentSong = song;
+      playerState = PlayerState.PLAYING;
+      songData = {'title': song.title, 'artist': song.artist};
+      _playerStateStream.add(true);
+      notifyListeners();
+
+      AudioManager.instance
+          .start(url, song.title, desc: song.artist, auto: true);
+    } else if (AudioManager.instance.audioList.length > index) {
+      selectedIndex = index;
+      currentSong = playlist[index];
+      playerState = PlayerState.PLAYING;
+      songData = {
+        'title': playlist[index].title,
+        'artist': playlist[index].artist
+      };
+      _playerStateStream.add(true);
+      notifyListeners();
+
+      AudioManager.instance.play(index: index, auto: true);
+    }
   }
 
   void playerStop() async {
-    audioPlayer.stop();
-    audioPlayer.release();
-    playerState = AudioPlayerState.STOPPED;
+    playerState = PlayerState.STOP;
     currentSong = null;
+    _playerStateStream.add(false);
     notifyListeners();
+
+    AudioManager.instance.stop();
   }
 
-  void playerResume() async {
-    audioPlayer.resume();
-    playerState = AudioPlayerState.PLAYING;
+  void playerResume() {
+    playerState = PlayerState.PLAYING;
+    _playerStateStream.add(true);
     notifyListeners();
+
+    AudioManager.instance.toPlay();
   }
 
   void playerPause() async {
-    audioPlayer.pause();
-    playerState = AudioPlayerState.PAUSED;
+    playerState = PlayerState.STOP;
+    _playerStateStream.add(false);
+    notifyListeners();
+
+    AudioManager.instance.toPause();
+  }
+
+  void prev() async {
+    AudioManager.instance.previous();
+
+    selectedIndex = AudioManager.instance.curIndex;
+    currentSong = playlist[selectedIndex];
+    songData = {'title': currentSong.title, 'artist': currentSong.artist};
+    _playerStateStream.add(true);
     notifyListeners();
   }
 
-  void prev() {
-    if (currentIndexPlaylist > 0)
-      --currentIndexPlaylist;
-    else
-      currentIndexPlaylist = playlist.length - 1;
-    playerPlay(playlist[currentIndexPlaylist]);
-    notifyListeners();
-  }
+  void next() async {
+    AudioManager.instance.next();
 
-  void next() {
-    if (currentIndexPlaylist < playlist.length - 1)
-      ++currentIndexPlaylist;
-    else
-      currentIndexPlaylist = 0;
-    playerPlay(playlist[currentIndexPlaylist]);
+    selectedIndex = AudioManager.instance.curIndex;
+    currentSong = playlist[selectedIndex];
+    songData = {'title': currentSong.title, 'artist': currentSong.artist};
+    _playerStateStream.add(true);
     notifyListeners();
   }
 
@@ -392,14 +417,13 @@ class MusicData with ChangeNotifier {
 
   @override
   void dispose() {
-    audioPlayer?.stop();
     _playerCompleteSubscription?.cancel();
     _playerState?.cancel();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     _playerNotifyState?.cancel();
-    audioPlayer?.release();
     _playerActive?.close();
+    _playerStateStream?.close();
     super.dispose();
   }
 }

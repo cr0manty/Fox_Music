@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/functions/save/last_tab.dart';
@@ -72,9 +72,9 @@ class MainPageState extends State<MainPage>
     });
 
     _isPlaying =
-        widget.musicData.audioPlayer.onPlayerStateChanged.listen((state) {
+        widget.musicData.onPlayerChangeState.listen((state) {
       setState(() {
-        isPlaying = state == AudioPlayerState.PLAYING;
+        isPlaying = state;
       });
     });
 
@@ -126,8 +126,7 @@ class MainPageState extends State<MainPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       setState(() {
-        isPlaying =
-            widget.musicData.audioPlayer.state == AudioPlayerState.PLAYING;
+        isPlaying = AudioManager.instance.isPlaying;
       });
     }
   }
@@ -158,10 +157,7 @@ class MainPageState extends State<MainPage>
                                       child: PlayerPage()))),
                           onSwipeDown: () async {
                             await widget.musicData.playerStop();
-                            setState(() {
-                              widget.musicData.currentSong = null;
                               animationController.forward();
-                            });
                           },
                           child: ClipRect(
                               child: BackdropFilter(
@@ -194,9 +190,7 @@ class MainPageState extends State<MainPage>
                                                     color: Colors.white,
                                                     size: 20,
                                                   )),
-                                              onTap: () => widget.musicData
-                                                          .playerState ==
-                                                      AudioPlayerState.PLAYING
+                                              onTap: () => AudioManager.instance.isPlaying
                                                   ? widget.musicData
                                                       .playerPause()
                                                   : widget.musicData

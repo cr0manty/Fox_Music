@@ -314,7 +314,8 @@ class MusicListPageState extends State<MusicListPage>
                           song.song_id) {
                     await downloadData.musicData.playerResume();
                   } else {
-                    await downloadData.musicData.playerPlay(song);
+                    await downloadData.musicData
+                        .playerPlay(index: _musicList.indexOf(song));
                   }
                 },
                 trailing: Text(formatDuration(song.duration),

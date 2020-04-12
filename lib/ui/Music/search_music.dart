@@ -89,7 +89,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                 downloadData.musicData.currentSong.song_id == song.song_id) {
               await downloadData.musicData.playerResume();
             } else {
-              await downloadData.musicData.playerPlay(song);
+              await downloadData.musicData.playerPlay(index: _songList.indexOf(song));
             }
           },
           trailing: Text(formatDuration(song.duration),
