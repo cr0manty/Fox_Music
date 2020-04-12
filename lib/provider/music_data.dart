@@ -72,19 +72,15 @@ class MusicData with ChangeNotifier {
     AudioManager.instance.onEvents((events, args) {
       switch (events) {
         case AudioManagerEvents.start:
-          songDuration = AudioManager.instance.duration;
-          songPosition = AudioManager.instance.position;
           playerState = PlayerState.BUFFERING;
           notifyListeners();
           break;
         case AudioManagerEvents.ready:
           playerState = PlayerState.PLAYING;
-          songDuration = AudioManager.instance.duration;
-          songPosition = AudioManager.instance.position;
-          notifyListeners();
-          break;
-        case AudioManagerEvents.seekComplete:
-          songPosition = AudioManager.instance.position;
+          if (args['duration'] != null || args['_duration'] != null)
+            songDuration =
+                args['duration'] != null ? args['duration'] : args['_duration'];
+          if (args['position']) songPosition = args['position'];
           notifyListeners();
           break;
         case AudioManagerEvents.playstatus:
@@ -109,7 +105,13 @@ class MusicData with ChangeNotifier {
           notifyListeners();
           break;
         case AudioManagerEvents.ended:
-          notifyListeners();
+          if (repeat) {
+            repeatPlay();
+          } else if (mix) {
+            mixPlay();
+          } else {
+            next();
+          }
           break;
         default:
           break;
@@ -230,21 +232,11 @@ class MusicData with ChangeNotifier {
 
   void mixClick({bool mixThis}) {
     mix = mixThis == null ? !mix : mixThis;
-    if (mix) {
-      AudioManager.instance.nextMode(playMode: PlayMode.shuffle);
-    } else {
-      AudioManager.instance.nextMode(playMode: PlayMode.sequence);
-    }
     notifyListeners();
   }
 
   void repeatClick() async {
     repeat = !repeat;
-    if (repeat)
-      AudioManager.instance.nextMode(playMode: PlayMode.single);
-    else
-      AudioManager.instance.nextMode(playMode: PlayMode.sequence);
-
     notifyListeners();
     savePlayerState(repeat);
   }
@@ -336,7 +328,7 @@ class MusicData with ChangeNotifier {
   void playerPlay({int index = 0, Song song}) async {
     if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
 
-    if ((AudioManager.instance.audioList.length > index || index == -1) &&
+    if ((AudioManager.instance.audioList.length < index || index == -1) &&
         song != null) {
       String url = song.path != null && song.path.isNotEmpty
           ? 'file://${song.path}'
@@ -402,13 +394,36 @@ class MusicData with ChangeNotifier {
   }
 
   void next() async {
-    AudioManager.instance.next();
+    if (!mix) {
+      AudioManager.instance.next();
+      selectedIndex = AudioManager.instance.curIndex;
 
-    selectedIndex = AudioManager.instance.curIndex;
+      currentSong = playlist[selectedIndex];
+      songData = {'title': currentSong.title, 'artist': currentSong.artist};
+      _playerStateStream.add(true);
+      notifyListeners();
+    } else {
+      mixPlay();
+    }
+  }
+
+  void repeatPlay() async {
+    AudioManager.instance.seekTo(Duration(seconds: 0));
+    notifyListeners();
+  }
+
+  void mixPlay() {
+    Random rnd = Random();
+    selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length - 1);
+
     currentSong = playlist[selectedIndex];
     songData = {'title': currentSong.title, 'artist': currentSong.artist};
+    playerState = PlayerState.PLAYING;
     _playerStateStream.add(true);
+    songPosition = Duration(seconds: 0);
     notifyListeners();
+
+    AudioManager.instance.play(index: selectedIndex, auto: true);
   }
 
   bool isPlaying(int songId) {

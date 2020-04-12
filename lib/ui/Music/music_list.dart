@@ -133,7 +133,7 @@ class MusicListPageState extends State<MusicListPage>
       }
     }
     if (song != null) {
-      musicData.setPlaylistSongs(_musicList, song);
+      await musicData.setPlaylistSongs(_musicList, song);
     }
   }
 
@@ -306,7 +306,7 @@ class MusicListPageState extends State<MusicListPage>
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
-                  _loadMusicList(downloadData.musicData, song);
+                  await _loadMusicList(downloadData.musicData, song);
                   downloadData.musicData.isLocal = true;
 
                   if (downloadData.musicData.currentSong != null &&

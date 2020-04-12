@@ -277,7 +277,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               subtitle: Text(song.artist,
                   style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
-                downloadData.musicData
+                await downloadData.musicData
                     .setPlaylistSongs(dataSongSorted, song, local: false);
                 if (downloadData.musicData.currentSong != null &&
                     downloadData.musicData.currentSong.song_id ==

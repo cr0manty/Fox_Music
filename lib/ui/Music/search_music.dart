@@ -83,7 +83,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () async {
-            downloadData.musicData
+            await downloadData.musicData
                 .setPlaylistSongs(_songList, song, local: false);
             if (downloadData.musicData.currentSong != null &&
                 downloadData.musicData.currentSong.song_id == song.song_id) {
