@@ -71,8 +71,7 @@ class MainPageState extends State<MainPage>
       }
     });
 
-    _isPlaying =
-        widget.musicData.onPlayerChangeState.listen((state) {
+    _isPlaying = widget.musicData.onPlayerChangeState.listen((state) {
       setState(() {
         isPlaying = state;
       });
@@ -157,7 +156,7 @@ class MainPageState extends State<MainPage>
                                       child: PlayerPage()))),
                           onSwipeDown: () async {
                             await widget.musicData.playerStop();
-                              animationController.forward();
+                            animationController.forward();
                           },
                           child: ClipRect(
                               child: BackdropFilter(
@@ -183,14 +182,19 @@ class MainPageState extends State<MainPage>
                                                           .size
                                                           .width *
                                                       0.12,
-                                                  child: Icon(
-                                                    isPlaying
-                                                        ? SFSymbols.pause_fill
-                                                        : SFSymbols.play_fill,
-                                                    color: Colors.white,
-                                                    size: 20,
-                                                  )),
-                                              onTap: () => AudioManager.instance.isPlaying
+                                                  child: isPlaying == null
+                                                      ? CupertinoActivityIndicator()
+                                                      : Icon(
+                                                          isPlaying
+                                                              ? SFSymbols
+                                                                  .pause_fill
+                                                              : SFSymbols
+                                                                  .play_fill,
+                                                          color: Colors.white,
+                                                          size: 20,
+                                                        )),
+                                              onTap: () => AudioManager
+                                                      .instance.isPlaying
                                                   ? widget.musicData
                                                       .playerPause()
                                                   : widget.musicData
@@ -201,8 +205,11 @@ class MainPageState extends State<MainPage>
                                                 CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
-                                                widget.musicData
-                                                    .songData['title'],
+                                                AudioManager.instance.info?.title !=
+                                                        null
+                                                    ? AudioManager
+                                                        .instance.info.title
+                                                    : '',
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -210,8 +217,11 @@ class MainPageState extends State<MainPage>
                                                 height: 5,
                                               ),
                                               Text(
-                                                widget.musicData
-                                                    .songData['artist'],
+                                                AudioManager.instance.info?.desc !=
+                                                        null
+                                                    ? AudioManager
+                                                        .instance.info.desc
+                                                    : '',
                                                 style: TextStyle(
                                                     color: Colors.grey,
                                                     fontSize: 15),

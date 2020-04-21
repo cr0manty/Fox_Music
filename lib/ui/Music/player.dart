@@ -170,13 +170,15 @@ class PlayerPageState extends State<PlayerPage> {
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
                   width: screenHeight * 0.1,
-                  child: Icon(
-                    musicData.playerState == PlayerState.PLAYING
-                        ? SFSymbols.pause_fill
-                        : SFSymbols.play_fill,
-                    color: Colors.grey,
-                    size: screenHeight * 0.045,
-                  )),
+                  child: musicData.playerState == PlayerState.BUFFERING
+                      ? CupertinoActivityIndicator()
+                      : Icon(
+                          musicData.playerState == PlayerState.PLAYING
+                              ? SFSymbols.pause_fill
+                              : SFSymbols.play_fill,
+                          color: Colors.grey,
+                          size: screenHeight * 0.045,
+                        )),
             ),
             GestureDetector(
                 onTap: musicData.currentSong != null
@@ -215,14 +217,14 @@ class PlayerPageState extends State<PlayerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              musicData.currentSong != null ? musicData.currentSong.title : '',
+              AudioManager.instance.info?.title != null ? AudioManager.instance.info.title : '',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: screenHeight * 0.03,
                   color: Color.fromRGBO(200, 200, 200, 1)),
             ),
             Text(
-              musicData.currentSong != null ? musicData.currentSong.artist : '',
+              AudioManager.instance.info?.desc != null ? AudioManager.instance.info.desc : '',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: screenHeight * 0.025,

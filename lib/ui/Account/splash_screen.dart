@@ -72,7 +72,7 @@ class _IntroPageState extends State<IntroPage> {
     return CupertinoPageScaffold(
       backgroundColor:
           WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-              ? HexColor('#282828')
+              ? HexColor('#222222')
               : Colors.white,
       child: Container(
         child: Image.asset('assets/images/audio-cover.png'),

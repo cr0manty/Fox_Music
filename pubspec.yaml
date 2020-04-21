@@ -39,8 +39,8 @@ dependencies:
   keyboard_visibility: ^0.5.6
   package_info: ^0.4.0+16
   audio_manager: ^0.5.3+2
-
-
+  flutter_offline: ^0.3.0
+  app_settings: ^3.0.1
 
 dev_dependencies:
   flutter_test:

@@ -32,10 +32,11 @@ class AccountData with ChangeNotifier {
   }
 
   init() async {
-    if (!await authCheckGet()) {
-      await makeLogout();
-    } else {
+    if (await authCheckGet()) {
       user = await profileGet();
+      if (user == null) {
+        await makeLogout();
+      }
     }
     await loadFiendList();
     final connection = await Connectivity().checkConnectivity();

@@ -20,7 +20,6 @@ class MusicData with ChangeNotifier {
   PlayerState playerState;
   Song _song;
 
-  Map songData;
   bool repeat = false;
   bool mix = false;
 
@@ -32,7 +31,7 @@ class MusicData with ChangeNotifier {
 
   List<Song> localSongs = [];
   List<Song> playlist = [];
-  double volume = 1;
+  double volume = AudioManager.instance.volume;
   int selectedIndex;
 
   Duration songPosition;
@@ -73,6 +72,7 @@ class MusicData with ChangeNotifier {
       switch (events) {
         case AudioManagerEvents.start:
           playerState = PlayerState.BUFFERING;
+          _playerStateStream.add(null);
           notifyListeners();
           break;
         case AudioManagerEvents.ready:
@@ -81,6 +81,7 @@ class MusicData with ChangeNotifier {
             songDuration =
                 args['duration'] != null ? args['duration'] : args['_duration'];
           if (args['position']) songPosition = args['position'];
+          _playerStateStream.add(true);
           notifyListeners();
           break;
         case AudioManagerEvents.playstatus:
@@ -89,6 +90,7 @@ class MusicData with ChangeNotifier {
           } else {
             playerState = PlayerState.STOP;
           }
+          _playerStateStream.add(AudioManager.instance.isPlaying);
           notifyListeners();
           break;
         case AudioManagerEvents.timeupdate:
@@ -117,7 +119,6 @@ class MusicData with ChangeNotifier {
           break;
       }
     });
-    songData = {'title': '', 'artist': ''};
   }
 
   void _getState() async {
@@ -326,6 +327,7 @@ class MusicData with ChangeNotifier {
   }
 
   void playerPlay({int index = 0, Song song}) async {
+    volume = AudioManager.instance.volume;
     if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
 
     if ((AudioManager.instance.audioList.length < index || index == -1) &&
@@ -337,7 +339,6 @@ class MusicData with ChangeNotifier {
       selectedIndex = index;
       currentSong = song;
       playerState = PlayerState.PLAYING;
-      songData = {'title': song.title, 'artist': song.artist};
       _playerStateStream.add(true);
       notifyListeners();
 
@@ -347,10 +348,6 @@ class MusicData with ChangeNotifier {
       selectedIndex = index;
       currentSong = playlist[index];
       playerState = PlayerState.PLAYING;
-      songData = {
-        'title': playlist[index].title,
-        'artist': playlist[index].artist
-      };
       _playerStateStream.add(true);
       notifyListeners();
 
@@ -388,28 +385,27 @@ class MusicData with ChangeNotifier {
 
     selectedIndex = AudioManager.instance.curIndex;
     currentSong = playlist[selectedIndex];
-    songData = {'title': currentSong.title, 'artist': currentSong.artist};
     _playerStateStream.add(true);
     notifyListeners();
   }
 
   void next() async {
     if (!mix) {
-      AudioManager.instance.next();
       selectedIndex = AudioManager.instance.curIndex;
 
       currentSong = playlist[selectedIndex];
-      songData = {'title': currentSong.title, 'artist': currentSong.artist};
       _playerStateStream.add(true);
       notifyListeners();
+      AudioManager.instance.next();
     } else {
       mixPlay();
     }
   }
 
   void repeatPlay() async {
-    AudioManager.instance.seekTo(Duration(seconds: 0));
     notifyListeners();
+    AudioManager.instance.seekTo(Duration(seconds: 0));
+    AudioManager.instance.playOrPause();
   }
 
   void mixPlay() {
@@ -417,7 +413,6 @@ class MusicData with ChangeNotifier {
     selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length - 1);
 
     currentSong = playlist[selectedIndex];
-    songData = {'title': currentSong.title, 'artist': currentSong.artist};
     playerState = PlayerState.PLAYING;
     _playerStateStream.add(true);
     songPosition = Duration(seconds: 0);
