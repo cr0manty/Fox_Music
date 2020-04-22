@@ -76,6 +76,7 @@ class MusicData with ChangeNotifier {
           notifyListeners();
           break;
         case AudioManagerEvents.ready:
+          _playerStateStream.add(true);
           playerState = PlayerState.PLAYING;
           if (args['duration'] != null || args['_duration'] != null)
             songDuration =
@@ -114,6 +115,12 @@ class MusicData with ChangeNotifier {
           } else {
             next();
           }
+          break;
+        case AudioManagerEvents.next:
+          next(change: false);
+          break;
+        case AudioManagerEvents.previous:
+          prev(change: false);
           break;
         default:
           break;
@@ -306,31 +313,34 @@ class MusicData with ChangeNotifier {
   }
 
   void deleteSong(Song song) {
-//    playlist.remove(song);
-//
-//    if (currentSong == song) {
-//      if (playerState == AudioPlayerState.PLAYING) {
-//        if (playlist.length == 0) {
-//          currentSong = null;
-//          playerStop();
-//        } else {
-//          playlist.remove(song);
-//          next();
-//        }
-//      } else {
-//        currentSong = null;
-//      }
-//    } else {
-//      playlist.remove(song);
-//      notifyListeners();
-//    }
+    playlist.remove(song);
+
+    if (currentSong == song) {
+      if (playerState == PlayerState.PLAYING) {
+        if (playlist.length == 0) {
+          currentSong = null;
+          playerStop();
+        } else {
+          playlist.remove(song);
+          next();
+        }
+      } else {
+        currentSong = null;
+      }
+    } else {
+      playlist.remove(song);
+      notifyListeners();
+    }
   }
 
   void playerPlay({int index = 0, Song song}) async {
     volume = AudioManager.instance.volume;
     if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
 
-    if ((AudioManager.instance.audioList.length < index || index == -1) &&
+    if (index == selectedIndex) {
+      AudioManager.instance.playOrPause();
+    } else if ((AudioManager.instance.audioList.length < index ||
+            index == -1) &&
         song != null) {
       String url = song.path != null && song.path.isNotEmpty
           ? 'file://${song.path}'
@@ -380,8 +390,8 @@ class MusicData with ChangeNotifier {
     AudioManager.instance.toPause();
   }
 
-  void prev() async {
-    AudioManager.instance.previous();
+  void prev({bool change = true}) async {
+    if (change) AudioManager.instance.previous();
 
     selectedIndex = AudioManager.instance.curIndex;
     currentSong = playlist[selectedIndex];
@@ -389,14 +399,15 @@ class MusicData with ChangeNotifier {
     notifyListeners();
   }
 
-  void next() async {
+  void next({bool change = true}) async {
     if (!mix) {
+      if (change) AudioManager.instance.next();
+
       selectedIndex = AudioManager.instance.curIndex;
 
       currentSong = playlist[selectedIndex];
       _playerStateStream.add(true);
       notifyListeners();
-      AudioManager.instance.next();
     } else {
       mixPlay();
     }
@@ -410,7 +421,7 @@ class MusicData with ChangeNotifier {
 
   void mixPlay() {
     Random rnd = Random();
-    selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length - 1);
+    selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length);
 
     currentSong = playlist[selectedIndex];
     playerState = PlayerState.PLAYING;

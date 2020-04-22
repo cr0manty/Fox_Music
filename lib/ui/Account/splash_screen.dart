@@ -47,17 +47,19 @@ class _IntroPageState extends State<IntroPage> {
     AccountData accountData = new AccountData();
     MusicDownloadData downloadData = new MusicDownloadData();
     await musicData.init();
-    await accountData.init();
+    await accountData.init(connection.isOnline);
     await downloadData.init(musicData, connection.isOnline);
 
     Navigator.popUntil(context, (Route<dynamic> route) => true);
     Navigator.of(context).pushAndRemoveUntil(
         FadeRoute(
             page: MainPage(
-                lastIndex: lastIndex,
-                musicData: musicData,
-                downloadData: downloadData,
-                accountData: accountData)),
+          lastIndex: lastIndex,
+          musicData: musicData,
+          downloadData: downloadData,
+          accountData: accountData,
+          connection: connection,
+        )),
         (Route<dynamic> route) => false);
   }
 

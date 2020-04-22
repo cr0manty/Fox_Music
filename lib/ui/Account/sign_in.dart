@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fox_music/functions/save/user.dart';
 import 'package:fox_music/ui/Account/sign_up.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -41,31 +42,25 @@ class SignInState extends State<SignIn> {
                 progressIndicator: CupertinoActivityIndicator(radius: 20),
                 child: SafeArea(
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: ListView(
-                        children: <Widget>[
-                          Center(
-                              child: Container(
-                                  height: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .height * 0.25,
-                                  decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/images/app-logo.png'))))),
-                          _buildForm(),
-                          _buildButtons(accountData, downloadData),
-                          freeSpace
-                              ? SizedBox(
-                              height: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .height * 0.1)
-                              : Container()
-                        ],
-                      ),
-                    )),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ListView(
+                    children: <Widget>[
+                      Center(
+                          child: Container(
+                              height: MediaQuery.of(context).size.height * 0.25,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/app-logo.png'))))),
+                      _buildForm(),
+                      _buildButtons(accountData, downloadData),
+                      freeSpace
+                          ? SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.1)
+                          : Container()
+                    ],
+                  ),
+                )),
                 inAsyncCall: _disabled)));
   }
 
@@ -112,16 +107,16 @@ class SignInState extends State<SignIn> {
                 suffixIcon: _password.isEmpty
                     ? null
                     : GestureDetector(
-                    child: Icon(
-                        _obscureText
-                            ? Icons.remove_red_eye
-                            : Icons.visibility_off,
-                        color: HexColor('#8c8c8c')),
-                    onTap: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    }),
+                        child: Icon(
+                            _obscureText
+                                ? Icons.remove_red_eye
+                                : Icons.visibility_off,
+                            color: HexColor('#8c8c8c')),
+                        onTap: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        }),
                 inputAction: TextInputAction.send,
               ),
             ]));
@@ -133,8 +128,8 @@ class SignInState extends State<SignIn> {
     });
   }
 
-  Widget _buildButtons(AccountData accountData,
-      MusicDownloadData downloadData) {
+  Widget _buildButtons(
+      AccountData accountData, MusicDownloadData downloadData) {
     return Align(
         alignment: FractionalOffset.bottomCenter,
         child: Column(children: <Widget>[
@@ -146,7 +141,7 @@ class SignInState extends State<SignIn> {
               onPressed: () {
                 FocusScope.of(context).requestFocus(FocusNode());
                 if (_formKey.currentState.validate()) {
-                _loginPressed(accountData, downloadData);
+                  _loginPressed(accountData, downloadData);
                 }
               },
               child: Text('Login', style: TextStyle(color: Colors.white)),
@@ -160,10 +155,10 @@ class SignInState extends State<SignIn> {
             onPressed: _disabled
                 ? null
                 : () {
-              FocusScope.of(context).requestFocus(FocusNode());
-              Navigator.of(context, rootNavigator: true)
-                  .push(BottomRoute(page: SignUp()));
-            },
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    Navigator.of(context, rootNavigator: true)
+                        .push(BottomRoute(page: SignUp()));
+                  },
           ),
         ]));
   }
@@ -174,6 +169,7 @@ class SignInState extends State<SignIn> {
     if (user != null) {
       await downloadData.loadMusic();
       accountData.user = user;
+      saveUser(user);
     } else {
       infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username' / 'Password' combination.");

@@ -10,6 +10,7 @@ import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
 import 'package:fox_music/utils/bottom_route.dart';
+import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
@@ -25,9 +26,14 @@ class MainPage extends StatefulWidget {
   final MusicDownloadData downloadData;
   final AccountData accountData;
   final int lastIndex;
+  final ConnectionsCheck connection;
 
   MainPage(
-      {this.lastIndex, this.downloadData, this.musicData, this.accountData});
+      {this.lastIndex,
+      this.downloadData,
+      this.musicData,
+      this.accountData,
+      this.connection});
 
   @override
   State<StatefulWidget> createState() => new MainPageState();
@@ -88,6 +94,7 @@ class MainPageState extends State<MainPage>
     return MultiProvider(providers: [
       ChangeNotifierProvider<MusicDownloadData>.value(
           value: widget.downloadData),
+      ChangeNotifierProvider<ConnectionsCheck>.value(value: widget.connection),
       ChangeNotifierProvider<AccountData>.value(value: widget.accountData),
     ], child: child);
   }
@@ -205,7 +212,8 @@ class MainPageState extends State<MainPage>
                                                 CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
-                                                AudioManager.instance.info?.title !=
+                                                AudioManager.instance.info
+                                                            ?.title !=
                                                         null
                                                     ? AudioManager
                                                         .instance.info.title
@@ -217,7 +225,8 @@ class MainPageState extends State<MainPage>
                                                 height: 5,
                                               ),
                                               Text(
-                                                AudioManager.instance.info?.desc !=
+                                                AudioManager.instance.info
+                                                            ?.desc !=
                                                         null
                                                     ? AudioManager
                                                         .instance.info.desc
