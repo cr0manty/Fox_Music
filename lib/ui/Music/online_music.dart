@@ -29,7 +29,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _playerNotifyState;
   bool init = true;
-  bool isOnline = true;
+  bool visible = true;
   Song playedSong;
   List<Song> dataSongSorted = [];
 
@@ -126,7 +126,11 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
     ConnectionsCheck connection = Provider.of<ConnectionsCheck>(context);
 
-    if (init) _filterSongs(downloadData);
+    if (init) {
+      init = false;
+      visible = connection.isOnline;
+      _filterSongs(downloadData);
+    }
 
     if (connection.isOnline) {
       if (accountData.user == null || accountData.needUpdate) {
@@ -156,9 +160,10 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             child: Stack(children: <Widget>[
               _buildBody(accountData, downloadData),
               AnimatedOpacity(
+                  onEnd: () => setState(() => visible = !visible),
                   opacity: connection.isOnline ? 0 : 1,
                   duration: Duration(milliseconds: 800),
-                  child: OfflinePage())
+                  child: !visible ? OfflinePage() : Container())
             ])));
   }
 

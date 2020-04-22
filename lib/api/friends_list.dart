@@ -10,7 +10,7 @@ import 'package:fox_music/functions/get/token.dart';
 friendListGet() async {
   try {
     String token = await getToken();
-    String url = FRIEND_LIST_URL + '?status_code=2';
+    String url = FRIEND_URL + '?status_code=2';
     final response =
         await http.get(url, headers: formatToken(token));
 
@@ -36,7 +36,7 @@ friendListIdGet() async {
 
   try {
     final token = await getToken();
-    String url = FRIEND_LIST_URL + '?status_code=all';
+    String url = FRIEND_URL + '?status_code=all';
     final response = await http.get(url, headers: formatToken(token));
 
     if (response.statusCode == 200) {
