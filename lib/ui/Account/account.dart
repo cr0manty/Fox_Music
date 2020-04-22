@@ -15,15 +15,20 @@ import 'package:fox_music/ui/Account/search_people.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AccountPage extends StatefulWidget {
+  final bool isOnline;
+
+  AccountPage(this.isOnline);
+
   @override
   State<StatefulWidget> createState() => AccountPageState();
 }
 
 class AccountPageState extends State<AccountPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  bool init = true;
+  bool visible = true;
 
-  Widget _body(AccountData accountData, MusicDownloadData downloadData,
-      ConnectionsCheck connection) {
+  Widget _body(AccountData accountData, MusicDownloadData downloadData) {
     return ListView(children: [
       Padding(
           padding: EdgeInsets.only(bottom: 15, top: 15),
@@ -66,7 +71,7 @@ class AccountPageState extends State<AccountPage> {
                 child: CircleAvatar(
                     radius: 70,
                     backgroundColor: Colors.grey,
-                    backgroundImage: connection.isOnline
+                    backgroundImage: widget.isOnline
                         ? NetworkImage(formatImage(accountData.user?.image))
                         : null)),
           )),
@@ -168,15 +173,35 @@ class AccountPageState extends State<AccountPage> {
       accountData.init(true);
     }
 
+    if (init) {
+      visible = connection.isOnline;
+      init = false;
+    }
+
     return CupertinoPageScaffold(
         key: _scaffoldKey,
-        navigationBar: CupertinoNavigationBar(middle: Text('Profile')),
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('Profile'),
+          trailing: CupertinoButton(
+            onPressed: connection.isOnline
+                ? () => Navigator.of(_scaffoldKey.currentContext,
+                        rootNavigator: true)
+                    .push(CupertinoPageRoute(
+                        builder: (context) =>
+                            ChangeNotifierProvider<AccountData>.value(
+                                value: accountData, child: AccountEditPage())))
+                : null,
+            child: Text('Edit'),
+            padding: EdgeInsets.zero,
+          ),
+        ),
         child: Stack(children: <Widget>[
-          _body(accountData, downloadData, connection),
+          _body(accountData, downloadData),
           AnimatedOpacity(
+              onEnd: () => setState(() => visible = !visible),
               opacity: connection.isOnline ? 0 : 1,
               duration: Duration(milliseconds: 800),
-              child: OfflinePage())
+              child: !visible ? OfflinePage() : Container())
         ]));
   }
 

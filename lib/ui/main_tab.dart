@@ -122,7 +122,7 @@ class MainPageState extends State<MainPage>
       case 3:
         page = CupertinoTabView(
             builder: (BuildContext context) => _buildView(
-                widget.accountData.user != null ? AccountPage() : SignIn()));
+                widget.accountData.user != null ? AccountPage(widget.connection.isOnline) : SignIn()));
         break;
     }
     return Stack(children: <Widget>[page, _buildPlayer()]);

@@ -17,5 +17,5 @@ const SONG_DELETE_URL = '$BASE_API_URL/songs/delete_song/';
 const SONG_ADD_URL = '$BASE_API_URL/songs/add_song/';
 const ADD_NEW_SONG_URL = '$BASE_API_URL/songs/add-new-song/';
 
-const FRIEND_LIST_URL = '$BASE_API_URL/users/friends/';
+const FRIEND_URL = '$BASE_API_URL/users/friends/';
 const FRIEND_LIST_SONG_LIST_URL = '$BASE_API_URL/songs/friend-songs/';

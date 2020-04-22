@@ -99,7 +99,10 @@ class PeoplePageState extends State<PeoplePage> {
                       ? main_color
                       : Colors.indigo,
                   onPressed: () {},
-                  child: Text(widget.relationship.buttonName()),
+                  child: Text(
+                    widget.relationship.buttonName(),
+                    style: TextStyle(color: Colors.white),
+                  ),
                 )),
             Divider(),
             Flexible(
