@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/api/add_new_song.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
