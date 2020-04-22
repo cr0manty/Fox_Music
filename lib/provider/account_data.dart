@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-
-import 'package:connectivity/connectivity.dart';
 import 'package:fox_music/api/auth.dart';
 import 'package:fox_music/api/friends_list.dart';
+import 'package:fox_music/functions/get/user.dart';
 import 'package:fox_music/functions/save/logout.dart';
+import 'package:fox_music/functions/save/user.dart';
 import 'package:fox_music/models/relationship.dart';
 
 import 'package:fox_music/models/user.dart';
@@ -19,27 +19,31 @@ class AccountData with ChangeNotifier {
   User _user;
   File newImage;
   bool offlineMode = false;
-  AccountType accountType;
-  int messageCount = 0;
+  AccountType accountType = AccountType.SELF_SHOW;
+  bool needUpdate = true;
 
   Stream<bool> get onUserChangeAccount => _userChangeAccount.stream;
 
   final StreamController<bool> _userChangeAccount =
       StreamController<bool>.broadcast();
 
-  AccountData() {
-    accountType = AccountType.SELF_SHOW;
-  }
-
-  init() async {
-    if (!await authCheckGet()) {
-      await makeLogout();
+  init(bool isOnline) async {
+    if (isOnline) {
+      if (await authCheckGet()) {
+        user = await profileGet();
+        if (user == null) {
+          await makeLogout();
+        } else {
+          needUpdate = false;
+          await loadFiendList();
+          saveUser(user);
+        }
+      }
     } else {
-      user = await profileGet();
+      User newUser = await getUser();
+      user = newUser;
     }
-    await loadFiendList();
-    final connection = await Connectivity().checkConnectivity();
-    offlineMode = connection == ConnectivityResult.none;
+    offlineMode = !isOnline;
   }
 
   loadFiendList() async {
@@ -53,13 +57,13 @@ class AccountData with ChangeNotifier {
       User newUser = await profileGet();
       if (newUser != null) {
         user = newUser;
-        _user = newUser;
+        saveUser(user);
       }
       notifyListeners();
     }
   }
 
-  getUser({int userId}) async {
+  getUserProfile({int userId}) async {
     User newUser = await profileGet(friendId: userId);
     if (newUser != null) {
       _user = newUser;

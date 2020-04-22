@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/functions/save/last_tab.dart';
@@ -10,6 +10,7 @@ import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
 import 'package:fox_music/utils/bottom_route.dart';
+import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
@@ -25,9 +26,14 @@ class MainPage extends StatefulWidget {
   final MusicDownloadData downloadData;
   final AccountData accountData;
   final int lastIndex;
+  final ConnectionsCheck connection;
 
   MainPage(
-      {this.lastIndex, this.downloadData, this.musicData, this.accountData});
+      {this.lastIndex,
+      this.downloadData,
+      this.musicData,
+      this.accountData,
+      this.connection});
 
   @override
   State<StatefulWidget> createState() => new MainPageState();
@@ -71,10 +77,9 @@ class MainPageState extends State<MainPage>
       }
     });
 
-    _isPlaying =
-        widget.musicData.audioPlayer.onPlayerStateChanged.listen((state) {
+    _isPlaying = widget.musicData.onPlayerChangeState.listen((state) {
       setState(() {
-        isPlaying = state == AudioPlayerState.PLAYING;
+        isPlaying = state;
       });
     });
 
@@ -89,6 +94,7 @@ class MainPageState extends State<MainPage>
     return MultiProvider(providers: [
       ChangeNotifierProvider<MusicDownloadData>.value(
           value: widget.downloadData),
+      ChangeNotifierProvider<ConnectionsCheck>.value(value: widget.connection),
       ChangeNotifierProvider<AccountData>.value(value: widget.accountData),
     ], child: child);
   }
@@ -126,8 +132,7 @@ class MainPageState extends State<MainPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       setState(() {
-        isPlaying =
-            widget.musicData.audioPlayer.state == AudioPlayerState.PLAYING;
+        isPlaying = AudioManager.instance.isPlaying;
       });
     }
   }
@@ -158,10 +163,7 @@ class MainPageState extends State<MainPage>
                                       child: PlayerPage()))),
                           onSwipeDown: () async {
                             await widget.musicData.playerStop();
-                            setState(() {
-                              widget.musicData.currentSong = null;
-                              animationController.forward();
-                            });
+                            animationController.forward();
                           },
                           child: ClipRect(
                               child: BackdropFilter(
@@ -187,16 +189,19 @@ class MainPageState extends State<MainPage>
                                                           .size
                                                           .width *
                                                       0.12,
-                                                  child: Icon(
-                                                    isPlaying
-                                                        ? SFSymbols.pause_fill
-                                                        : SFSymbols.play_fill,
-                                                    color: Colors.white,
-                                                    size: 20,
-                                                  )),
-                                              onTap: () => widget.musicData
-                                                          .playerState ==
-                                                      AudioPlayerState.PLAYING
+                                                  child: isPlaying == null
+                                                      ? CupertinoActivityIndicator()
+                                                      : Icon(
+                                                          isPlaying
+                                                              ? SFSymbols
+                                                                  .pause_fill
+                                                              : SFSymbols
+                                                                  .play_fill,
+                                                          color: Colors.white,
+                                                          size: 20,
+                                                        )),
+                                              onTap: () => AudioManager
+                                                      .instance.isPlaying
                                                   ? widget.musicData
                                                       .playerPause()
                                                   : widget.musicData
@@ -207,8 +212,12 @@ class MainPageState extends State<MainPage>
                                                 CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
-                                                widget.musicData
-                                                    .songData['title'],
+                                                AudioManager.instance.info
+                                                            ?.title !=
+                                                        null
+                                                    ? AudioManager
+                                                        .instance.info.title
+                                                    : '',
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -216,8 +225,12 @@ class MainPageState extends State<MainPage>
                                                 height: 5,
                                               ),
                                               Text(
-                                                widget.musicData
-                                                    .songData['artist'],
+                                                AudioManager.instance.info
+                                                            ?.desc !=
+                                                        null
+                                                    ? AudioManager
+                                                        .instance.info.desc
+                                                    : '',
                                                 style: TextStyle(
                                                     color: Colors.grey,
                                                     fontSize: 15),

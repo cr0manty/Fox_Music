@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:fox_music/ui/Account/splash_screen.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(FoxMusic());
 
-class MyApp extends StatefulWidget {
+class FoxMusic extends StatefulWidget {
   @override
-  MyAppState createState() => MyAppState();
+  FoxMusicState createState() => FoxMusicState();
 }
 
-class MyAppState extends State<MyApp> {
+class FoxMusicState extends State<FoxMusic> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override

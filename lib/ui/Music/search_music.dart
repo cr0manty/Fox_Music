@@ -83,13 +83,13 @@ class SearchMusicPageState extends State<SearchMusicPage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () async {
-            downloadData.musicData
+            await downloadData.musicData
                 .setPlaylistSongs(_songList, song, local: false);
             if (downloadData.musicData.currentSong != null &&
                 downloadData.musicData.currentSong.song_id == song.song_id) {
               await downloadData.musicData.playerResume();
             } else {
-              await downloadData.musicData.playerPlay(song);
+              await downloadData.musicData.playerPlay(index: _songList.indexOf(song));
             }
           },
           trailing: Text(formatDuration(song.duration),

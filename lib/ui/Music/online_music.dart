@@ -1,12 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/api/add_new_song.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
+import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
+import 'package:fox_music/utils/offline.dart';
 import 'package:fox_music/utils/tile_list.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _playerNotifyState;
   bool init = true;
+  bool isOnline = true;
   Song playedSong;
   List<Song> dataSongSorted = [];
 
@@ -122,8 +124,18 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   Widget build(BuildContext context) {
     AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+    ConnectionsCheck connection = Provider.of<ConnectionsCheck>(context);
 
     if (init) _filterSongs(downloadData);
+
+    if (connection.isOnline) {
+      if (accountData.user == null || accountData.needUpdate) {
+        accountData.init(true);
+      }
+      if (accountData.user != null && downloadData.dataSong.isEmpty) {
+        downloadData.loadMusic();
+      }
+    }
 
     return Material(
         child: CupertinoPageScaffold(
@@ -131,7 +143,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             navigationBar: CupertinoNavigationBar(
               actionsForegroundColor: main_color,
               middle: Text('Music'),
-              trailing: accountData.user == null
+              trailing: accountData.user == null || !connection.isOnline
                   ? null
                   : GestureDetector(
                       onTap: () => _addSongLink(downloadData),
@@ -141,7 +153,13 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                       ),
                     ),
             ),
-            child: _buildBody(accountData, downloadData)));
+            child: Stack(children: <Widget>[
+              _buildBody(accountData, downloadData),
+              AnimatedOpacity(
+                  opacity: connection.isOnline ? 0 : 1,
+                  duration: Duration(milliseconds: 800),
+                  child: OfflinePage())
+            ])));
   }
 
   _buildBody(AccountData accountData, MusicDownloadData downloadData) {
@@ -277,14 +295,15 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               subtitle: Text(song.artist,
                   style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
-                downloadData.musicData
+                await downloadData.musicData
                     .setPlaylistSongs(dataSongSorted, song, local: false);
                 if (downloadData.musicData.currentSong != null &&
                     downloadData.musicData.currentSong.song_id ==
                         song.song_id) {
                   await downloadData.musicData.playerResume();
                 } else {
-                  await downloadData.musicData.playerPlay(song);
+                  await downloadData.musicData
+                      .playerPlay(index: dataSongSorted.indexOf(song));
                 }
               },
               trailing: Text(formatDuration(song.duration),

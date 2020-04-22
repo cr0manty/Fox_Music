@@ -6,7 +6,7 @@ String userToJson(User data) {
 }
 
 User userFromJson(String str) {
-  if (str != null) {
+  if (str != null && str.isNotEmpty) {
     final data = json.decode(str);
     return User.fromJson(data);
   }

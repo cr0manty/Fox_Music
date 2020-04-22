@@ -8,7 +8,6 @@ import 'package:fox_music/functions/save/version.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/fade_route.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
 
 import 'package:fox_music/provider/music_data.dart';
@@ -47,18 +46,20 @@ class _IntroPageState extends State<IntroPage> {
     MusicData musicData = new MusicData();
     AccountData accountData = new AccountData();
     MusicDownloadData downloadData = new MusicDownloadData();
-    await musicData.init(Theme.of(context).platform);
-    await accountData.init();
+    await musicData.init();
+    await accountData.init(connection.isOnline);
     await downloadData.init(musicData, connection.isOnline);
 
     Navigator.popUntil(context, (Route<dynamic> route) => true);
     Navigator.of(context).pushAndRemoveUntil(
         FadeRoute(
             page: MainPage(
-                lastIndex: lastIndex,
-                musicData: musicData,
-                downloadData: downloadData,
-                accountData: accountData)),
+          lastIndex: lastIndex,
+          musicData: musicData,
+          downloadData: downloadData,
+          accountData: accountData,
+          connection: connection,
+        )),
         (Route<dynamic> route) => false);
   }
 
@@ -73,7 +74,7 @@ class _IntroPageState extends State<IntroPage> {
     return CupertinoPageScaffold(
       backgroundColor:
           WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-              ? HexColor('#282828')
+              ? HexColor('#222222')
               : Colors.white,
       child: Container(
         child: Image.asset('assets/images/audio-cover.png'),

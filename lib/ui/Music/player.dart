@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -49,7 +49,7 @@ class PlayerPageState extends State<PlayerPage> {
   _play(MusicData musicData) {
     return musicData.currentSong != null
         ? () async {
-            if (musicData.playerState == AudioPlayerState.PLAYING) {
+            if (AudioManager.instance.isPlaying) {
               await musicData.playerPause();
             } else {
               musicData.playerResume();
@@ -170,13 +170,15 @@ class PlayerPageState extends State<PlayerPage> {
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
                   width: screenHeight * 0.1,
-                  child: Icon(
-                    musicData.playerState == AudioPlayerState.PLAYING
-                        ? SFSymbols.pause_fill
-                        : SFSymbols.play_fill,
-                    color: Colors.grey,
-                    size: screenHeight * 0.045,
-                  )),
+                  child: musicData.playerState == PlayerState.BUFFERING
+                      ? CupertinoActivityIndicator()
+                      : Icon(
+                          musicData.playerState == PlayerState.PLAYING
+                              ? SFSymbols.pause_fill
+                              : SFSymbols.play_fill,
+                          color: Colors.grey,
+                          size: screenHeight * 0.045,
+                        )),
             ),
             GestureDetector(
                 onTap: musicData.currentSong != null
@@ -215,14 +217,14 @@ class PlayerPageState extends State<PlayerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              musicData.currentSong != null ? musicData.currentSong.title : '',
+              AudioManager.instance.info?.title != null ? AudioManager.instance.info.title : '',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: screenHeight * 0.03,
                   color: Color.fromRGBO(200, 200, 200, 1)),
             ),
             Text(
-              musicData.currentSong != null ? musicData.currentSong.artist : '',
+              AudioManager.instance.info?.desc != null ? AudioManager.instance.info.desc : '',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: screenHeight * 0.025,
@@ -375,7 +377,7 @@ class PlayerPageState extends State<PlayerPage> {
                                 musicData.currentSong != null
                                     ? Container(
                                         child: Text(
-                                          '${musicData.currentIndexPlaylist + 1} / ${musicData.playlist.length}',
+                                          '${musicData.selectedIndex + 1} / ${AudioManager.instance.audioList.length}',
                                           style: TextStyle(
                                               color: Colors.grey, fontSize: 12),
                                         ),
