@@ -300,11 +300,12 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               subtitle: Text(song.artist,
                   style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
+                bool isLocal = downloadData.musicData.isLocal;
                 await downloadData.musicData
                     .setPlaylistSongs(dataSongSorted, song, local: false);
                 if (downloadData.musicData.currentSong != null &&
                     downloadData.musicData.currentSong.song_id ==
-                        song.song_id) {
+                        song.song_id && isLocal == false) {
                   await downloadData.musicData.playerResume();
                 } else {
                   await downloadData.musicData

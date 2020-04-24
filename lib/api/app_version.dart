@@ -4,7 +4,7 @@ import 'package:fox_music/utils/urls.dart';
 
 appVersionGet() async {
   final response =
-      await http.get(APP_VERSION_URL).timeout(Duration(seconds: 30));
+      await http.get(APP_VERSION_URL).timeout(Duration(seconds: 10));
 
-  return json.decode(response.body);
+  if (response.statusCode == 200) return json.decode(response.body);
 }

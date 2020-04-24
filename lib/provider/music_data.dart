@@ -62,6 +62,7 @@ class MusicData with ChangeNotifier {
 
   init() async {
     playerState = PlayerState.STOP;
+    AudioManager.instance.nextMode(playMode: PlayMode.sequence);
     await _initPlayer();
     await loadSavedMusic();
     await _getState();
@@ -135,23 +136,26 @@ class MusicData with ChangeNotifier {
     }
   }
 
-  void setPlaylistSongs(List<Song> songList, Song song, {bool local = true}) {
-    if (songList != playlist) {
+  void setPlaylistSongs(List<Song> songList, Song currentSong,
+      {bool local = true}) {
+    if (songList != playlist || local != isLocal) {
       isLocal = local;
       playlist = songList;
       List<AudioInfo> _list = [];
-
-      songList.forEach((Song song) {
-        String url = local ? 'file://${song.path}' : song.download;
-        String image = song.image != null && song.image.isNotEmpty
-            ? song.image
-            : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
-        _list.add(AudioInfo(url,
-            title: song.title, desc: song.artist, coverUrl: image));
-      });
-
+      int index = 0;
+      songList.asMap()
+        ..forEach((int index, Song song) {
+          if (currentSong == song && local == isLocal) index = index;
+          String url = local ? 'file://${song.path}' : song.download;
+          String image = song.image != null && song.image.isNotEmpty
+              ? song.image
+              : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
+          _list.add(AudioInfo(url,
+              title: song.title, desc: song.artist, coverUrl: image));
+        });
+      AudioManager.instance.stop();
       AudioManager.instance.audioList = _list;
-      AudioManager.instance.play(auto: false);
+      AudioManager.instance.play(index: index, auto: true);
 
       notifyListeners();
     }
@@ -337,10 +341,7 @@ class MusicData with ChangeNotifier {
     volume = AudioManager.instance.volume;
     if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
 
-    if (index == selectedIndex) {
-      AudioManager.instance.playOrPause();
-    } else if ((AudioManager.instance.audioList.length < index ||
-            index == -1) &&
+    if ((AudioManager.instance.audioList.length < index || index == -1) &&
         song != null) {
       String url = song.path != null && song.path.isNotEmpty
           ? 'file://${song.path}'

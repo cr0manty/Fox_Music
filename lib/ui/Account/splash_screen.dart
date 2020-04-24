@@ -24,6 +24,7 @@ class IntroPage extends StatefulWidget {
 class _IntroPageState extends State<IntroPage> {
   final int splashDuration = 1;
 
+
   startTime() async {
     ConnectionsCheck connection = ConnectionsCheck.instance;
     await connection.initialise();
@@ -37,20 +38,28 @@ class _IntroPageState extends State<IntroPage> {
     } else {
       currentAppVersion = await getLastVersion();
     }
-    if (packageInfo.version != currentAppVersion['version']) {
-      await infoDialog(
-          context, 'New version available', currentAppVersion['details']);
+    if (currentAppVersion != null &&
+        packageInfo.version != currentAppVersion['version']) {
+      await pickDialog(context, 'New version available',
+          currentAppVersion['update_details'], currentAppVersion['url']);
     }
+
     SystemChannels.textInput.invokeMethod('TextInput.hide');
+
     int lastIndex = await getLastTab();
+
     MusicData musicData = new MusicData();
     AccountData accountData = new AccountData();
     MusicDownloadData downloadData = new MusicDownloadData();
+
     await musicData.init();
+
     await accountData.init(connection.isOnline);
+
     await downloadData.init(musicData, connection.isOnline);
 
     Navigator.popUntil(context, (Route<dynamic> route) => true);
+
     Navigator.of(context).pushAndRemoveUntil(
         FadeRoute(
             page: MainPage(
