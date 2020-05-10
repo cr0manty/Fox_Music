@@ -24,7 +24,6 @@ class IntroPage extends StatefulWidget {
 class _IntroPageState extends State<IntroPage> {
   final int splashDuration = 1;
 
-
   startTime() async {
     ConnectionsCheck connection = ConnectionsCheck.instance;
     await connection.initialise();
@@ -34,7 +33,7 @@ class _IntroPageState extends State<IntroPage> {
 
     if (connection.isOnline) {
       currentAppVersion = await appVersionGet();
-      saveLastVersion(currentAppVersion);
+      if (currentAppVersion != null) saveLastVersion(currentAppVersion);
     } else {
       currentAppVersion = await getLastVersion();
     }

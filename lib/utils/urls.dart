@@ -1,5 +1,5 @@
-//const BASE_URL  = 'http://10.0.2.2:8000';
-const BASE_URL  = 'http://3.17.149.189';
+const DOMAIN = 'redfoxproject.com';
+const BASE_URL  = 'https://' + DOMAIN;
 
 const BASE_API_URL = '$BASE_URL/api';
 const APP_VERSION_URL = '$BASE_API_URL/app-version/fox-music/';

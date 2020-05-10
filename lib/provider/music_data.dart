@@ -10,7 +10,7 @@ import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
 import 'package:fox_music/functions/save/player_state.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:media_metadata_plugin/media_metadata_plugin.dart';
+//import 'package:media_metadata_plugin/media_metadata_plugin.dart';
 import 'package:random_string/random_string.dart';
 import 'package:audio_manager/audio_manager.dart';
 
@@ -201,25 +201,15 @@ class MusicData with ChangeNotifier {
     fileList.forEach((songPath) async {
       final song = formatSong(songPath.path);
       if (song == null) {
-        var songData =
-            await MediaMetadataPlugin.getMediaMetaData(songPath.path);
-        if (_filterSongs(
-            songData.artistName ?? '', songData.artistName ?? '')) {
           var rng = new Random();
           Song song = Song(
-              title: songData.trackName.isNotEmpty
-                  ? songData.trackName
-                  : randomAlpha(15),
+              title:  randomAlpha(15),
               path: songPath.path,
-              duration: songData.trackDuration,
-              artist:
-                  songData.artistName != null && songData.artistName.isNotEmpty
-                      ? songData.artistName
-                      : randomAlpha(15),
+              duration: 200,
+              artist: randomAlpha(15),
               song_id: rng.nextInt(100000));
           localSongs.add(song);
           renameSong(song);
-        }
       } else if (song != null && localSongs.indexOf(song) == -1) {
         localSongs.add(song);
       }

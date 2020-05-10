@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:fox_music/utils/urls.dart';
 
 class ConnectionsCheck with ChangeNotifier {
   ConnectionsCheck._internal();
@@ -31,7 +32,7 @@ class ConnectionsCheck with ChangeNotifier {
       isOnline = false;
     } else {
       try {
-        final result = await InternetAddress.lookup('3.17.149.189')
+        final result = await InternetAddress.lookup(DOMAIN)
             .timeout(Duration(seconds: 45));
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           isOnline = true;
