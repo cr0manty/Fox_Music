@@ -18,10 +18,14 @@ and for every taste of the listener.
  <br>
  <img src="images/Media.jpg" height="500px" width="300px">
 
-3. The tab "Music" is used to search for network music and download it to your device. After downloading it will be stored in the "Media" tab.
+3. The tab "Music" is used to search for network music and download it to your device. After downloading it will be stored in the "Media" tab. You can also add your track by specifying a direct link to the mp3 file.
 <br>
- <img src="images/Music.jpg" height="500px" width="300px">
- 
+ <table>
+  <tr>
+    <td><img src="images/Music1.jpg" height="500px" width="300px"></td>
+    <td><img src="images/Music2.jpg" height="500px" width="300px"></td>
+  </tr>
+ </table>
 4. The tab "Account" is required for authorization and for registration of a new user.
 After registering an account, a profile opens on which there are buttons: "Search for music", "Search for friends", "Friends" and "Download all".
 <br>

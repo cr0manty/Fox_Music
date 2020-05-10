@@ -155,20 +155,9 @@ class MusicData with ChangeNotifier {
         });
       AudioManager.instance.stop();
       AudioManager.instance.audioList = _list;
-      AudioManager.instance.play(index: index, auto: true);
 
       notifyListeners();
     }
-  }
-
-  bool _filterSongs(String artist, String title) {
-    return localSongs
-            .where((song) =>
-                song.artist.toLowerCase().contains(artist.toLowerCase()) &&
-                song.title.toLowerCase().contains(title.toLowerCase()))
-            .toList()
-            .length >
-        0;
   }
 
   void renameSong(Song song) async {
