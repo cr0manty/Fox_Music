@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/utils/urls.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
@@ -287,8 +288,8 @@ class MusicData with ChangeNotifier {
     songList.forEach((Song song) {
       String image = song.image != null && song.image.isNotEmpty
           ? song.image
-          : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
-      _list.add(AudioInfo('file://${song.path}',
+          : DEFAULT_PLAYER_IMAGE_URL;
+      _list.add(AudioInfo('file:/${song.path}',
           title: song.title, desc: song.artist, coverUrl: image));
     });
     AudioManager.instance.audioList = _list;

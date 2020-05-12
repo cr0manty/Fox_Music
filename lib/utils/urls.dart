@@ -3,6 +3,7 @@ const BASE_URL  = 'https://' + DOMAIN;
 
 const BASE_API_URL = '$BASE_URL/api';
 const APP_VERSION_URL = '$BASE_API_URL/app-version/fox-music/';
+const DEFAULT_PLAYER_IMAGE_URL = '$BASE_API_URL/media/player-default.jpg';
 
 const AUTH_URL = '$BASE_API_URL/auth/';
 const REGISTRATION_URL = '$BASE_API_URL/reg/';
