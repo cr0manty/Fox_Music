@@ -22,8 +22,8 @@ and for every taste of the listener.
 <br>
  <table>
   <tr>
-    <td><img src="images/Music1.jpg" height="500px" width="300px"></td>
-    <td><img src="images/Music2.jpg" height="500px" width="300px"></td>
+    <td><img src="images/Music1.png" height="500px" width="300px"></td>
+    <td><img src="images/Music2.png" height="500px" width="300px"></td>
   </tr>
  </table>
 4. The tab "Account" is required for authorization and for registration of a new user.
@@ -32,7 +32,7 @@ After registering an account, a profile opens on which there are buttons: "Searc
 <table>
   <tr>
     <td><img src="images/Account1.jpg" height="500px" width="300px"></td>
-    <td><img src="images/Account2.jpg" height="500px" width="300px"></td>
+    <td><img src="images/Account2.png" height="500px" width="300px"></td>
     <td><img src="images/Account3.jpg" height="500px" width="300px"></td>
   </tr>
  </table>
@@ -42,14 +42,14 @@ At the bottom of the player is the volume control bar, adding a track to the pla
   <br>
   <table>
   <tr>
-    <td><img src="images/player1.jpg" height="500px" width="300px"></td>
-    <td><img src="images/player2.jpg" height="500px" width="300px"></td>
+    <td><img src="images/player1.png" height="500px" width="300px"></td>
+    <td><img src="images/player2.png" height="500px" width="300px"></td>
   </tr>
  </table>
 
 6. Downloading music is accompanied by animation on the track
  <br>
- <img src="images/Downloading.jpg" height="500px" width="300px">
+ <img src="images/Downloading.png" height="500px" width="300px">
  
 ### Small functionality of the application for music:
 
@@ -57,8 +57,8 @@ At the bottom of the player is the volume control bar, adding a track to the pla
    <br>
  <table>
   <tr>
-    <td><img src="images/SmallFunctionality1.jpg" height="500px" width="300px"></td>
-    <td><img src="images/SmallFunctionality2.jpg" height="500px" width="300px"></td>
+    <td><img src="images/SmallFunctionality1.png" height="500px" width="300px"></td>
+    <td><img src="images/SmallFunctionality2.png" height="500px" width="300px"></td>
   </tr>
  </table>
  
