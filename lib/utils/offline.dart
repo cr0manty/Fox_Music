@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/cupertino.dart';
 
+import 'border_button.dart';
 import 'hex_color.dart';
 
 class OfflinePage extends StatefulWidget {
@@ -31,31 +32,10 @@ class _OfflinePageState extends State<OfflinePage> {
                         style: TextStyle(color: HexColor('#cccccc')),
                       ),
                       SizedBox(height: 20),
-                      GestureDetector(
-                          onTapDown: (details) => setState(() {
-                                buttonOpacity = 0.5;
-                              }),
-                          onTapCancel: () => setState(() {
-                                buttonOpacity = 1.0;
-                              }),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: HexColor('#cccccc')
-                                          .withOpacity(buttonOpacity)),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: CupertinoButton(
-                                  minSize: 0,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  onPressed: () =>
-                                      AppSettings.openLocationSettings(),
-                                  child: Text(
-                                    'Settings',
-                                    style: TextStyle(
-                                        color: HexColor('#cccccc'),
-                                        fontSize: 15),
-                                  ))))
+                      BorderButton(
+                          text: 'Settings',
+                          color: HexColor('#cccccc'),
+                          onPressed: AppSettings.openLocationSettings)
                     ]))));
   }
 }

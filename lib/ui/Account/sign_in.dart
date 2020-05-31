@@ -27,7 +27,6 @@ class SignInState extends State<SignIn> {
   String _password = "";
   bool _obscureText = true;
   bool _disabled = false;
-  bool freeSpace = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +38,7 @@ class SignInState extends State<SignIn> {
         child: GestureDetector(
             onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
             child: ModalProgressHUD(
-                progressIndicator: CupertinoActivityIndicator(radius: 20),
+                progressIndicator: CupertinoActivityIndicator(),
                 child: SafeArea(
                     child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -54,10 +53,6 @@ class SignInState extends State<SignIn> {
                                           'assets/images/app-logo.png'))))),
                       _buildForm(),
                       _buildButtons(accountData, downloadData),
-                      freeSpace
-                          ? SizedBox(
-                              height: MediaQuery.of(context).size.height * 0.1)
-                          : Container()
                     ],
                   ),
                 )),
@@ -167,7 +162,7 @@ class SignInState extends State<SignIn> {
     _setButtonStatus();
     final user = await loginPost(_username, _password);
     if (user != null) {
-      await downloadData.loadMusic();
+      downloadData.loadMusic();
       accountData.user = user;
       saveUser(user);
     } else {

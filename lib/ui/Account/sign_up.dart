@@ -36,7 +36,7 @@ class SignUpState extends State<SignUp> {
         child: GestureDetector(
             onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
             child: ModalProgressHUD(
-                progressIndicator: CupertinoActivityIndicator(radius: 20),
+                progressIndicator: CupertinoActivityIndicator(),
                 child: SafeArea(
                     child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),

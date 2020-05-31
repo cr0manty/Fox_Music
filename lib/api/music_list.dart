@@ -6,10 +6,11 @@ import 'package:fox_music/models/song.dart';
 import 'package:fox_music/functions/format/token.dart';
 import 'package:fox_music/functions/get/token.dart';
 
-musicListGet() async {
+musicListGet({int page = -1}) async {
   try {
     final token = await getToken();
-    final response = await http.get(SONG_LIST_URL, headers: formatToken(token));
+    String url = page != -1? SONG_LIST_URL + '?page=$page': SONG_LIST_URL;
+    final response = await http.get(url, headers: formatToken(token));
 
     if (response.statusCode == 200) {
       var songsData =

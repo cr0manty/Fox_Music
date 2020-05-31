@@ -146,14 +146,11 @@ class PlayerPageState extends State<PlayerPage> {
                       color: musicData.repeat ? main_color : Colors.grey),
                 )),
             GestureDetector(
-                onTap: musicData.currentSong != null
-                    ? () {
-                        if (sliderValue < 0.3 && sliderValue > 0.02) {
-                          musicData.seek();
-                        } else {
-                          musicData.prev();
-                        }
-                      }
+                onTap: musicData.currentSong != null &&
+                        musicData.playerState != PlayerState.BUFFERING
+                    ? sliderValue < 0.3 && sliderValue > 0.02
+                        ? musicData.seek
+                        : musicData.prev
                     : null,
                 child: Container(
                     color: Colors.transparent,
@@ -181,10 +178,9 @@ class PlayerPageState extends State<PlayerPage> {
                         )),
             ),
             GestureDetector(
-                onTap: musicData.currentSong != null
-                    ? () {
-                        musicData.next();
-                      }
+                onTap: musicData.currentSong != null &&
+                        musicData.playerState != PlayerState.BUFFERING
+                    ? musicData.next
                     : null,
                 child: Container(
                     color: Colors.transparent,
@@ -217,14 +213,18 @@ class PlayerPageState extends State<PlayerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              AudioManager.instance.info?.title != null ? AudioManager.instance.info.title : '',
+              AudioManager.instance.info?.title != null
+                  ? AudioManager.instance.info.title
+                  : '',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: screenHeight * 0.03,
                   color: Color.fromRGBO(200, 200, 200, 1)),
             ),
             Text(
-              AudioManager.instance.info?.desc != null ? AudioManager.instance.info.desc : '',
+              AudioManager.instance.info?.desc != null
+                  ? AudioManager.instance.info.desc
+                  : '',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: screenHeight * 0.025,

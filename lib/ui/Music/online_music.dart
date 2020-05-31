@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/api/add_new_song.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
+import 'package:fox_music/ui/Account/auth_vk.dart';
+import 'package:fox_music/utils/border_button.dart';
 import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/utils/offline.dart';
 import 'package:fox_music/utils/tile_list.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -167,6 +170,48 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             ])));
   }
 
+  Widget _provideData(AccountData accountData) {
+    List<Widget> children = accountData.user != null
+        ? [
+            Text(
+              'To listen you have to sign in to your VK account',
+              style: TextStyle(color: Colors.grey, fontSize: 20),
+              textAlign: TextAlign.center,
+            ),
+            Divider(height: 20),
+            BorderButton(
+                text: 'Sign in',
+                color: Colors.grey,
+                onPressed: () => Navigator.of(_scaffoldKey.currentContext).push(
+                    CupertinoPageRoute(
+                        builder: (context) =>
+                            ChangeNotifierProvider<AccountData>.value(
+                                value: accountData,
+                                child: VKAuthPage(accountData)))))
+          ]
+        : [
+            Text(
+              'To listen you have to sign up or sign in',
+              style: TextStyle(color: Colors.grey, fontSize: 20),
+              textAlign: TextAlign.center,
+            )
+          ];
+
+    return Center(
+        child: Container(
+            alignment: Alignment.center,
+            margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.2),
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Padding(
+                padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.2),
+                child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: children))));
+  }
+
   _buildBody(AccountData accountData, MusicDownloadData downloadData) {
     return accountData.user != null &&
             (accountData.user.can_use_vk || accountData.user.is_staff)
@@ -185,21 +230,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                     dataSongSorted.length + 1,
                     (index) => _buildSongListTile(downloadData, index))))
           ]))
-        : Center(
-            child: Container(
-                alignment: Alignment.center,
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height * 0.2),
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.2),
-                  child: Text(
-                    'To listen you have to sign up or log in',
-                    style: TextStyle(color: Colors.grey, fontSize: 20),
-                    textAlign: TextAlign.center,
-                  ),
-                )));
+        : _provideData(accountData);
   }
 
   void _filterSongs(MusicDownloadData downloadData, {String value}) {
@@ -296,8 +327,10 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
               leading: _drawDownloadIcon(downloadData, song),
               padding: EdgeInsets.only(left: 30, right: 20),
               title: Text(song.title,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               subtitle: Text(song.artist,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
               onTap: () async {
                 bool isLocal = downloadData.musicData.isLocal;
@@ -305,7 +338,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                     .setPlaylistSongs(dataSongSorted, song, local: false);
                 if (downloadData.musicData.currentSong != null &&
                     downloadData.musicData.currentSong.song_id ==
-                        song.song_id && isLocal == false) {
+                        song.song_id &&
+                    isLocal == false) {
                   await downloadData.musicData.playerResume();
                 } else {
                   await downloadData.musicData
@@ -337,7 +371,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _playerNotifyState?.cancel();
+    super.dispose();
   }
 }

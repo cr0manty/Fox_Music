@@ -319,7 +319,7 @@ class MusicData with ChangeNotifier {
 
   void playerPlay({int index = 0, Song song}) async {
     volume = AudioManager.instance.volume;
-    if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
+    if (AudioManager.instance.isPlaying) return;
 
     if ((AudioManager.instance.audioList.length < index || index == -1) &&
         song != null) {

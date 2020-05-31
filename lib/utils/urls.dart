@@ -1,11 +1,13 @@
 const DOMAIN = 'redfoxproject.com';
 const BASE_URL  = 'https://' + DOMAIN;
+//const BASE_URL  = 'http://' + '10.0.2.2:8000';
 
 const BASE_API_URL = '$BASE_URL/api';
 const APP_VERSION_URL = '$BASE_API_URL/app-version/fox-music/';
 const DEFAULT_PLAYER_IMAGE_URL = '$BASE_API_URL/media/player-default.jpg';
 
 const AUTH_URL = '$BASE_API_URL/auth/';
+const VK_AUTH_URL = AUTH_URL + 'vk/';
 const REGISTRATION_URL = '$BASE_API_URL/reg/';
 const AUTH_CHECK = '$BASE_API_URL/auth_check/';
 

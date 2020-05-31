@@ -33,7 +33,7 @@ class ConnectionsCheck with ChangeNotifier {
     } else {
       try {
         final result = await InternetAddress.lookup(DOMAIN)
-            .timeout(Duration(seconds: 45));
+            .timeout(Duration(seconds: 20));
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           isOnline = true;
         } else

@@ -101,8 +101,8 @@ class MusicDownloadData with ChangeNotifier {
     });
   }
 
-  loadMusic() async {
-    List<Song> songs = await musicListGet();
+  loadMusic({int page = -1}) async {
+    List<Song> songs = await musicListGet(page:page);
     await loadDownloaded(songs);
 
     notifyListeners();

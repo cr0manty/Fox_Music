@@ -256,7 +256,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                     )),
                 Divider(height: 10),
                 ModalProgressHUD(
-                    progressIndicator: CupertinoActivityIndicator(radius: 20),
+                    progressIndicator: CupertinoActivityIndicator(),
                     child: SingleChildScrollView(
                       padding: EdgeInsets.all(8.0),
                       child: Form(
