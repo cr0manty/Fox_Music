@@ -319,50 +319,48 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
 
     return Column(children: <Widget>[
       Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: Container(
-            height: 60,
-            child: TileList(
-              leading: _drawDownloadIcon(downloadData, song),
-              padding: EdgeInsets.only(left: 30, right: 20),
-              title: Text(song.title,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-              subtitle: Text(song.artist,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-              onTap: () async {
-                bool isLocal = downloadData.musicData.isLocal;
-                await downloadData.musicData
-                    .setPlaylistSongs(dataSongSorted, song, local: false);
-                if (downloadData.musicData.currentSong != null &&
-                    downloadData.musicData.currentSong.song_id ==
-                        song.song_id &&
-                    isLocal == false) {
-                  await downloadData.musicData.playerResume();
-                } else {
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          child: Container(
+              height: 60,
+              child: TileList(
+                leading: _drawDownloadIcon(downloadData, song),
+                padding: EdgeInsets.only(left: 30, right: 20),
+                title: Text(song.title,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+                subtitle: Text(song.artist,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+                onTap: () async {
+                  bool isLocal = downloadData.musicData.isLocal;
                   await downloadData.musicData
-                      .playerPlay(index: dataSongSorted.indexOf(song));
-                }
-              },
-              trailing: Text(formatDuration(song.duration),
-                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-            )),
-        secondaryActions: <Widget>[
-          SlideAction(
-            color: HexColor('#d62d2d'),
-            child: Icon(SFSymbols.trash, color: Colors.white),
-            onTap: () async {
-              hideMusic(song.song_id);
-              setState(() {
-                downloadData.dataSong.remove(song);
-                dataSongSorted = downloadData.dataSong;
-              });
-            },
-          ),
-        ],
-      ),
+                      .setPlaylistSongs(dataSongSorted, song, local: false);
+                  if (downloadData.musicData.currentSong != null &&
+                      downloadData.musicData.currentSong.song_id ==
+                          song.song_id &&
+                      !isLocal) {
+                    await downloadData.musicData.playerResume();
+                  } else {
+                    await downloadData.musicData
+                        .playerPlay(index: dataSongSorted.indexOf(song));
+                  }
+                },
+                trailing: Text(formatDuration(song.duration),
+                    style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+              )),
+          secondaryActions: <Widget>[
+            SlideAction(
+                color: HexColor('#d62d2d'),
+                child: Icon(SFSymbols.trash, color: Colors.white),
+                onTap: () async {
+                  hideMusic(song.song_id);
+                  setState(() {
+                    downloadData.dataSong.remove(song);
+                    dataSongSorted = downloadData.dataSong;
+                  });
+                })
+          ]),
       Padding(
           padding: EdgeInsets.only(left: 12.0),
           child: Divider(height: 1, color: Colors.grey))

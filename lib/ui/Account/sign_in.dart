@@ -129,32 +129,30 @@ class SignInState extends State<SignIn> {
         alignment: FractionalOffset.bottomCenter,
         child: Column(children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top: 30, bottom: 5),
-            child: CupertinoButton(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-              color: main_color,
-              onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                if (_formKey.currentState.validate()) {
-                  _loginPressed(accountData, downloadData);
-                }
-              },
-              child: Text('Login', style: TextStyle(color: Colors.white)),
-            ),
-          ),
+              padding: const EdgeInsets.only(top: 30, bottom: 5),
+              child: CupertinoButton(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                color: main_color,
+                onPressed: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  if (_formKey.currentState.validate()) {
+                    _loginPressed(accountData, downloadData);
+                  }
+                },
+                child: Text('Login', style: TextStyle(color: Colors.white)),
+              )),
           FlatButton(
-            child: Text(
-              "Don't have an account? Sign up.",
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: _disabled
-                ? null
-                : () {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    Navigator.of(context, rootNavigator: true)
-                        .push(BottomRoute(page: SignUp()));
-                  },
-          ),
+              child: Text(
+                "Don't have an account? Sign up.",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: _disabled
+                  ? null
+                  : () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      Navigator.of(context, rootNavigator: true)
+                          .push(BottomRoute(page: SignUp()));
+                    }),
         ]));
   }
 
@@ -167,7 +165,7 @@ class SignInState extends State<SignIn> {
       saveUser(user);
     } else {
       infoDialog(context, "Unable to Login",
-          "You may have supplied an invalid 'Username' / 'Password' combination.");
+          "You may have supplied an invalid 'Username'/'Password' combination.");
     }
     _setButtonStatus();
   }

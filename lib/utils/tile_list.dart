@@ -45,7 +45,8 @@ class TileListState extends State<TileList> {
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 widget.leading ?? Container(),
-                Column(
+                Flexible(
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -53,8 +54,8 @@ class TileListState extends State<TileList> {
                     Divider(height: 2, color: Colors.transparent),
                     widget.subtitle ?? Container()
                   ],
-                ),
-                Expanded(child: SizedBox()),
+                )),
+                SizedBox(),
                 Container(
                       child: widget.trailing,
                       margin: EdgeInsets.all(2),
