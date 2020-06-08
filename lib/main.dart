@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fox_music/ui/Account/splash_screen.dart';
+import 'package:fox_music/splash_screen.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
 void main() => runApp(FoxMusic());
