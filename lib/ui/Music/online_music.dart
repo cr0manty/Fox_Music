@@ -11,7 +11,6 @@ import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/utils/offline.dart';
 import 'package:fox_music/utils/tile_list.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -302,10 +301,11 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   }
 
   _buildSongListTile(MusicDownloadData downloadData, int index) {
-    if (index == 0)
+    if (index == 0) {
       return AppleSearch(
           controller: controller,
           onChange: (value) => _filterSongs(downloadData, value: value));
+    }
 
     Song song = dataSongSorted[index - 1];
     if (init) {

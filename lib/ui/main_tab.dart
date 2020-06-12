@@ -147,118 +147,121 @@ class MainPageState extends State<MainPage>
                 position: offset,
                 child: SafeArea(
                     child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                      SwipeDetector(
-                          onTap: () => Navigator.of(context, rootNavigator: true)
-                              .push(BottomRoute(
-                                  page: ChangeNotifierProvider<MusicData>.value(
-                                      value: widget.musicData,
-                                      child: PlayerPage()))),
-                          onSwipeUp: () => Navigator.of(context,
-                                  rootNavigator: true)
-                              .push(BottomRoute(
-                                  page: ChangeNotifierProvider<MusicData>.value(
-                                      value: widget.musicData,
-                                      child: PlayerPage()))),
-                          onSwipeDown: () async {
-                            await widget.musicData.playerStop();
-                            animationController.forward();
-                          },
-                          child: ClipRect(
-                              child: BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                      sigmaX: 10.0, sigmaY: 10.0),
-                                  child: Container(
-                                      decoration: BoxDecoration(color: Colors.black26.withOpacity(0.22)),
-                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                      alignment: Alignment.bottomCenter,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          GestureDetector(
-                                              child: Container(
-                                                  color: Colors.transparent,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.12,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.12,
-                                                  child: isPlaying == null
-                                                      ? CupertinoActivityIndicator()
-                                                      : Icon(
-                                                          isPlaying
-                                                              ? SFSymbols
-                                                                  .pause_fill
-                                                              : SFSymbols
-                                                                  .play_fill,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        )),
-                                              onTap: () => AudioManager
-                                                      .instance.isPlaying
-                                                  ? widget.musicData
-                                                      .playerPause()
-                                                  : widget.musicData
-                                                      .playerResume()),
-                                          SizedBox(width: 10),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text(
-                                                AudioManager.instance.info
-                                                            ?.title !=
-                                                        null
-                                                    ? AudioManager
-                                                        .instance.info.title
-                                                    : '',
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                              Divider(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                AudioManager.instance.info
-                                                            ?.desc !=
-                                                        null
-                                                    ? AudioManager
-                                                        .instance.info.desc
-                                                    : '',
-                                                style: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 15),
-                                              ),
-                                            ],
-                                          ),
-                                          Expanded(child: SizedBox()),
-                                          GestureDetector(
-                                              child: Container(
-                                                  color: Colors.transparent,
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.12,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.12,
-                                                  child: Icon(
-                                                    SFSymbols.forward_fill,
-                                                    size: 20,
-                                                    color: Colors.white,
-                                                  )),
-                                              onTap: () =>
-                                                  widget.musicData.next())
-                                        ],
-                                      )))))
-                    ]))))
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                        SwipeDetector(
+                            onTap: () => Navigator.of(context, rootNavigator: true)
+                                .push(BottomRoute(
+                                    page: ChangeNotifierProvider<MusicData>.value(
+                                        value: widget.musicData,
+                                        child: PlayerPage()))),
+                            onSwipeUp: () => Navigator.of(context,
+                                    rootNavigator: true)
+                                .push(BottomRoute(
+                                    page: ChangeNotifierProvider<MusicData>.value(
+                                        value: widget.musicData,
+                                        child: PlayerPage()))),
+                            onSwipeDown: () async {
+                              await widget.musicData.playerStop();
+                              animationController.forward();
+                            },
+                            child: ClipRect(
+                                child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 10.0, sigmaY: 10.0),
+                                    child: Container(
+                                        decoration: BoxDecoration(color: Colors.black26.withOpacity(0.22)),
+                                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        alignment: Alignment.bottomCenter,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            GestureDetector(
+                                                child: Container(
+                                                    color: Colors.transparent,
+                                                    height: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.12,
+                                                    width: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.12,
+                                                    child: isPlaying == null
+                                                        ? CupertinoActivityIndicator()
+                                                        : Icon(
+                                                            isPlaying
+                                                                ? SFSymbols
+                                                                    .pause_fill
+                                                                : SFSymbols
+                                                                    .play_fill,
+                                                            color: Colors.white,
+                                                            size: 20,
+                                                          )),
+                                                onTap: () => AudioManager
+                                                        .instance.isPlaying
+                                                    ? widget.musicData
+                                                        .playerPause()
+                                                    : widget.musicData
+                                                        .playerResume()),
+                                            SizedBox(width: 10),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text(
+                                                  AudioManager.instance.info
+                                                              ?.title !=
+                                                          null
+                                                      ? AudioManager
+                                                          .instance.info.title
+                                                      : '',
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                                Divider(
+                                                  height: 5,
+                                                ),
+                                                Text(
+                                                  AudioManager.instance.info
+                                                              ?.desc !=
+                                                          null
+                                                      ? AudioManager
+                                                          .instance.info.desc
+                                                      : '',
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 15),
+                                                ),
+                                              ],
+                                            ),
+                                            Expanded(child: SizedBox()),
+                                            GestureDetector(
+                                                child: Container(
+                                                    color: Colors.transparent,
+                                                    height: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.12,
+                                                    width: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.12,
+                                                    child: Icon(
+                                                      SFSymbols.forward_fill,
+                                                      size: 20,
+                                                      color: Colors.white,
+                                                    )),
+                                                onTap: () =>
+                                                    widget.musicData.next())
+                                          ],
+                                        )))))
+                      ]),
+                    )))
         : Container();
   }
 

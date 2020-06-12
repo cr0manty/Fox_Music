@@ -11,7 +11,6 @@ import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/functions/get/player_state.dart';
 import 'package:fox_music/functions/save/player_state.dart';
 import 'package:fox_music/models/song.dart';
-//import 'package:media_metadata_plugin/media_metadata_plugin.dart';
 import 'package:random_string/random_string.dart';
 import 'package:audio_manager/audio_manager.dart';
 
@@ -191,15 +190,15 @@ class MusicData with ChangeNotifier {
     fileList.forEach((songPath) async {
       final song = formatSong(songPath.path);
       if (song == null) {
-          var rng = new Random();
-          Song song = Song(
-              title:  randomAlpha(15),
-              path: songPath.path,
-              duration: 200,
-              artist: randomAlpha(15),
-              song_id: rng.nextInt(100000));
-          localSongs.add(song);
-          renameSong(song);
+        var rng = new Random();
+        Song song = Song(
+            title: randomAlpha(15),
+            path: songPath.path,
+            duration: 200,
+            artist: randomAlpha(15),
+            song_id: rng.nextInt(100000));
+        localSongs.add(song);
+        renameSong(song);
       } else if (song != null && localSongs.indexOf(song) == -1) {
         localSongs.add(song);
       }
@@ -327,9 +326,10 @@ class MusicData with ChangeNotifier {
           ? 'file://${song.path}'
           : song.download;
 
+      songDuration = Duration(seconds: song.duration ?? 0);
+      songPosition = Duration(seconds: 0);
       selectedIndex = index;
       currentSong = song;
-      playerState = PlayerState.PLAYING;
       _playerStateStream.add(true);
       notifyListeners();
 
@@ -338,7 +338,8 @@ class MusicData with ChangeNotifier {
     } else if (AudioManager.instance.audioList.length > index) {
       selectedIndex = index;
       currentSong = playlist[index];
-      playerState = PlayerState.PLAYING;
+      songDuration = Duration(seconds: currentSong.duration ?? 0);
+      songPosition = Duration(seconds: 0);
       _playerStateStream.add(true);
       notifyListeners();
 
@@ -376,17 +377,22 @@ class MusicData with ChangeNotifier {
 
     selectedIndex = AudioManager.instance.curIndex;
     currentSong = playlist[selectedIndex];
+    songDuration = Duration(seconds: currentSong.duration ?? 0);
+    songPosition = Duration(seconds: 0);
     _playerStateStream.add(true);
     notifyListeners();
   }
 
   void next({bool change = true}) async {
+    if (playerState == PlayerState.BUFFERING) return;
+
     if (!mix) {
       if (change) AudioManager.instance.next();
 
       selectedIndex = AudioManager.instance.curIndex;
-
       currentSong = playlist[selectedIndex];
+      songDuration = Duration(seconds: currentSong.duration ?? 0);
+      songPosition = Duration(seconds: 0);
       _playerStateStream.add(true);
       notifyListeners();
     } else {
@@ -405,7 +411,8 @@ class MusicData with ChangeNotifier {
     selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length);
 
     currentSong = playlist[selectedIndex];
-    playerState = PlayerState.PLAYING;
+    songDuration = Duration(seconds: currentSong.duration ?? 0);
+    songPosition = Duration(seconds: 0);
     _playerStateStream.add(true);
     songPosition = Duration(seconds: 0);
     notifyListeners();

@@ -5,11 +5,11 @@ getLastVersion() async {
 
   String version = await preferences.getString("Version");
   String details = await preferences.getString("Details");
-  String url = await preferences.getString("SiteUrl");
 
-  return {
-    'version': version ?? '',
-    'update_details': details ?? '',
-    'url': url ?? ''
-  };
+  return version != null || details != null
+      ? {
+          'version': version ?? '',
+          'update_details': details ?? '',
+        }
+      : null;
 }
