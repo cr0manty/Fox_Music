@@ -21,7 +21,7 @@ class ConnectionsCheck with ChangeNotifier {
 
   void initialise() async {
     ConnectivityResult result = await connectivity.checkConnectivity();
-    _checkStatus(result);
+    await _checkStatus(result);
     connectivity.onConnectivityChanged.listen((result) {
       _checkStatus(result);
     });

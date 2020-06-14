@@ -14,7 +14,7 @@ musicListGet({int page = -1}) async {
 
     if (response.statusCode == 200) {
       var songsData =
-      (json.decode(response.body) as Map)['result'] as List<dynamic>;
+      (json.decode(response.body) as Map)['results'] as List<dynamic>;
 
       var songList = List<Song>();
       songsData.forEach((dynamic value) async {

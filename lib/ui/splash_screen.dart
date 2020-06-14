@@ -46,17 +46,13 @@ class _IntroPageState extends State<IntroPage> {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
     int lastIndex = await getLastTab();
-
     MusicData musicData = new MusicData();
     AccountData accountData = new AccountData();
     MusicDownloadData downloadData = new MusicDownloadData();
 
     await musicData.init();
-
     await accountData.init(connection.isOnline);
-
     await downloadData.init(musicData, connection.isOnline);
-
     Navigator.popUntil(context, (Route<dynamic> route) => true);
 
     Navigator.of(context).pushAndRemoveUntil(

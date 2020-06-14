@@ -4,8 +4,6 @@ import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
-import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/playlist.dart';
 
 class DBProvider {
