@@ -122,7 +122,9 @@ class MainPageState extends State<MainPage>
       case 3:
         page = CupertinoTabView(
             builder: (BuildContext context) => _buildView(
-                widget.accountData.user != null ? AccountPage(widget.connection.isOnline) : SignIn()));
+                widget.accountData.user != null
+                    ? AccountPage(widget.connection.isOnline)
+                    : SignIn()));
         break;
     }
     return Stack(children: <Widget>[page, _buildPlayer()]);
@@ -146,21 +148,23 @@ class MainPageState extends State<MainPage>
             child: SlideTransition(
                 position: offset,
                 child: SafeArea(
-                    child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
                         SwipeDetector(
                             onTap: () => Navigator.of(context, rootNavigator: true)
                                 .push(BottomRoute(
-                                    page: ChangeNotifierProvider<MusicData>.value(
-                                        value: widget.musicData,
-                                        child: PlayerPage()))),
+                                    page:
+                                        ChangeNotifierProvider<MusicData>.value(
+                                            value: widget.musicData,
+                                            child: PlayerPage()))),
                             onSwipeUp: () => Navigator.of(context,
                                     rootNavigator: true)
                                 .push(BottomRoute(
-                                    page: ChangeNotifierProvider<MusicData>.value(
-                                        value: widget.musicData,
-                                        child: PlayerPage()))),
+                                    page:
+                                        ChangeNotifierProvider<MusicData>.value(
+                                            value: widget.musicData,
+                                            child: PlayerPage()))),
                             onSwipeDown: () async {
                               await widget.musicData.playerStop();
                               animationController.forward();
@@ -181,14 +185,16 @@ class MainPageState extends State<MainPage>
                                             GestureDetector(
                                                 child: Container(
                                                     color: Colors.transparent,
-                                                    height: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.12,
-                                                    width: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.12,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.12,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.12,
                                                     child: isPlaying == null
                                                         ? CupertinoActivityIndicator()
                                                         : Icon(
@@ -207,7 +213,8 @@ class MainPageState extends State<MainPage>
                                                     : widget.musicData
                                                         .playerResume()),
                                             SizedBox(width: 10),
-                                            Column(
+                                            Flexible(
+                                                child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: <Widget>[
@@ -218,7 +225,8 @@ class MainPageState extends State<MainPage>
                                                       ? AudioManager
                                                           .instance.info.title
                                                       : '',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
@@ -232,25 +240,30 @@ class MainPageState extends State<MainPage>
                                                       ? AudioManager
                                                           .instance.info.desc
                                                       : '',
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       color: Colors.grey,
                                                       fontSize: 15),
                                                 ),
                                               ],
-                                            ),
-                                            Expanded(child: SizedBox()),
+                                            )),
+                                            SizedBox(),
                                             GestureDetector(
                                                 child: Container(
+                                                    alignment:
+                                                        Alignment.centerLeft,
                                                     color: Colors.transparent,
-                                                    height: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.12,
-                                                    width: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.12,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.12,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.12,
                                                     child: Icon(
                                                       SFSymbols.forward_fill,
                                                       size: 20,
@@ -261,7 +274,7 @@ class MainPageState extends State<MainPage>
                                           ],
                                         )))))
                       ]),
-                    )))
+                )))
         : Container();
   }
 

@@ -128,18 +128,18 @@ class PlaylistPageState extends State<PlaylistPage> {
             child: SafeArea(
                 child: _playlistList.length > 0
                     ? ListView(
-                    children: List.generate(
-                      _playlistList.length,
-                          (index) => _buildPlaylistList(downloadData, index),
-                    ))
+                        children: List.generate(
+                        _playlistList.length + 1,
+                        (index) => _buildPlaylistList(downloadData, index),
+                      ))
                     : Container(
-                    padding: EdgeInsets.only(top: 30),
-                    alignment: Alignment.topCenter,
-                    child: Text(
-                      'You have no playlists yet',
-                      style: TextStyle(color: Colors.grey, fontSize: 20),
-                      textAlign: TextAlign.center,
-                    )))));
+                        padding: EdgeInsets.only(top: 30),
+                        alignment: Alignment.topCenter,
+                        child: Text(
+                          'You have no playlists yet',
+                          style: TextStyle(color: Colors.grey, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        )))));
   }
 
   _setImage(Playlist playlist, File image) async {
@@ -158,9 +158,7 @@ class PlaylistPageState extends State<PlaylistPage> {
         return CircleAvatar(
             radius: 22,
             backgroundColor: Colors.grey,
-            backgroundImage: Image
-                .file(file)
-                .image);
+            backgroundImage: Image.file(file).image);
       } else {
         playlist.image = null;
         DBProvider.db.updatePlaylist(playlist);
@@ -175,13 +173,17 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: main_color);
   }
 
-  void _mixPlaylistSong(MusicDownloadData downloadData, Playlist playlist) async {
+  void _mixPlaylistSong(
+      MusicDownloadData downloadData, Playlist playlist) async {
     downloadData.musicData.playPlaylist(playlist, mix: true);
   }
 
   _buildPlaylistList(MusicDownloadData downloadData, int index) {
-    Playlist playlist = _playlistList[index];
+    if (index >= _playlistList.length) {
+      return Container(height: 75);
+    }
 
+    Playlist playlist = _playlistList[index];
     return Column(
         key: Key('$index'),
         mainAxisSize: MainAxisSize.min,
@@ -191,34 +193,33 @@ class PlaylistPageState extends State<PlaylistPage> {
             actionExtentRatio: 0.25,
             child: Container(
                 child: TileList(
-                  padding: EdgeInsets.only(
-                      left: 16, right: 8, top: 4, bottom: 4),
-                  title: Text(playlist.title,
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Color.fromRGBO(200, 200, 200, 1))),
-                  onTap: () async {
-                    Navigator.of(_scaffoldKey.currentContext).push(
-                        CupertinoPageRoute(
-                            builder: (context) =>
+              padding: EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
+              title: Text(playlist.title,
+                  style: TextStyle(
+                      fontSize: 18, color: Color.fromRGBO(200, 200, 200, 1))),
+              onTap: () async {
+                Navigator.of(_scaffoldKey.currentContext).push(
+                    CupertinoPageRoute(
+                        builder: (context) =>
                             ChangeNotifierProvider<MusicDownloadData>.value(
                                 value: downloadData,
                                 child: MusicListPage(playlist: playlist))));
-                  },
-                  leading: Container(padding: EdgeInsets.only(right: 20),
-                      child: _showImage(playlist)),
-                  trailing: GestureDetector(
-                      onTap: () => _mixPlaylistSong(downloadData, playlist),
-                      child: Container(
-                          color: Colors.transparent,
-                          padding:
+              },
+              leading: Container(
+                  padding: EdgeInsets.only(right: 20),
+                  child: _showImage(playlist)),
+              trailing: GestureDetector(
+                  onTap: () => _mixPlaylistSong(downloadData, playlist),
+                  child: Container(
+                      color: Colors.transparent,
+                      padding:
                           EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                          child: Icon(
-                            SFSymbols.shuffle,
-                            color: Colors.grey,
-                            size: 20,
-                          ))),
-                )),
+                      child: Icon(
+                        SFSymbols.shuffle,
+                        color: Colors.grey,
+                        size: 20,
+                      ))),
+            )),
             actions: <Widget>[
               SlideAction(
                 color: HexColor('#3a4e93'),
@@ -250,8 +251,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       source: ImageSource.camera);
                                   _setImage(playlist, _image);
                                 },
-                                child: Text('Camera', style: TextStyle(
-                                    color: Colors.blue))),
+                                child: Text('Camera',
+                                    style: TextStyle(color: Colors.blue))),
                             CupertinoActionSheetAction(
                                 onPressed: () async {
                                   Navigator.pop(context);
@@ -259,8 +260,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                                       source: ImageSource.gallery);
                                   _setImage(playlist, _image);
                                 },
-                                child: Text('Gallery', style: TextStyle(
-                                    color: Colors.blue))),
+                                child: Text('Gallery',
+                                    style: TextStyle(color: Colors.blue))),
                             CupertinoActionSheetAction(
                                 isDestructiveAction: true,
                                 onPressed: () async {

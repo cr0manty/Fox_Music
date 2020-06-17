@@ -4,8 +4,8 @@ splitStringToFile(String str) {
   return str.replaceAll('/', ' ').replaceAll(' ', '_');
 }
 
-formatFileName(Song song) {
-  return '${splitStringToFile(song.artist)}-${splitStringToFile(song.title)}-${song.duration}-${song.song_id}.mp3';
+formatFileName(Song song, int id) {
+  return '${splitStringToFile(song.artist)}-${splitStringToFile(song.title)}-${song.duration}-$id.mp3';
 }
 
 splitStringFromFile(String str) {
