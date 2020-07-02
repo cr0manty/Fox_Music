@@ -7,12 +7,13 @@ import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:fox_music/models/song.dart';
+
+import 'api.dart';
 
 enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 
@@ -55,7 +56,7 @@ class MusicDownloadData with ChangeNotifier {
     _downloadState = DownloadState.COMPLETED;
   }
 
-  init(MusicData data, bool online) {
+  init(MusicData data, bool online) async {
     musicData = data;
     if (online) loadMusic();
 
@@ -93,17 +94,19 @@ class MusicDownloadData with ChangeNotifier {
     return musicData.localSongs.indexOf(song) != -1;
   }
 
-  void loadDownloaded(List<Song> songs) {
-    dataSong.clear();
-    songs.forEach((song) {
-      song.downloaded = musicData.localSongs.indexOf(song) != -1;
-      dataSong.add(song);
-    });
+  void loadDownloaded(List songs) {
+    if (songs != null) {
+      dataSong.clear();
+      songs.forEach((song) {
+        song.downloaded = musicData.localSongs.indexOf(song) != -1;
+        dataSong.add(song);
+      });
+    }
   }
 
   loadMusic({int page = -1}) async {
-    List<Song> songs = await musicListGet(page:page);
-    await loadDownloaded(songs);
+    List songs = await Api.musicListPost(page: page);
+    loadDownloaded(songs);
 
     notifyListeners();
   }

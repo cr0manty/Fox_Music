@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/functions/save/last_tab.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/provider/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
@@ -25,12 +25,10 @@ class MainPage extends StatefulWidget {
   final MusicData musicData;
   final MusicDownloadData downloadData;
   final AccountData accountData;
-  final int lastIndex;
   final ConnectionsCheck connection;
 
   MainPage(
-      {this.lastIndex,
-      this.downloadData,
+      {this.downloadData,
       this.musicData,
       this.accountData,
       this.connection});
@@ -55,7 +53,7 @@ class MainPageState extends State<MainPage>
     super.initState();
 
     controller = CupertinoTabController(
-        initialIndex: widget.lastIndex < 0 ? 0 : widget.lastIndex);
+        initialIndex: SharedPrefs.getLastTab() < 0 ? 0 : SharedPrefs.getLastTab());
     animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 350));
     offset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0))
@@ -66,7 +64,7 @@ class MainPageState extends State<MainPage>
       },
     );
     controller.addListener(() async {
-      saveLastTab(controller.index);
+      SharedPrefs.saveLastTab(controller.index);
     });
 
     _showPlayer = widget.musicData.onPlayerActive.listen((active) {

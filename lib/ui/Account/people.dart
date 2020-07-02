@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/image.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/relationship.dart';
@@ -153,7 +153,7 @@ class PeoplePageState extends State<PeoplePage> {
                       color: Colors.white,
                     ),
                     onTap: () async {
-                      bool isAdded = await addMusic(song.song_id);
+                      bool isAdded = await Api.addMusic(song.song_id);
                       if (isAdded) {
                         setState(() {
                           song.in_my_list = 1;
@@ -171,7 +171,7 @@ class PeoplePageState extends State<PeoplePage> {
                     color: Colors.white,
                   ),
                   onTap: () async {
-                    bool isDeleted = await hideMusic(song.song_id);
+                    bool isDeleted = await Api.hideMusic(song.song_id);
                     if (isDeleted) {
                       setState(() {
                         song.in_my_list = 0;

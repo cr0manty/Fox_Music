@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/api/add_new_song.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
+import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
 import 'package:fox_music/utils/border_button.dart';
 import 'package:fox_music/utils/check_connection.dart';
@@ -16,7 +16,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/utils/apple_search.dart';
@@ -103,8 +102,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                         "download": link.text
                       };
                       Navigator.pop(context);
-
-                      Map result = await addNewSong(body);
+                      Map result = await Api.addNewSong(body);
 
                       if (result['success']) {
                         infoDialog(_scaffoldKey.currentContext, 'Success',
@@ -354,7 +352,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                 color: HexColor('#d62d2d'),
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () async {
-                  hideMusic(song.song_id);
+                  Api.hideMusic(song.song_id);
                   setState(() {
                     downloadData.dataSong.remove(song);
                     dataSongSorted = downloadData.dataSong;

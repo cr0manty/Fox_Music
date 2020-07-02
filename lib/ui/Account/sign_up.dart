@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fox_music/provider/api.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:fox_music/api/login.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/utils/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
@@ -214,7 +214,7 @@ class SignUpState extends State<SignUp> {
   _createAccountPressed() async {
     _setButtonStatus();
     final reg =
-        await registrationPost(_username, _password, _firstName, _lastName);
+        await Api.registrationPost(_username, _password, _firstName, _lastName);
     if (reg != null) {
       infoDialog(context, "You have successfully registered!",
           "Now you need to log in.");

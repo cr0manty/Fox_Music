@@ -5,11 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/provider/shared_prefs.dart';
 import 'package:fox_music/utils/urls.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/functions/format/song_name.dart';
-import 'package:fox_music/functions/get/player_state.dart';
-import 'package:fox_music/functions/save/player_state.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:random_string/random_string.dart';
 import 'package:audio_manager/audio_manager.dart';
@@ -63,9 +62,9 @@ class MusicData with ChangeNotifier {
   init() async {
     playerState = PlayerState.STOP;
     AudioManager.instance.nextMode(playMode: PlayMode.sequence);
-    await _initPlayer();
-    await loadSavedMusic();
-    await _getState();
+    _initPlayer();
+    loadSavedMusic();
+    _getState();
   }
 
   void _initPlayer() {
@@ -129,8 +128,8 @@ class MusicData with ChangeNotifier {
     });
   }
 
-  void _getState() async {
-    var data = await getPlayerState();
+  void _getState() {
+    var data = SharedPrefs.getPlayerState();
     if (data['repeat']) {
       repeatClick();
     }
@@ -229,7 +228,7 @@ class MusicData with ChangeNotifier {
   void repeatClick() async {
     repeat = !repeat;
     notifyListeners();
-    savePlayerState(repeat);
+    SharedPrefs.savePlayerState(repeat);
   }
 
   playPlaylist(Playlist thisPlaylist, {bool mix = false}) async {

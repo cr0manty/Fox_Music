@@ -2,10 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/api/friends_list.dart';
-import 'package:fox_music/api/user_search.dart';
 import 'package:fox_music/functions/format/image.dart';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/models/user.dart';
@@ -27,7 +26,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
   List<Relationship> _userList = [];
 
   _loadFriends() async {
-    final friendList = await friendListIdGet();
+    final friendList = await Api.friendListIdGet();
     setState(() {
       _friends = friendList;
     });
@@ -83,7 +82,7 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
       return AppleSearch(
         controller: controller,
         onChange: (value) async {
-          List<User> userList = await userSearchGet(value);
+          List<User> userList = await Api.userSearchGet(value);
           _setFriendStatus(userList);
         },
       );

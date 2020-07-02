@@ -1,9 +1,9 @@
-import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/models/song.dart';
+import 'package:fox_music/provider/api.dart';
 
 downloadAll() async { // TODO
   try {
-    List<Song> songList = await musicListGet();
+    List<Song> songList = await Api.musicListGet();
     int downloadAmount = 0;
     await songList.forEach((Song song) async {
       try {

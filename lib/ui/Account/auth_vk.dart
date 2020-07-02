@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/utils/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/api/vk_auth.dart';
 
 class VKAuthPage extends StatefulWidget {
   final AccountData accountData;
@@ -139,7 +139,7 @@ class VKAuthState extends State<VKAuthPage> {
   _loginPressed(AccountData accountData, {String sid, String captcha}) async {
     setState(() => _disabled = true);
 
-    Map authStatus = await vkAuth(_username, _password, sid, captcha);
+    Map authStatus = await Api.vkAuth(_username, _password, sid, captcha);
 
     if (authStatus['code'] == 302) {
       showPickerDialog(accountData, authStatus);

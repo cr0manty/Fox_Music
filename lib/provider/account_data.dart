@@ -2,15 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:fox_music/api/auth.dart';
-import 'package:fox_music/api/friends_list.dart';
-import 'package:fox_music/functions/get/user.dart';
-import 'package:fox_music/functions/save/logout.dart';
-import 'package:fox_music/functions/save/user.dart';
 import 'package:fox_music/models/relationship.dart';
-
 import 'package:fox_music/models/user.dart';
-import 'package:fox_music/api/profile.dart';
+import 'package:fox_music/provider/shared_prefs.dart';
+
+import 'api.dart';
 
 enum AccountType { SELF_SHOW, SELF_EDIT }
 
@@ -29,42 +25,42 @@ class AccountData with ChangeNotifier {
 
   init(bool isOnline) async {
     if (isOnline) {
-      if (await authCheckGet()) {
-        user = await profileGet();
+      if (await Api.authCheckGet()) {
+        user = await Api.profileGet();
         if (user == null) {
           await makeLogout();
         } else {
           needUpdate = false;
           await loadFiendList();
-          saveUser(user);
+          SharedPrefs.saveUser(user);
         }
       }
     } else {
-      User newUser = await getUser();
+      User newUser = SharedPrefs.getUser();
       user = newUser;
     }
     offlineMode = !isOnline;
   }
 
   loadFiendList() async {
-    friendList = await friendListGet();
+    friendList = await Api.friendListGet();
     notifyListeners();
   }
 
   updateUserData(data) async {
-    bool profile = await profilePost(body: data);
+    bool profile = await Api.profilePost(body: data);
     if (profile) {
-      User newUser = await profileGet();
+      User newUser = await Api.profileGet();
       if (newUser != null) {
         user = newUser;
-        saveUser(user);
+        SharedPrefs.saveUser(user);
       }
       notifyListeners();
     }
   }
 
   getUserProfile({int userId}) async {
-    User newUser = await profileGet(friendId: userId);
+    User newUser = await Api.profileGet(friendId: userId);
     if (newUser != null) {
       _user = newUser;
     }
@@ -78,7 +74,7 @@ class AccountData with ChangeNotifier {
   User get user => _user;
 
   makeLogout() {
-    logout();
+    SharedPrefs.logout();
     user = null;
   }
 

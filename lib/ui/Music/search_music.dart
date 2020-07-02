@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/api/music_list.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:fox_music/models/song.dart';
@@ -51,7 +51,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
       return AppleSearch(
         controller: controller,
         onChange: (value) async {
-          List<Song> songList = await musicSearchGet(value);
+          List<Song> songList = await Api.musicSearchGet(value);
           setState(() {
             _songList = songList;
           });
@@ -101,7 +101,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                   color: HexColor('#3a4e93'),
                   child: Icon(SFSymbols.plus, color: Colors.white),
                   onTap: () async {
-                    bool isAdded = await addMusic(song.song_id);
+                    bool isAdded = await Api.addMusic(song.song_id);
                     if (isAdded == null) {
                       showSnackBar(context, 'Song alredy in your list');
                     } else if (isAdded) {
@@ -120,7 +120,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                   color: HexColor('#d62d2d'),
                   child: Icon(SFSymbols.trash, color: Colors.white),
                   onTap: () async {
-                    bool isDeleted = await hideMusic(song.song_id);
+                    bool isDeleted = await Api.hideMusic(song.song_id);
                     if (isDeleted) {
                       setState(() {
                         song.in_my_list = 0;
