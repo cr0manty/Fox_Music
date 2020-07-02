@@ -58,14 +58,12 @@ class FoxMusic extends StatefulWidget {
 
 class FoxMusicState extends State<FoxMusic> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  ConnectionsCheck connection = ConnectionsCheck.instance;
 
   void asyncInit() async {
-    await connection.initialise();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     var currentAppVersion;
 
-    if (connection.isOnline) {
+    if (widget.connection.isOnline) {
       currentAppVersion = await Api.appVersionGet();
       if (currentAppVersion != null)  SharedPrefs.saveLastVersion(currentAppVersion);
     } else {
@@ -104,7 +102,7 @@ class FoxMusicState extends State<FoxMusic> {
         musicData: widget.musicData,
         downloadData: widget.downloadData,
         accountData: widget.accountData,
-        connection: connection,
+        connection: widget.connection,
       ),
     );
   }
