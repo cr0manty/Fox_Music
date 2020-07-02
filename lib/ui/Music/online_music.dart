@@ -224,7 +224,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             }),
             SliverList(
                 delegate: SliverChildListDelegate(List.generate(
-                    dataSongSorted.length + 1,
+                    dataSongSorted.length + 2,
                     (index) => _buildSongListTile(downloadData, index))))
           ]))
         : _provideData(accountData);
@@ -303,6 +303,10 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
       return AppleSearch(
           controller: controller,
           onChange: (value) => _filterSongs(downloadData, value: value));
+    }
+
+    if (index >= dataSongSorted.length + 1) {
+      return Container(height: 75);
     }
 
     Song song = dataSongSorted[index - 1];

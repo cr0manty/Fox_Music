@@ -227,7 +227,7 @@ class MusicDownloadData with ChangeNotifier {
 
   _songExist(Song song) async {
     String dir = (await getApplicationDocumentsDirectory()).path;
-    String filename = await formatFileName(song);
+    String filename = await formatFileName(song, musicData.localSongs.length + 1);
     File file = new File('$dir/songs/$filename');
 
     if (!await file.exists()) return file;

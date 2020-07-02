@@ -104,7 +104,7 @@ class MusicListPageState extends State<MusicListPage>
       ),
       SliverList(
           delegate: SliverChildListDelegate(List.generate(
-              _musicListSorted.length + 1,
+              _musicListSorted.length + 2,
               (index) => _buildSongListTile(index, downloadData))))
     ]));
   }
@@ -288,6 +288,10 @@ class MusicListPageState extends State<MusicListPage>
       );
     }
 
+    if (index >= _musicListSorted.length + 1) {
+      return Container(height: 75);
+    }
+
     Song song = _musicListSorted[index - 1];
     if (song == null) {
       return null;
@@ -311,7 +315,8 @@ class MusicListPageState extends State<MusicListPage>
 
                   if (downloadData.musicData.currentSong != null &&
                       downloadData.musicData.currentSong.song_id ==
-                          song.song_id && isLocal == true) {
+                          song.song_id &&
+                      isLocal == true) {
                     await downloadData.musicData.playerResume();
                   } else {
                     await downloadData.musicData

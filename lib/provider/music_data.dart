@@ -160,7 +160,7 @@ class MusicData with ChangeNotifier {
   }
 
   void renameSong(Song song) async {
-    String newFileName = await formatFileName(song);
+    String newFileName = await formatFileName(song, localSongs.length + 1);
     String dir = (await getApplicationDocumentsDirectory()).path;
     String path = '$dir/songs/$newFileName';
 
