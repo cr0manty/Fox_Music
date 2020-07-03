@@ -16,8 +16,8 @@ class CloseableMultipartRequest extends http.MultipartRequest {
     try {
       var response = await client.send(this);
       var stream = onDone(response.stream, client.close);
-      return new http.StreamedResponse(
-        new http.ByteStream(stream),
+      return http.StreamedResponse(
+        http.ByteStream(stream),
         response.statusCode,
         contentLength: response.contentLength,
         request: response.request,
@@ -33,7 +33,7 @@ class CloseableMultipartRequest extends http.MultipartRequest {
   }
 
   Stream<T> onDone<T>(Stream<T> stream, void onDone()) =>
-      stream.transform(new StreamTransformer.fromHandlers(handleDone: (sink) {
+      stream.transform(StreamTransformer.fromHandlers(handleDone: (sink) {
         sink.close();
         onDone();
       }));

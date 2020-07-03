@@ -6,11 +6,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
-import 'package:fox_music/utils/border_button.dart';
-import 'package:fox_music/utils/check_connection.dart';
+import 'package:fox_music/widgets/border_button.dart';
+import 'package:fox_music/provider/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:fox_music/utils/offline.dart';
-import 'package:fox_music/utils/tile_list.dart';
+import 'package:fox_music/widgets/offline.dart';
+import 'package:fox_music/widgets/tile_list.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -18,16 +18,16 @@ import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/widgets/apple_search.dart';
 
 class OnlineMusicListPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new OnlineMusicListPageState();
+  State<StatefulWidget> createState() => OnlineMusicListPageState();
 }
 
 class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   TextEditingController controller = TextEditingController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamSubscription _playerNotifyState;
   bool init = true;
   bool visible = true;
@@ -35,15 +35,15 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   List<Song> dataSongSorted = [];
 
   _addSongLink(MusicDownloadData downloadData) {
-    final TextEditingController artist = new TextEditingController();
-    final TextEditingController title = new TextEditingController();
-    final TextEditingController duration = new TextEditingController();
-    final TextEditingController link = new TextEditingController();
+    final TextEditingController artist = TextEditingController();
+    final TextEditingController title = TextEditingController();
+    final TextEditingController duration = TextEditingController();
+    final TextEditingController link = TextEditingController();
 
     showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
-              title: Text('Add new song'),
+              title: Text('Add song'),
               content: Padding(
                   padding: EdgeInsets.only(top: 10),
                   child: Card(
@@ -54,7 +54,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                           controller: artist,
                           placeholder: 'Artist name',
                           decoration: BoxDecoration(
-                              color: HexColor('#303030'),
+                              color: HexColor.mainText(),
                               borderRadius: BorderRadius.circular(9)),
                         ),
                         Divider(height: 10, color: Colors.transparent),
@@ -62,7 +62,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                           controller: title,
                           placeholder: 'Song title',
                           decoration: BoxDecoration(
-                              color: HexColor('#303030'),
+                              color: HexColor.mainText(),
                               borderRadius: BorderRadius.circular(9)),
                         ),
                         Divider(height: 10, color: Colors.transparent),
@@ -71,7 +71,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                           keyboardType: TextInputType.number,
                           placeholder: 'Duration in seconds',
                           decoration: BoxDecoration(
-                              color: HexColor('#303030'),
+                              color: HexColor.mainText(),
                               borderRadius: BorderRadius.circular(9)),
                         ),
                         Divider(height: 10, color: Colors.transparent),
@@ -79,7 +79,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                           controller: link,
                           placeholder: 'mp3 link',
                           decoration: BoxDecoration(
-                              color: HexColor('#303030'),
+                              color: HexColor.mainText(),
                               borderRadius: BorderRadius.circular(9)),
                         ),
                       ]))),
@@ -122,21 +122,20 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    ConnectionsCheck connection = Provider.of<ConnectionsCheck>(context);
 
     if (init) {
       init = false;
-      visible = connection.isOnline;
+      visible = ConnectionsCheck.instance.isOnline;
       _filterSongs(downloadData);
     }
 
-    if (connection.isOnline) {
-      if (accountData.user == null || accountData.needUpdate) {
-        accountData.init(true);
+    if (ConnectionsCheck.instance.isOnline) {
+      if (AccountData.instance.user == null ||
+          AccountData.instance.needUpdate) {
+        AccountData.instance.init();
       }
-      if (accountData.user != null && downloadData.dataSong.isEmpty) {
+      if (AccountData.instance.user != null && downloadData.dataSong.isEmpty) {
         downloadData.loadMusic();
       }
     }
@@ -145,9 +144,10 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-              actionsForegroundColor: main_color,
+              actionsForegroundColor: HexColor.main(),
               middle: Text('Music'),
-              trailing: accountData.user == null || !connection.isOnline
+              trailing: AccountData.instance.user == null ||
+                      !ConnectionsCheck.instance.isOnline
                   ? null
                   : GestureDetector(
                       onTap: () => _addSongLink(downloadData),
@@ -158,17 +158,17 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                     ),
             ),
             child: Stack(children: <Widget>[
-              _buildBody(accountData, downloadData),
+              _buildBody(downloadData),
               AnimatedOpacity(
                   onEnd: () => setState(() => visible = !visible),
-                  opacity: connection.isOnline ? 0 : 1,
+                  opacity: ConnectionsCheck.instance.isOnline ? 0 : 1,
                   duration: Duration(milliseconds: 800),
                   child: !visible ? OfflinePage() : Container())
             ])));
   }
 
-  Widget _provideData(AccountData accountData) {
-    List<Widget> children = accountData.user != null
+  Widget _provideData() {
+    List<Widget> children = AccountData.instance.user != null
         ? [
             Text(
               'To listen you have to sign in to your VK account',
@@ -181,10 +181,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                 color: Colors.grey,
                 onPressed: () => Navigator.of(_scaffoldKey.currentContext).push(
                     CupertinoPageRoute(
-                        builder: (context) =>
-                            ChangeNotifierProvider<AccountData>.value(
-                                value: accountData,
-                                child: VKAuthPage(accountData)))))
+                        builder: (context) => VKAuthPage())))
           ]
         : [
             Text(
@@ -209,9 +206,9 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                     children: children))));
   }
 
-  _buildBody(AccountData accountData, MusicDownloadData downloadData) {
-    return accountData.user != null &&
-            (accountData.user.can_use_vk || accountData.user.is_staff)
+  _buildBody(MusicDownloadData downloadData) {
+    return AccountData.instance.user != null &&
+            (AccountData.instance.user.can_use_vk || AccountData.instance.user.is_staff)
         ? SafeArea(
             child: CustomScrollView(slivers: <Widget>[
             CupertinoSliverRefreshControl(onRefresh: () async {
@@ -227,7 +224,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                     dataSongSorted.length + 2,
                     (index) => _buildSongListTile(downloadData, index))))
           ]))
-        : _provideData(accountData);
+        : _provideData();
   }
 
   void _filterSongs(MusicDownloadData downloadData, {String value}) {
@@ -287,13 +284,13 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                                 size: 11,
                                 color: Colors.grey,
                               )),
-                          progressColor: main_color,
+                          progressColor: HexColor.main(),
                         ))
                     : Container(
                         transform: Matrix4.translationValues(-5, 0, 0),
                         child: Icon(SFSymbols.cloud_download,
                             color: downloadData.inQuery(song)
-                                ? main_color
+                                ? HexColor.main()
                                 : Colors.grey),
                       )));
   }

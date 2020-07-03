@@ -6,18 +6,17 @@ import 'package:fox_music/provider/api.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/time.dart';
-import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/widgets/apple_search.dart';
 
 class SearchMusicPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new SearchMusicPageState();
+  State<StatefulWidget> createState() => SearchMusicPageState();
 }
 
 class SearchMusicPageState extends State<SearchMusicPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController controller = TextEditingController();
 
   int addAmount = 0;
@@ -30,7 +29,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: main_color,
+          actionsForegroundColor: HexColor.main(),
           previousPageTitle: 'Back',
           middle: Text('Music Search'),
         ),
@@ -75,7 +74,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
       Slidable(
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 0.25,
-        child: new Container(
+        child: Container(
             child: ListTile(
           contentPadding: EdgeInsets.only(left: 30, right: 20),
           title: Text(song.title,
@@ -102,9 +101,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                   child: Icon(SFSymbols.plus, color: Colors.white),
                   onTap: () async {
                     bool isAdded = await Api.addMusic(song.song_id);
-                    if (isAdded == null) {
-                      showSnackBar(context, 'Song alredy in your list');
-                    } else if (isAdded) {
+                    if (isAdded ?? false) {
                       setState(() {
                         song.in_my_list = 1;
                         downloadData.dataSong.insert(addAmount++, song);

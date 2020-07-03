@@ -51,7 +51,7 @@ class Song {
     return '$formatArtist-$formatTitle.mp3';
   }
 
-  factory Song.fromJson(Map<String, dynamic> json) => new Song(
+  factory Song.fromJson(Map<String, dynamic> json) => Song(
       title: json['title'],
       artist: json['artist'],
       duration: json['duration'],

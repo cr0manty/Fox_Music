@@ -42,7 +42,7 @@ class DBProvider {
 
   newPlaylist(Playlist playlist) async {
     final db = await database;
-    playlist.id = new Random().nextInt(20000000);
+    playlist.id = Random().nextInt(20000000);
     var res = await db.insert("Playlist", playlist.toJson());
     return res;
   }
@@ -101,7 +101,7 @@ class DBProvider {
 
   songLyricsCreate(int songId, String text) async {
     final db = await database;
-    int id = new Random().nextInt(20000000);
+    int id = Random().nextInt(20000000);
     var res = await db
         .insert("SongLyrics", {'id': id, 'songId': songId, 'text': text});
     return res > 0;

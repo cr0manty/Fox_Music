@@ -52,7 +52,7 @@ class User {
     return username;
   }
 
-  factory User.fromJson(Map<String, dynamic> json) => new User(
+  factory User.fromJson(Map<String, dynamic> json) => User(
       username: json['username'],
       token: json['token'],
       user_id: json['user_id'],

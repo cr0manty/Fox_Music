@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/provider/database.dart';
-import 'package:fox_music/utils/tile_list.dart';
+import 'package:fox_music/widgets/tile_list.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/widgets/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/music_data.dart';
@@ -21,7 +21,7 @@ class AddToPlaylistPage extends StatefulWidget {
 
 class AddToPlaylistPageState extends State<AddToPlaylistPage> {
   TextEditingController controller = TextEditingController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   bool init = true;
@@ -56,11 +56,11 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-                actionsForegroundColor: main_color,
+                actionsForegroundColor: HexColor.main(),
                 middle: Text('Media'),
                 previousPageTitle: 'Back',
                 trailing: GestureDetector(
-                    child: Text('Save', style: TextStyle(color: main_color)),
+                    child: Text('Save', style: TextStyle(color: HexColor.main())),
                     onTap: () => _onSave(musicData))),
             child: _buildBody(musicData)));
   }

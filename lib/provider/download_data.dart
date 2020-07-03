@@ -10,7 +10,6 @@ import 'package:flutter/foundation.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 
 import 'package:fox_music/functions/utils/info_dialog.dart';
-import 'package:fox_music/functions/utils/snackbar.dart';
 import 'package:fox_music/models/song.dart';
 
 import 'api.dart';
@@ -134,7 +133,7 @@ class MusicDownloadData with ChangeNotifier {
     if (song.download.isEmpty) {
       _state = DownloadState.EMPTY;
     }
-    List<List<int>> chunks = new List();
+    List<List<int>> chunks = List();
     currentSong = song;
     int downloaded = 0;
 
@@ -228,7 +227,7 @@ class MusicDownloadData with ChangeNotifier {
   _songExist(Song song) async {
     String dir = (await getApplicationDocumentsDirectory()).path;
     String filename = await formatFileName(song, musicData.localSongs.length + 1);
-    File file = new File('$dir/songs/$filename');
+    File file = File('$dir/songs/$filename');
 
     if (!await file.exists()) return file;
     _state = DownloadState.EXIST;
@@ -246,10 +245,10 @@ class MusicDownloadData with ChangeNotifier {
           infoDialog(context, 'Error', 'Empty download url');
           break;
         case DownloadState.COMPLETED:
-          showSnackBar(context, 'Song downloaded');
+          infoDialog(context,'Success', 'Song downloaded');
           break;
         case DownloadState.ERROR:
-          showSnackBar(context, 'Smth went wrong...');
+          infoDialog(context, 'Error', 'Smth went wrong...');
           break;
         case DownloadState.EXIST:
           infoDialog(context, 'Error', 'Song alredy downloaded');

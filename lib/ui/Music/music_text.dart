@@ -53,7 +53,7 @@ class MusicTextState extends State<MusicTextPage> {
                     color: Colors.transparent,
                     child: Text(
                       edit ? 'Save' : 'Edit',
-                      style: TextStyle(color: main_color),
+                      style: TextStyle(color: HexColor.main()),
                     )),
                 onTap: _editTap)),
         child: Stack(
@@ -66,7 +66,7 @@ class MusicTextState extends State<MusicTextPage> {
                       focusNode: _focus,
                       enabled: edit,
                       style: TextStyle(color: Colors.white, fontSize: 17),
-                      cursorColor: main_color,
+                      cursorColor: HexColor.main(),
                       autofocus: true,
                       decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
@@ -77,9 +77,9 @@ class MusicTextState extends State<MusicTextPage> {
                               const Radius.circular(9.0),
                             ),
                           ),
-                          focusColor: main_color,
-                          fillColor: main_color,
-                          hoverColor: main_color),
+                          focusColor: HexColor.main(),
+                          fillColor: HexColor.main(),
+                          hoverColor: HexColor.main()),
                       maxLines: 200,
                     )))
           ],

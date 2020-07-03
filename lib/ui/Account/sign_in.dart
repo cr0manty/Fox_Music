@@ -9,20 +9,20 @@ import 'package:provider/provider.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/utils/apple_text.dart';
+import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
 class SignIn extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new SignInState();
+  State<StatefulWidget> createState() => SignInState();
 }
 
 enum FormType { login, register }
 
 class SignInState extends State<SignIn> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameFilter = new TextEditingController();
-  final TextEditingController _passwordFilter = new TextEditingController();
+  final TextEditingController _usernameFilter = TextEditingController();
+  final TextEditingController _passwordFilter = TextEditingController();
   String _username = "";
   String _password = "";
   bool _obscureText = true;
@@ -30,7 +30,6 @@ class SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
     return CupertinoPageScaffold(
@@ -52,7 +51,7 @@ class SignInState extends State<SignIn> {
                                       image: AssetImage(
                                           'assets/images/app-logo.png'))))),
                       _buildForm(),
-                      _buildButtons(accountData, downloadData),
+                      _buildButtons(downloadData),
                     ],
                   ),
                 )),
@@ -106,7 +105,7 @@ class SignInState extends State<SignIn> {
                             _obscureText
                                 ? Icons.remove_red_eye
                                 : Icons.visibility_off,
-                            color: HexColor('#8c8c8c')),
+                            color: HexColor.icon()),
                         onTap: () {
                           setState(() {
                             _obscureText = !_obscureText;
@@ -123,8 +122,7 @@ class SignInState extends State<SignIn> {
     });
   }
 
-  Widget _buildButtons(
-      AccountData accountData, MusicDownloadData downloadData) {
+  Widget _buildButtons(MusicDownloadData downloadData) {
     return Align(
         alignment: FractionalOffset.bottomCenter,
         child: Column(children: <Widget>[
@@ -132,11 +130,11 @@ class SignInState extends State<SignIn> {
               padding: const EdgeInsets.only(top: 30, bottom: 5),
               child: CupertinoButton(
                 padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-                color: main_color,
+                color: HexColor.main(),
                 onPressed: () {
                   FocusScope.of(context).requestFocus(FocusNode());
                   if (_formKey.currentState.validate()) {
-                    _loginPressed(accountData, downloadData);
+                    _loginPressed(downloadData);
                   }
                 },
                 child: Text('Login', style: TextStyle(color: Colors.white)),
@@ -156,12 +154,12 @@ class SignInState extends State<SignIn> {
         ]));
   }
 
-  _loginPressed(AccountData accountData, MusicDownloadData downloadData) async {
+  _loginPressed(MusicDownloadData downloadData) async {
     _setButtonStatus();
     final user = await Api.loginPost(_username, _password);
     if (user != null) {
       downloadData.loadMusic();
-      accountData.user = user;
+      AccountData.instance.user = user;
       SharedPrefs.saveUser(user);
     } else {
       infoDialog(context, "Unable to Login",

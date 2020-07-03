@@ -10,7 +10,7 @@ import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Account/people.dart';
-import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/widgets/apple_search.dart';
 
 class FriendListPage extends StatefulWidget {
   @override
@@ -20,31 +20,28 @@ class FriendListPage extends StatefulWidget {
 class FriendListPageState extends State<FriendListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController controller = TextEditingController();
-  List<Relationship> friendListSorted = [];
+  List<Relationship> friendListSorted = AccountData.instance.friendList;
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    friendListSorted = accountData.friendList;
 
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Friends'),
-          actionsForegroundColor: main_color,
+          actionsForegroundColor: HexColor.main(),
           previousPageTitle: 'Back',
         ),
         child: SafeArea(
             child: CustomScrollView(slivers: <Widget>[
           CupertinoSliverRefreshControl(
-              onRefresh: () => accountData.loadFiendList()),
+              onRefresh: () => AccountData.instance.loadFiendList()),
           friendListSorted.length > 0
               ? SliverList(
                   delegate: SliverChildListDelegate(List.generate(
                       friendListSorted.length + 1,
-                      (index) =>
-                          _buildUserCard(accountData, downloadData, index))))
+                      (index) => _buildUserCard(downloadData, index))))
               : SliverToBoxAdapter(
                   child: Padding(
                       padding: EdgeInsets.only(top: 30),
@@ -56,10 +53,10 @@ class FriendListPageState extends State<FriendListPage> {
         ])));
   }
 
-  void _filterFriends(AccountData accountData, String value) {
+  void _filterFriends(String value) {
     String newValue = value.toLowerCase();
     setState(() {
-      friendListSorted = accountData.friendList
+      friendListSorted = AccountData.instance.friendList
           .where((Relationship relationship) =>
               relationship.user.first_name.toLowerCase().contains(newValue) ||
               relationship.user.last_name.toLowerCase().contains(newValue))
@@ -67,16 +64,15 @@ class FriendListPageState extends State<FriendListPage> {
     });
   }
 
-  _buildUserCard(
-      AccountData accountData, MusicDownloadData downloadData, int index) {
+  _buildUserCard(MusicDownloadData downloadData, int index) {
     if (index == 0) {
       return AppleSearch(
           controller: controller,
           onChange: (value) {
-            _filterFriends(accountData, value);
+            _filterFriends(value);
           });
     }
-    Relationship relationship = accountData.friendList[index - 1];
+    Relationship relationship = friendListSorted[index - 1];
 
     return Column(children: [
       Slidable(
@@ -95,14 +91,12 @@ class FriendListPageState extends State<FriendListPage> {
                         : relationship.user.first_name,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext)
-                      .push(CupertinoPageRoute(
-                          builder: (context) => MultiProvider(providers: [
-                                ChangeNotifierProvider<MusicDownloadData>.value(
-                                    value: downloadData),
-                                ChangeNotifierProvider<AccountData>.value(
-                                    value: accountData),
-                              ], child: PeoplePage(relationship))));
+                  Navigator.of(_scaffoldKey.currentContext).push(
+                      CupertinoPageRoute(
+                          builder: (context) =>
+                              ChangeNotifierProvider<MusicDownloadData>.value(
+                                  value: downloadData,
+                                  child: PeoplePage(relationship))));
                 },
                 leading: CircleAvatar(
                     radius: 25,

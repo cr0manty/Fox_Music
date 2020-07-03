@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/provider/database.dart';
-import 'package:fox_music/utils/tile_list.dart';
+import 'package:fox_music/widgets/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:provider/provider.dart';
@@ -18,12 +18,12 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class PlaylistPageState extends State<PlaylistPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
 
   _createPlaylist(MusicDownloadData downloadData, String playlistName) async {
     downloadData.musicData.playlistListUpdate = true;
-    Playlist playlist = new Playlist(title: playlistName);
+    Playlist playlist = Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
       _playlistList.insert(0, playlist);
@@ -52,7 +52,7 @@ class PlaylistPageState extends State<PlaylistPage> {
   }
 
   _playlistDialog(MusicDownloadData downloadData, {Playlist playlist}) async {
-    final TextEditingController playlistName = new TextEditingController();
+    final TextEditingController playlistName = TextEditingController();
 
     if (playlist != null) {
       playlistName.text = playlist.title;
@@ -73,7 +73,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                       controller: playlistName,
                       placeholder: 'Playlist name',
                       decoration: BoxDecoration(
-                          color: HexColor('#303030'),
+                          color: HexColor.mainText(),
                           borderRadius: BorderRadius.circular(9)),
                     ),
                   ]))),
@@ -114,7 +114,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
-            actionsForegroundColor: main_color,
+            actionsForegroundColor: HexColor.main(),
             middle: Text('Playlists'),
             previousPageTitle: 'Back',
             trailing: GestureDetector(
@@ -170,7 +170,7 @@ class PlaylistPageState extends State<PlaylistPage> {
           playlist.title[0].toUpperCase(),
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
-        backgroundColor: main_color);
+        backgroundColor: HexColor.main());
   }
 
   void _mixPlaylistSong(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fox_music/utils/check_connection.dart';
-import 'package:fox_music/utils/offline.dart';
+import 'package:fox_music/provider/check_connection.dart';
+import 'package:fox_music/widgets/offline.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/image.dart';
 import 'package:fox_music/provider/account_data.dart';
@@ -15,20 +15,16 @@ import 'package:fox_music/ui/Account/search_people.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AccountPage extends StatefulWidget {
-  final bool isOnline;
-
-  AccountPage(this.isOnline);
-
   @override
   State<StatefulWidget> createState() => AccountPageState();
 }
 
 class AccountPageState extends State<AccountPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool init = true;
   bool visible = true;
 
-  Widget _body(AccountData accountData, MusicDownloadData downloadData) {
+  Widget _body(MusicDownloadData downloadData) {
     return ListView(children: [
       Padding(
           padding: EdgeInsets.only(bottom: 15, top: 15),
@@ -45,11 +41,7 @@ class AccountPageState extends State<AccountPage> {
                               Navigator.of(_scaffoldKey.currentContext,
                                       rootNavigator: true)
                                   .push(CupertinoPageRoute(
-                                      builder: (context) =>
-                                          ChangeNotifierProvider<
-                                                  AccountData>.value(
-                                              value: accountData,
-                                              child: AccountEditPage())));
+                                      builder: (context) => AccountEditPage()));
                             },
                             child: Text(
                               'Edit',
@@ -57,7 +49,7 @@ class AccountPageState extends State<AccountPage> {
                             )),
                         CupertinoActionSheetAction(
                             onPressed: () async {
-                              await accountData.makeLogout();
+                              await AccountData.instance.makeLogout();
                               Navigator.pop(context);
                             },
                             child: Text(
@@ -71,18 +63,19 @@ class AccountPageState extends State<AccountPage> {
                 child: CircleAvatar(
                     radius: 70,
                     backgroundColor: Colors.grey,
-                    backgroundImage: widget.isOnline
-                        ? NetworkImage(formatImage(accountData.user?.image))
+                    backgroundImage: ConnectionsCheck.instance.isOnline
+                        ? NetworkImage(
+                            formatImage(AccountData.instance.user?.image))
                         : null)),
           )),
       Padding(
           padding: EdgeInsets.only(bottom: 25),
           child: Center(
               child: Text(
-                  accountData.user?.last_name?.isEmpty == null &&
-                          accountData.user?.first_name?.isEmpty == null
+                  AccountData.instance.user?.last_name?.isEmpty == null &&
+                          AccountData.instance.user?.first_name?.isEmpty == null
                       ? ''
-                      : '${accountData.user.first_name} ${accountData.user.last_name}',
+                      : '${AccountData.instance.user.first_name} ${AccountData.instance.user.last_name}',
                   style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -115,12 +108,9 @@ class AccountPageState extends State<AccountPage> {
             onTap: () {
               Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
                   .push(CupertinoPageRoute(
-                      builder: (context) => MultiProvider(providers: [
-                            ChangeNotifierProvider<MusicDownloadData>.value(
-                                value: downloadData),
-                            ChangeNotifierProvider<AccountData>.value(
-                                value: accountData),
-                          ], child: SearchPeoplePage())));
+                      builder: (context) =>
+                          ChangeNotifierProvider<MusicDownloadData>.value(
+                              value: downloadData, child: SearchPeoplePage())));
             },
             title: Text(
               'People Search',
@@ -135,12 +125,9 @@ class AccountPageState extends State<AccountPage> {
             onTap: () {
               Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
                   .push(CupertinoPageRoute(
-                      builder: (context) => MultiProvider(providers: [
-                            ChangeNotifierProvider<MusicDownloadData>.value(
-                                value: downloadData),
-                            ChangeNotifierProvider<AccountData>.value(
-                                value: accountData),
-                          ], child: FriendListPage())));
+                      builder: (context) =>
+                          ChangeNotifierProvider<MusicDownloadData>.value(
+                              value: downloadData, child: FriendListPage())));
             },
             title: Text(
               'Friends',
@@ -152,7 +139,7 @@ class AccountPageState extends State<AccountPage> {
           color: Colors.transparent,
           child: ListTile(
             leading: Icon(SFSymbols.arrow_down_to_line, color: Colors.white),
-            onTap: () => _downloadAll(accountData, downloadData),
+            onTap: () => _downloadAll(downloadData),
             title: Text(
               'Download all',
               style: TextStyle(color: Colors.white),
@@ -164,17 +151,16 @@ class AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    ConnectionsCheck connection = Provider.of<ConnectionsCheck>(context);
 
-    if ((accountData.user == null || accountData.needUpdate) &&
-        connection.isOnline) {
-      accountData.init(true);
+    if ((AccountData.instance.user == null ||
+            AccountData.instance.needUpdate) &&
+        ConnectionsCheck.instance.isOnline) {
+      AccountData.instance.init();
     }
 
     if (init) {
-      visible = connection.isOnline;
+      visible = ConnectionsCheck.instance.isOnline;
       init = false;
     }
 
@@ -183,30 +169,28 @@ class AccountPageState extends State<AccountPage> {
         navigationBar: CupertinoNavigationBar(
           middle: Text('Profile'),
           trailing: CupertinoButton(
-            onPressed: connection.isOnline
+            onPressed: ConnectionsCheck.instance.isOnline
                 ? () => Navigator.of(_scaffoldKey.currentContext,
                         rootNavigator: true)
                     .push(CupertinoPageRoute(
-                        builder: (context) =>
-                            ChangeNotifierProvider<AccountData>.value(
-                                value: accountData, child: AccountEditPage())))
+                        builder: (context) => AccountEditPage()))
                 : null,
             child: Text('Edit'),
             padding: EdgeInsets.zero,
           ),
         ),
         child: Stack(children: <Widget>[
-          _body(accountData, downloadData),
+          _body(downloadData),
           AnimatedOpacity(
               onEnd: () => setState(() => visible = !visible),
-              opacity: connection.isOnline ? 0 : 1,
+              opacity: ConnectionsCheck.instance.isOnline ? 0 : 1,
               duration: Duration(milliseconds: 800),
               child: !visible ? OfflinePage() : Container())
         ]));
   }
 
-  _downloadAll(AccountData accountData, MusicDownloadData downloadData) async {
-    if (accountData.user.can_use_vk) {
+  _downloadAll(MusicDownloadData downloadData) async {
+    if (AccountData.instance.user.can_use_vk) {
       await downloadData.musicData.loadSavedMusic();
       downloadData.multiQuery = downloadData.musicData.localSongs;
     } else {
@@ -230,10 +214,7 @@ class AccountPageState extends State<AccountPage> {
                           Navigator.pop(context);
                           Navigator.of(_scaffoldKey.currentContext).push(
                               CupertinoPageRoute(
-                                  builder: (context) =>
-                                      ChangeNotifierProvider<AccountData>.value(
-                                          value: accountData,
-                                          child: VKAuthPage(accountData))));
+                                  builder: (context) => VKAuthPage()));
                         })
                   ]));
     }

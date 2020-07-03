@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:fox_music/functions/utils/set_playlist_song.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/music_data.dart';
-import 'package:fox_music/utils/playlist_dialog.dart';
+import 'package:fox_music/widgets/playlist_dialog.dart';
 
 showPickerDialog(BuildContext context, MusicData musicData, List<Playlist> playlist, int songId) async {
   final List<PlaylistCheckbox> listData = await Future.wait(playlist.map((playlist) async {

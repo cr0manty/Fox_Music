@@ -5,7 +5,7 @@ import 'package:fox_music/models/song.dart';
 import 'package:fox_music/models/user.dart';
 import 'package:fox_music/provider/shared_prefs.dart';
 import 'package:fox_music/utils/closable_http_requuest.dart';
-import 'package:fox_music/utils/urls.dart';
+import 'package:fox_music/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -44,7 +44,9 @@ abstract class Api {
       final response =
           await http.get(APP_VERSION_URL).timeout(Duration(seconds: 20));
 
-      if (response.statusCode == 200) return json.decode(response.body);
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      }
     } catch (_) {
       return;
     }
@@ -79,7 +81,7 @@ abstract class Api {
 
         List<Relationship> friendList = [];
         friendData['result'].forEach((value) async {
-          var friend = new User.fromJson(value['to_user']);
+          var friend = User.fromJson(value['to_user']);
           friendList.add(Relationship(friend, statusId: value['status']));
         });
         return friendList;
@@ -171,7 +173,7 @@ abstract class Api {
 
         var songList = List<Song>();
         songsData.forEach((dynamic value) async {
-          var song = new Song.fromJson(value);
+          var song = Song.fromJson(value);
           songList.add(song);
         });
         return songList.reversed.toList();
@@ -193,7 +195,7 @@ abstract class Api {
 
         var songList = List<Song>();
         songsData.forEach((dynamic value) async {
-          var song = new Song.fromJson(value);
+          var song = Song.fromJson(value);
           songList.add(song);
         });
         return songList.reversed.toList();
@@ -214,7 +216,7 @@ abstract class Api {
         var songsData = json.decode(response.body) as List<dynamic>;
 
         songsData.forEach((dynamic value) async {
-          var song = new Song.fromJson(value);
+          var song = Song.fromJson(value);
           songList.add(song);
         });
       }
@@ -311,7 +313,7 @@ abstract class Api {
         var userData = json.decode(response.body) as List<dynamic>;
 
         userData.forEach((dynamic value) async {
-          var user = new User.fromJson(value);
+          var user = User.fromJson(value);
           userList.add(user);
         });
       }

@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import 'hex_color.dart';
-
 class BorderButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;

@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:fox_music/provider/api.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
-import 'package:fox_music/utils/apple_text.dart';
+import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
 class SignUp extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new SignUpState();
+  State<StatefulWidget> createState() => SignUpState();
 }
 
 class SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _firstNameFilter = new TextEditingController();
-  final TextEditingController _lastNameFilter = new TextEditingController();
-  final TextEditingController _usernameFilter = new TextEditingController();
-  final TextEditingController _passwordFilter = new TextEditingController();
-  final TextEditingController _passwordConfirm = new TextEditingController();
+  final TextEditingController _firstNameFilter = TextEditingController();
+  final TextEditingController _lastNameFilter = TextEditingController();
+  final TextEditingController _usernameFilter = TextEditingController();
+  final TextEditingController _passwordFilter = TextEditingController();
+  final TextEditingController _passwordConfirm = TextEditingController();
   String _firstName = "";
   String _lastName = "";
   String _username = "";
@@ -30,7 +30,7 @@ class SignUpState extends State<SignUp> {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Sign Up'),
-          actionsForegroundColor: main_color,
+          actionsForegroundColor: HexColor.main(),
           previousPageTitle: 'Back',
         ),
         child: GestureDetector(
@@ -145,7 +145,7 @@ class SignUpState extends State<SignUp> {
                           _obscureText
                               ? Icons.remove_red_eye
                               : Icons.visibility_off,
-                          color: HexColor('#8c8c8c')),
+                          color: HexColor.icon()),
                       onTap: () {
                         setState(() {
                           _obscureText = !_obscureText;
@@ -172,7 +172,7 @@ class SignUpState extends State<SignUp> {
                           _obscureText
                               ? Icons.remove_red_eye
                               : Icons.visibility_off,
-                          color: HexColor('#8c8c8c')),
+                          color: HexColor.icon()),
                       onTap: () {
                         setState(() {
                           _obscureText = !_obscureText;
@@ -198,7 +198,7 @@ class SignUpState extends State<SignUp> {
             padding: const EdgeInsets.only(top: 30, bottom: 5),
             child: CupertinoButton(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-              color: main_color,
+              color: HexColor.main(),
               onPressed: () {
                 FocusScope.of(context).requestFocus(FocusNode());
                 if (_formKey.currentState.validate()) {

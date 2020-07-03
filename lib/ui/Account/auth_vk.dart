@@ -3,26 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/api.dart';
-import 'package:fox_music/utils/apple_text.dart';
+import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
 
 class VKAuthPage extends StatefulWidget {
-  final AccountData accountData;
-
-  VKAuthPage(this.accountData);
 
   @override
-  State<StatefulWidget> createState() => new VKAuthState();
+  State<StatefulWidget> createState() => VKAuthState();
 }
 
 class VKAuthState extends State<VKAuthPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameFilter = new TextEditingController();
-  final TextEditingController _passwordFilter = new TextEditingController();
-  final TextEditingController _captchaController = new TextEditingController();
+  final TextEditingController _usernameFilter = TextEditingController();
+  final TextEditingController _passwordFilter = TextEditingController();
+  final TextEditingController _captchaController = TextEditingController();
   String _username = "";
   String _password = "";
   bool _obscureText = true;
@@ -75,7 +71,7 @@ class VKAuthState extends State<VKAuthPage> {
                             _obscureText
                                 ? Icons.remove_red_eye
                                 : Icons.visibility_off,
-                            color: HexColor('#8c8c8c')),
+                            color: HexColor.icon()),
                         onTap: () {
                           setState(() {
                             _obscureText = !_obscureText;
@@ -86,7 +82,7 @@ class VKAuthState extends State<VKAuthPage> {
             ]));
   }
 
-  showPickerDialog(AccountData accountData, Map data) async {
+  showPickerDialog(Map data) async {
     return showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -101,8 +97,7 @@ class VKAuthState extends State<VKAuthPage> {
             CupertinoDialogAction(
               onPressed: () async {
                 Navigator.of(context).pop();
-                _loginPressed(accountData,
-                    sid: data['sid'], captcha: _captchaController.text);
+                _loginPressed(sid: data['sid'], captcha: _captchaController.text);
               },
               child: Text('Confirm'),
             )
@@ -126,7 +121,7 @@ class VKAuthState extends State<VKAuthPage> {
                         controller: _captchaController,
                         placeholder: 'Captcha...',
                         decoration: BoxDecoration(
-                            color: HexColor('#303030'),
+                            color: HexColor.mainText(),
                             borderRadius: BorderRadius.circular(9)),
                       ),
                     ]))),
@@ -136,15 +131,15 @@ class VKAuthState extends State<VKAuthPage> {
     );
   }
 
-  _loginPressed(AccountData accountData, {String sid, String captcha}) async {
+  _loginPressed({String sid, String captcha}) async {
     setState(() => _disabled = true);
 
     Map authStatus = await Api.vkAuth(_username, _password, sid, captcha);
 
     if (authStatus['code'] == 302) {
-      showPickerDialog(accountData, authStatus);
+      showPickerDialog(authStatus);
     } else if (authStatus['code'] == 200) {
-      await accountData.getUserProfile();
+      await AccountData.instance.getUserProfile();
       Navigator.of(context).pop();
     } else {
       infoDialog(context, 'Smth went wrong', "Can't connect to vk servers");
@@ -154,7 +149,6 @@ class VKAuthState extends State<VKAuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
     double size = MediaQuery.of(context).size.width * 0.3;
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
@@ -181,11 +175,11 @@ class VKAuthState extends State<VKAuthPage> {
                         child: CupertinoButton(
                           padding: EdgeInsets.symmetric(
                               vertical: 12, horizontal: 30),
-                          color: main_color,
+                          color: HexColor.main(),
                           onPressed: () {
                             FocusScope.of(context).requestFocus(FocusNode());
                             if (_formKey.currentState.validate()) {
-                              _loginPressed(accountData);
+                              _loginPressed();
                             }
                           },
                           child: Text('Login',

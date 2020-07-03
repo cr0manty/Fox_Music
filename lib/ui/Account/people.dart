@@ -9,7 +9,6 @@ import 'package:fox_music/functions/format/image.dart';
 import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
 
 class PeoplePage extends StatefulWidget {
@@ -18,22 +17,22 @@ class PeoplePage extends StatefulWidget {
   PeoplePage(this.relationship);
 
   @override
-  State<StatefulWidget> createState() => new PeoplePageState();
+  State<StatefulWidget> createState() => PeoplePageState();
 }
 
 class PeoplePageState extends State<PeoplePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Song> _friendSongList = [];
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
+
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Search'),
-          actionsForegroundColor: main_color,
+          actionsForegroundColor: HexColor.main(),
           previousPageTitle: 'Back',
           trailing: widget.relationship.status != RelationshipStatus.BLOCK
               ? GestureDetector(
@@ -43,7 +42,7 @@ class PeoplePageState extends State<PeoplePage> {
               : Container(),
         ),
         child: widget.relationship.status != RelationshipStatus.BLOCK
-            ? SafeArea(child: _buildPage(accountData, downloadData))
+            ? SafeArea(child: _buildPage(downloadData))
             : Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
@@ -67,7 +66,7 @@ class PeoplePageState extends State<PeoplePage> {
                 )));
   }
 
-  _buildPage(AccountData accountData, MusicDownloadData downloadData) {
+  _buildPage(MusicDownloadData downloadData) {
     return Container(
         alignment: Alignment.topCenter,
         child: Column(
@@ -96,7 +95,7 @@ class PeoplePageState extends State<PeoplePage> {
                 child: CupertinoButton(
                   padding: EdgeInsets.symmetric(horizontal: 15),
                   color: widget.relationship.status == RelationshipStatus.FRIEND
-                      ? main_color
+                      ? HexColor.main()
                       : Colors.indigo,
                   onPressed: () {},
                   child: Text(
@@ -131,7 +130,7 @@ class PeoplePageState extends State<PeoplePage> {
       Slidable(
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 0.25,
-        child: new Container(
+        child: Container(
             child: ListTile(
           contentPadding: EdgeInsets.only(left: 30, right: 20),
           title: Text(song.title,

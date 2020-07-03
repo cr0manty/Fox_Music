@@ -11,15 +11,15 @@ import 'package:fox_music/models/user.dart';
 import 'package:fox_music/provider/account_data.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Account/people.dart';
-import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/widgets/apple_search.dart';
 
 class SearchPeoplePage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new SearchPeoplePageState();
+  State<StatefulWidget> createState() => SearchPeoplePageState();
 }
 
 class SearchPeoplePageState extends State<SearchPeoplePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController controller = TextEditingController();
 
   Map<int, int> _friends = {};
@@ -53,12 +53,11 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
   @override
   Widget build(BuildContext context) {
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    AccountData accountData = Provider.of<AccountData>(context);
 
     return CupertinoPageScaffold(
         key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
-          actionsForegroundColor: main_color,
+          actionsForegroundColor: HexColor.main(),
           middle: Text('People Search'),
           previousPageTitle: 'Back',
         ),
@@ -70,12 +69,11 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
               physics: ClampingScrollPhysics(),
               itemCount: _userList.isEmpty ? 2 : _userList.length + 1,
               itemBuilder: (context, index) =>
-                  _buildUserCard(accountData, downloadData, index),
+                  _buildUserCard(downloadData, index),
             ))));
   }
 
-  _buildUserCard(
-      AccountData accountData, MusicDownloadData downloadData, int index) {
+  _buildUserCard(MusicDownloadData downloadData, int index) {
     int newIndex = index - 1;
 
     if (index == 0) {
@@ -121,13 +119,9 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
                     Navigator.of(_scaffoldKey.currentContext).push(
                         CupertinoPageRoute(
                             builder: (BuildContext context) =>
-                                MultiProvider(providers: [
-                                  ChangeNotifierProvider<AccountData>.value(
-                                      value: accountData),
-                                  ChangeNotifierProvider<
-                                          MusicDownloadData>.value(
-                                      value: downloadData),
-                                ], child: PeoplePage(relationship))));
+                                ChangeNotifierProvider<MusicDownloadData>.value(
+                                    value: downloadData,
+                                    child: PeoplePage(relationship))));
                   },
                   leading: CircleAvatar(
                       radius: 25,

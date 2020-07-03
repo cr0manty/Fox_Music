@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 infoDialog(BuildContext context, String title, String message) {
   return showDialog(
       context: context,
-      builder: (BuildContext context) => new CupertinoAlertDialog(
+      builder: (BuildContext context) => CupertinoAlertDialog(
               title: Text(title),
               content: Text(message),
               actions: [
@@ -21,7 +21,7 @@ infoDialog(BuildContext context, String title, String message) {
 pickDialog(BuildContext context, String title, String message, String url) {
   return showDialog(
       context: context,
-      builder: (BuildContext context) => new CupertinoAlertDialog(
+      builder: (BuildContext context) => CupertinoAlertDialog(
               title: Text(title),
               content: Text(message),
               actions: [

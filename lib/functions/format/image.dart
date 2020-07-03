@@ -1,4 +1,4 @@
-import 'package:fox_music/utils/urls.dart';
+import 'package:fox_music/utils/constants.dart';
 
 formatImage(String imageUrl) {
   if (imageUrl == null) return '';

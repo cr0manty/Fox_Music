@@ -14,15 +14,15 @@ import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:fox_music/provider/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:fox_music/utils/swipe_detector.dart';
+import 'package:fox_music/widgets/swipe_detector.dart';
 
 class PlayerPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new PlayerPageState();
+  State<StatefulWidget> createState() => PlayerPageState();
 }
 
 class PlayerPageState extends State<PlayerPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
 
   int selectItem = 1;
@@ -143,7 +143,7 @@ class PlayerPageState extends State<PlayerPage> {
                   width: screenHeight * 0.07,
                   child: Icon(SFSymbols.repeat,
                       size: screenHeight * 0.03,
-                      color: musicData.repeat ? main_color : Colors.grey),
+                      color: musicData.repeat ? HexColor.main() : Colors.grey),
                 )),
             GestureDetector(
                 onTap: musicData.currentSong != null &&
@@ -199,7 +199,7 @@ class PlayerPageState extends State<PlayerPage> {
                   width: screenHeight * 0.07,
                   child: Icon(SFSymbols.shuffle,
                       size: screenHeight * 0.03,
-                      color: musicData.mix ? main_color : Colors.grey),
+                      color: musicData.mix ? HexColor.main() : Colors.grey),
                 ))
           ],
         ));
@@ -244,10 +244,10 @@ class PlayerPageState extends State<PlayerPage> {
   Widget _slider(MusicData musicData, double sliderValue) {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
-        activeTrackColor: main_color.withOpacity(0.6),
+        activeTrackColor: HexColor.main().withOpacity(0.6),
         inactiveTrackColor: Color.fromRGBO(100, 100, 100, 0.6),
         trackHeight: 3.0,
-        thumbColor: main_color.withOpacity(0.6),
+        thumbColor: HexColor.main().withOpacity(0.6),
         thumbShape: RoundSliderThumbShape(enabledThumbRadius: 4.0),
         overlayColor: Colors.transparent,
         overlayShape: RoundSliderOverlayShape(overlayRadius: 17.0),

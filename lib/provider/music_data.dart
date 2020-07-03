@@ -6,7 +6,7 @@ import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/provider/database.dart';
 import 'package:fox_music/provider/shared_prefs.dart';
-import 'package:fox_music/utils/urls.dart';
+import 'package:fox_music/utils/constants.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/functions/format/song_name.dart';
 import 'package:fox_music/models/song.dart';
@@ -165,7 +165,7 @@ class MusicData with ChangeNotifier {
     String path = '$dir/songs/$newFileName';
 
     File oldSong = File(song.path);
-    File newSong = new File(path);
+    File newSong = File(path);
 
     var bytes = await oldSong.readAsBytes();
     await newSong.writeAsBytes(bytes);
@@ -179,7 +179,7 @@ class MusicData with ChangeNotifier {
 
   void loadSavedMusic() async {
     final String directory = (await getApplicationDocumentsDirectory()).path;
-    final documentDir = new Directory("$directory/songs/");
+    final documentDir = Directory("$directory/songs/");
     if (!documentDir.existsSync()) {
       documentDir.createSync();
     }
@@ -189,7 +189,7 @@ class MusicData with ChangeNotifier {
     fileList.forEach((songPath) async {
       final song = formatSong(songPath.path);
       if (song == null) {
-        var rng = new Random();
+        var rng = Random();
         Song song = Song(
             title: randomAlpha(15),
             path: songPath.path,

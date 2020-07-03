@@ -3,38 +3,35 @@ import 'dart:ui';
 import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/provider/account_data.dart';
+import 'package:fox_music/provider/api.dart';
+import 'package:fox_music/provider/check_connection.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/provider/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
 import 'package:fox_music/utils/bottom_route.dart';
-import 'package:fox_music/utils/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/ui/Account/account.dart';
 import 'package:fox_music/ui/Music/online_music.dart';
-import 'package:fox_music/utils/swipe_detector.dart';
+import 'package:fox_music/widgets/swipe_detector.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 
 class MainPage extends StatefulWidget {
   final MusicData musicData;
   final MusicDownloadData downloadData;
-  final AccountData accountData;
-  final ConnectionsCheck connection;
 
-  MainPage(
-      {this.downloadData,
-      this.musicData,
-      this.accountData,
-      this.connection});
+  MainPage({this.downloadData, this.musicData});
 
   @override
-  State<StatefulWidget> createState() => new MainPageState();
+  State<StatefulWidget> createState() => MainPageState();
 }
 
 class MainPageState extends State<MainPage>
@@ -48,12 +45,32 @@ class MainPageState extends State<MainPage>
   bool keyboardActive = false;
   bool isPlaying = false;
 
+  void asyncInit() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    var currentAppVersion;
+
+    if (ConnectionsCheck.instance.isOnline) {
+      currentAppVersion = await Api.appVersionGet();
+      if (currentAppVersion != null)
+        SharedPrefs.saveLastVersion(currentAppVersion);
+    } else {
+      currentAppVersion = SharedPrefs.getLastVersion();
+    }
+    if (currentAppVersion != null &&
+        packageInfo.version != currentAppVersion['version']) {
+      await pickDialog(context, 'version available',
+          currentAppVersion['update_details'], currentAppVersion['url']);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    Image.asset('assets/images/audio-cover.png');
 
     controller = CupertinoTabController(
-        initialIndex: SharedPrefs.getLastTab() < 0 ? 0 : SharedPrefs.getLastTab());
+        initialIndex:
+            SharedPrefs.getLastTab() < 0 ? 0 : SharedPrefs.getLastTab());
     animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 350));
     offset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0))
@@ -66,6 +83,7 @@ class MainPageState extends State<MainPage>
     controller.addListener(() async {
       SharedPrefs.saveLastTab(controller.index);
     });
+    asyncInit();
 
     _showPlayer = widget.musicData.onPlayerActive.listen((active) {
       if (active) {
@@ -81,7 +99,7 @@ class MainPageState extends State<MainPage>
       });
     });
 
-    _loginIn = widget.accountData.onUserChangeAccount.listen((value) {
+    _loginIn = AccountData.instance.onUserChangeAccount.listen((value) {
       setState(() {});
     });
     animationController.forward();
@@ -89,12 +107,8 @@ class MainPageState extends State<MainPage>
   }
 
   Widget _buildView(Widget child) {
-    return MultiProvider(providers: [
-      ChangeNotifierProvider<MusicDownloadData>.value(
-          value: widget.downloadData),
-      ChangeNotifierProvider<ConnectionsCheck>.value(value: widget.connection),
-      ChangeNotifierProvider<AccountData>.value(value: widget.accountData),
-    ], child: child);
+    return ChangeNotifierProvider<MusicDownloadData>.value(
+        value: widget.downloadData, child: child);
   }
 
   Widget _switchTabs(BuildContext context, int index) {
@@ -119,10 +133,12 @@ class MainPageState extends State<MainPage>
         break;
       case 3:
         page = CupertinoTabView(
-            builder: (BuildContext context) => _buildView(
-                widget.accountData.user != null
-                    ? AccountPage(widget.connection.isOnline)
-                    : SignIn()));
+            builder: (BuildContext context) =>
+                ChangeNotifierProvider<MusicDownloadData>.value(
+                    value: widget.downloadData,
+                    child: AccountData.instance.user != null
+                        ? AccountPage()
+                        : SignIn()));
         break;
     }
     return Stack(children: <Widget>[page, _buildPlayer()]);
@@ -283,7 +299,7 @@ class MainPageState extends State<MainPage>
         child: CupertinoTabScaffold(
             controller: controller,
             tabBar: CupertinoTabBar(
-              activeColor: main_color,
+              activeColor: HexColor.main(),
               items: <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                     icon: Icon(SFSymbols.music_note_list),

@@ -5,9 +5,9 @@ import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/ui/Music/playlist_add_song.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/provider/database.dart';
-import 'package:fox_music/utils/tile_list.dart';
+import 'package:fox_music/widgets/tile_list.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/utils/apple_search.dart';
+import 'package:fox_music/widgets/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -35,7 +35,7 @@ class MusicListPage extends StatefulWidget {
 class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
   TextEditingController controller = TextEditingController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   List<Playlist> _playlistList = [];
@@ -82,7 +82,7 @@ class MusicListPageState extends State<MusicListPage>
         child: CupertinoPageScaffold(
             key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
-                actionsForegroundColor: main_color,
+                actionsForegroundColor: HexColor.main(),
                 middle: Text(widget._pageType == PageType.PLAYLIST
                     ? widget.playlist.title
                     : 'Media'),
@@ -140,7 +140,7 @@ class MusicListPageState extends State<MusicListPage>
   _deleteSong(MusicDownloadData downloadData, Song song) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => new CupertinoAlertDialog(
+        builder: (BuildContext context) => CupertinoAlertDialog(
                 title: Text('Delete file'),
                 content: Text('Are you sure you want to delete this file?'),
                 actions: [
@@ -172,8 +172,8 @@ class MusicListPageState extends State<MusicListPage>
   }
 
   _renameSongDialog(MusicData musicData, Song song) async {
-    final TextEditingController artistFilter = new TextEditingController();
-    final TextEditingController titleFilter = new TextEditingController();
+    final TextEditingController artistFilter = TextEditingController();
+    final TextEditingController titleFilter = TextEditingController();
 
     artistFilter.text = song.artist;
     titleFilter.text = song.title;
@@ -193,7 +193,7 @@ class MusicListPageState extends State<MusicListPage>
                       controller: artistFilter,
                       placeholder: 'Artist',
                       decoration: BoxDecoration(
-                          color: HexColor('#303030'),
+                          color: HexColor.mainText(),
                           borderRadius: BorderRadius.circular(9)),
                     ),
                     Divider(height: 10, color: Colors.transparent),
@@ -201,7 +201,7 @@ class MusicListPageState extends State<MusicListPage>
                       controller: titleFilter,
                       placeholder: 'Title',
                       decoration: BoxDecoration(
-                          color: HexColor('#303030'),
+                          color: HexColor.mainText(),
                           borderRadius: BorderRadius.circular(9)),
                     ),
                   ]))),

@@ -1,16 +1,21 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/models/user.dart';
 import 'package:fox_music/provider/shared_prefs.dart';
 
 import 'api.dart';
+import 'check_connection.dart';
 
 enum AccountType { SELF_SHOW, SELF_EDIT }
 
-class AccountData with ChangeNotifier {
+class AccountData {
+  AccountData._internal();
+
+  static final AccountData _instance = AccountData._internal();
+
+  static AccountData get instance => _instance;
+
   List<Relationship> friendList = [];
   User _user;
   File newImage;
@@ -23,8 +28,8 @@ class AccountData with ChangeNotifier {
   final StreamController<bool> _userChangeAccount =
       StreamController<bool>.broadcast();
 
-  init(bool isOnline) async {
-    if (isOnline) {
+  init() async {
+    if (ConnectionsCheck.instance.isOnline) {
       if (await Api.authCheckGet()) {
         user = await Api.profileGet();
         if (user == null) {
@@ -39,12 +44,11 @@ class AccountData with ChangeNotifier {
       User newUser = SharedPrefs.getUser();
       user = newUser;
     }
-    offlineMode = !isOnline;
+    offlineMode = ConnectionsCheck.instance.isOnline;
   }
 
   loadFiendList() async {
     friendList = await Api.friendListGet();
-    notifyListeners();
   }
 
   updateUserData(data) async {
@@ -55,7 +59,6 @@ class AccountData with ChangeNotifier {
         user = newUser;
         SharedPrefs.saveUser(user);
       }
-      notifyListeners();
     }
   }
 
@@ -80,12 +83,10 @@ class AccountData with ChangeNotifier {
 
   setNewImage(image) {
     newImage = image;
-    notifyListeners();
   }
 
   @override
   void dispose() {
     _userChangeAccount?.close();
-    super.dispose();
   }
 }

@@ -4,7 +4,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'border_button.dart';
-import 'hex_color.dart';
+import '../utils/hex_color.dart';
 
 class OfflinePage extends StatefulWidget {
   @override
@@ -19,7 +19,7 @@ class _OfflinePageState extends State<OfflinePage> {
     return ClipRect(
         child: Container(
             alignment: Alignment.center,
-            color: HexColor('#8c8c8c').withOpacity(0.2),
+            color: HexColor.icon().withOpacity(0.2),
             child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
                 child: Column(
@@ -29,12 +29,12 @@ class _OfflinePageState extends State<OfflinePage> {
                     children: <Widget>[
                       Text(
                         'You are offline',
-                        style: TextStyle(color: HexColor('#cccccc')),
+                        style: TextStyle(color: HexColor.greyText()),
                       ),
                       SizedBox(height: 20),
                       BorderButton(
                           text: 'Settings',
-                          color: HexColor('#cccccc'),
+                          color: HexColor.greyText(),
                           onPressed: AppSettings.openLocationSettings)
                     ]))));
   }

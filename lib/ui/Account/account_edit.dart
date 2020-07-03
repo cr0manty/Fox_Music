@@ -1,12 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:fox_music/utils/apple_text.dart';
-import 'package:fox_music/utils/hex_color.dart';
+import 'package:fox_music/widgets/apple_text.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/functions/format/image.dart';
 
 import 'package:fox_music/provider/account_data.dart';
@@ -18,15 +16,15 @@ class AccountEditPage extends StatefulWidget {
 }
 
 class AccountEditPageState extends State<AccountEditPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _firstNameFilter = new TextEditingController();
-  final TextEditingController _lastNameFilter = new TextEditingController();
-  final TextEditingController _emailFilter = new TextEditingController();
+  final TextEditingController _firstNameFilter = TextEditingController();
+  final TextEditingController _lastNameFilter = TextEditingController();
+  final TextEditingController _emailFilter = TextEditingController();
   final TextEditingController _passwordConfirmFilter =
-      new TextEditingController();
-  final TextEditingController _usernameFilter = new TextEditingController();
-  final TextEditingController _passwordFilter = new TextEditingController();
+      TextEditingController();
+  final TextEditingController _usernameFilter = TextEditingController();
+  final TextEditingController _passwordFilter = TextEditingController();
   String _firstName = "";
   String _lastName = "";
   String _email = "";
@@ -93,18 +91,17 @@ class AccountEditPageState extends State<AccountEditPage> {
     }
   }
 
-  _setFilter(AccountData data) {
-    _usernameFilter.text = data.user.username;
-    _emailFilter.text = data.user.email;
-    _firstNameFilter.text = data.user.first_name;
-    _lastNameFilter.text = data.user.last_name;
+  _setFilter() {
+    _usernameFilter.text = AccountData.instance.user.username;
+    _emailFilter.text = AccountData.instance.user.email;
+    _firstNameFilter.text = AccountData.instance.user.first_name;
+    _lastNameFilter.text = AccountData.instance.user.last_name;
   }
 
   @override
   Widget build(BuildContext context) {
-    AccountData accountData = Provider.of<AccountData>(context);
+    _setFilter();
 
-    _setFilter(accountData);
     return CupertinoPageScaffold(
       key: _scaffoldKey,
       navigationBar: CupertinoNavigationBar(
@@ -133,14 +130,14 @@ class AccountEditPageState extends State<AccountEditPage> {
                   'password': _password,
                   'username': _username
                 };
-                accountData.updateUserData(data);
+                AccountData.instance.updateUserData(data);
                 Navigator.pop(context);
               }
             },
           )),
       child: SafeArea(
           child: Material(
-              color: Colors.transparent, child: _buildSelfEdit(accountData))),
+              color: Colors.transparent, child: _buildSelfEdit())),
     );
   }
 
@@ -193,7 +190,7 @@ class AccountEditPageState extends State<AccountEditPage> {
     ];
   }
 
-  _buildSelfEdit(AccountData accountData) {
+  _buildSelfEdit() {
     return Container(
         child: SingleChildScrollView(
             padding: EdgeInsets.all(8.0),
@@ -216,7 +213,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                                         Navigator.pop(context);
                                         _image = await ImagePicker.pickImage(
                                             source: ImageSource.camera);
-                                        accountData.setNewImage(_image);
+                                        AccountData.instance.setNewImage(_image);
                                       },
                                       child: Text('Camera',
                                           style:
@@ -226,7 +223,7 @@ class AccountEditPageState extends State<AccountEditPage> {
                                         Navigator.pop(context);
                                         _image = await ImagePicker.pickImage(
                                             source: ImageSource.gallery);
-                                        accountData.setNewImage(_image);
+                                        AccountData.instance.setNewImage(_image);
                                       },
                                       child: Text('Gallery',
                                           style: TextStyle(color: Colors.blue)))
@@ -239,10 +236,10 @@ class AccountEditPageState extends State<AccountEditPage> {
                             child: CircleAvatar(
                                 radius: 75,
                                 backgroundColor: Colors.grey,
-                                backgroundImage: accountData.newImage != null
-                                    ? Image.file(accountData.newImage).image
+                                backgroundImage: AccountData.instance.newImage != null
+                                    ? Image.file(AccountData.instance.newImage).image
                                     : Image.network(
-                                            formatImage(accountData.user.image))
+                                            formatImage(AccountData.instance.user.image))
                                         .image)),
                         ClipOval(
                             child: Container(
