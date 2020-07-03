@@ -58,7 +58,7 @@ class MainPageState extends State<MainPage>
     }
     if (currentAppVersion != null &&
         packageInfo.version != currentAppVersion['version']) {
-      await pickDialog(context, 'version available',
+      await pickDialog(context, 'New version available',
           currentAppVersion['update_details'], currentAppVersion['url']);
     }
   }
@@ -324,6 +324,7 @@ class MainPageState extends State<MainPage>
     animationController.dispose();
 
     WidgetsBinding.instance.removeObserver(this);
+    AccountData.instance.dispose();
     super.dispose();
   }
 }

@@ -40,10 +40,8 @@ class AccountData {
           SharedPrefs.saveUser(user);
         }
       }
-    } else {
-      User newUser = SharedPrefs.getUser();
-      user = newUser;
     }
+    user = SharedPrefs.getUser();
     offlineMode = ConnectionsCheck.instance.isOnline;
   }
 
