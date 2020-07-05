@@ -7,6 +7,7 @@ class HexColor extends Color {
   static Color mainText() => HexColor('#303030');
   static Color icon() => HexColor('#8c8c8c');
   static Color main() => Color.fromRGBO(193, 39, 45, 1);
+  static Color transparent() => Color.fromRGBO(0, 0, 0, 1);
 
   static int _getColorFromHex(String hexColor) {
     hexColor = hexColor.toUpperCase().replaceAll("#", "");

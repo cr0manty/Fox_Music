@@ -20,6 +20,7 @@ class PlayerPage extends StatefulWidget {
 }
 
 class PlayerPageState extends State<PlayerPage> {
+  StreamSubscription _playerStream;
   List<Playlist> _playlistList = [];
 
   int selectItem = 1;
@@ -40,18 +41,15 @@ class PlayerPageState extends State<PlayerPage> {
   void initState() {
     super.initState();
     _loadPlaylist();
-    MusicData.instance.playerStream.listen((event) => setState(() {}));
+    _playerStream =
+        MusicData.instance.playerStream.listen((event) => setState(() {}));
   }
 
   _play() {
     return MusicData.instance.currentSong != null
-        ? () async {
-            if (AudioManager.instance.isPlaying) {
-              await MusicData.instance.playerPause();
-            } else {
-              MusicData.instance.playerResume();
-            }
-          }
+        ? () => AudioManager.instance.isPlaying
+            ? MusicData.instance.playerPause()
+            : MusicData.instance.playerResume()
         : null;
   }
 
@@ -389,5 +387,11 @@ class PlayerPageState extends State<PlayerPage> {
                 ))
           ],
         )));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _playerStream?.cancel();
   }
 }

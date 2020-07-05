@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/instances/download_data.dart';
+import 'package:fox_music/instances/utils.dart';
 import 'package:fox_music/ui/Music/playlist_add_song.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/instances/database.dart';
@@ -32,6 +34,7 @@ class MusicListPage extends StatefulWidget {
 
 class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
+    StreamSubscription _filesystemStream;
   TextEditingController controller = TextEditingController();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
@@ -69,7 +72,9 @@ class MusicListPageState extends State<MusicListPage>
   @override
   void initState() {
     super.initState();
-    MusicData.instance.filesystemStream.listen((event) => setState(() {}));
+    _filesystemStream = MusicData.instance.filesystemStream.listen((event) {
+      _updateMusicList();
+    });
     MusicData.instance.playlistUpdate = true;
     _updateMusicList();
   }
@@ -100,7 +105,7 @@ class MusicListPageState extends State<MusicListPage>
       ),
       SliverList(
           delegate: SliverChildListDelegate(List.generate(
-              _musicListSorted.length + 2,
+              _musicListSorted.length + (Utils.instance.playerUsing ? 2 : 1),
               (index) => _buildSongListTile(index))))
     ]));
   }
@@ -354,5 +359,11 @@ class MusicListPageState extends State<MusicListPage>
             )
           : Container(),
     ]);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _filesystemStream?.cancel();
   }
 }

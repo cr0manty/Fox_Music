@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/music_data.dart';
+import 'package:fox_music/instances/utils.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
 import 'package:fox_music/utils/help.dart';
 import 'package:fox_music/widgets/border_button.dart';
@@ -205,7 +206,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
             }),
             SliverList(
                 delegate: SliverChildListDelegate(List.generate(
-                    dataSongSorted.length + 2,
+                    dataSongSorted.length +
+                        (Utils.instance.playerUsing ? 2 : 1),
                     (index) => _buildSongListTile(index))))
           ]))
         : _provideData();
@@ -292,7 +294,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
 
     Song song = dataSongSorted[index - 1];
     if (init) {
-      _playerNotifyState = MusicDownloadData.instance.onResultChanged.listen((result) {
+      _playerNotifyState =
+          MusicDownloadData.instance.onResultChanged.listen((result) {
         if (result == DownloadState.COMPLETED)
           MusicData.instance.loadSavedMusic();
         MusicDownloadData.instance.showInfo(context, result);

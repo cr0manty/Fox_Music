@@ -4,9 +4,9 @@ import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/instances/account_data.dart';
-import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
+import 'package:fox_music/instances/utils.dart';
 import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
@@ -18,7 +18,6 @@ import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/ui/Account/account.dart';
 import 'package:fox_music/ui/Music/online_music.dart';
 import 'package:fox_music/widgets/swipe_detector.dart';
-import 'package:keyboard_visibility/keyboard_visibility.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -33,13 +32,14 @@ class MainPageState extends State<MainPage>
   StreamSubscription _showPlayer;
   StreamSubscription _isPlaying;
   StreamSubscription _loginIn;
-  bool keyboardActive = false;
   bool isPlaying = false;
 
   @override
   void initState() {
     super.initState();
-    Image.asset('assets/images/audio-cover.png');
+    Utils.instance.cache();
+
+//    Utils.instance.checkVersion();
 
     controller = CupertinoTabController(
         initialIndex:
@@ -48,11 +48,7 @@ class MainPageState extends State<MainPage>
         vsync: this, duration: Duration(milliseconds: 350), value: 1);
     offset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0))
         .animate(animationController);
-    KeyboardVisibilityNotification().addNewListener(
-      onChange: (bool visible) {
-        keyboardActive = visible;
-      },
-    );
+
     controller.addListener(() async {
       SharedPrefs.saveLastTab(controller.index);
     });
@@ -109,7 +105,7 @@ class MainPageState extends State<MainPage>
   }
 
   Widget _buildPlayer() {
-    return !keyboardActive
+    return !Utils.instance.keyboardActive
         ? Positioned(
             bottom: 0,
             left: 0,
@@ -121,11 +117,14 @@ class MainPageState extends State<MainPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         SwipeDetector(
-                            onTap: () => KeyHolder().key.currentState
-                              .push(BottomRoute(page: PlayerPage())),
-                            onSwipeUp: () =>
-                                KeyHolder().key.currentState
-                                    .push(BottomRoute(page: PlayerPage())),
+                            onTap: () => KeyHolder()
+                                .key
+                                .currentState
+                                .push(BottomRoute(page: PlayerPage())),
+                            onSwipeUp: () => KeyHolder()
+                                .key
+                                .currentState
+                                .push(BottomRoute(page: PlayerPage())),
                             onSwipeDown: () async {
                               await MusicData.instance.playerStop();
                               animationController.forward();
@@ -274,7 +273,6 @@ class MainPageState extends State<MainPage>
     animationController.dispose();
 
     WidgetsBinding.instance.removeObserver(this);
-    AccountData.instance.dispose();
     super.dispose();
   }
 }

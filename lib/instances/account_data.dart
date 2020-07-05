@@ -13,6 +13,7 @@ class AccountData {
   AccountData._internal();
 
   static final AccountData _instance = AccountData._internal();
+
   static AccountData get instance => _instance;
 
   List<Relationship> friendList = [];
@@ -33,7 +34,7 @@ class AccountData {
       if (newUser != null) {
         needUpdate = false;
         user = newUser;
-         loadFiendList();
+        loadFiendList();
         SharedPrefs.saveUser(user);
       } else {
         await makeLogout();

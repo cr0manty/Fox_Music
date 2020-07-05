@@ -66,7 +66,9 @@ class FriendListPageState extends State<FriendListPage> {
     }
     Relationship relationship = friendListSorted[index - 1];
 
-    return Column(children: [
+    return Material(
+      color: HexColor.background(),
+        child: Column(children: [
       Slidable(
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 0.25,
@@ -105,6 +107,6 @@ class FriendListPageState extends State<FriendListPage> {
         ],
       ),
       Padding(padding: EdgeInsets.only(left: 12.0), child: Divider(height: 1))
-    ]);
+    ]));
   }
 }
