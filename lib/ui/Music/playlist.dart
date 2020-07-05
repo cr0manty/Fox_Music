@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/instances/database.dart';
-import 'package:fox_music/instances/key.dart';
+import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/widgets/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -21,8 +20,8 @@ class PlaylistPage extends StatefulWidget {
 class PlaylistPageState extends State<PlaylistPage> {
   List<Playlist> _playlistList = [];
 
-  _createPlaylist(MusicDownloadData downloadData, String playlistName) async {
-    downloadData.musicData.playlistListUpdate = true;
+  _createPlaylist(String playlistName) async {
+    MusicData.instance.playlistListUpdate = true;
     Playlist playlist = Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
@@ -51,7 +50,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     _loadPlaylist();
   }
 
-  _playlistDialog(MusicDownloadData downloadData, {Playlist playlist}) async {
+  _playlistDialog({Playlist playlist}) async {
     final TextEditingController playlistName = TextEditingController();
 
     if (playlist != null) {
@@ -88,12 +87,12 @@ class PlaylistPageState extends State<PlaylistPage> {
                 isDefaultAction: true,
                 child: Text(playlist == null ? 'Create' : 'Rename'),
                 onPressed: () {
-                  downloadData.musicData.playlistUpdate = true;
+                  MusicData.instance.playlistUpdate = true;
                   if (playlistName.text.isNotEmpty) {
                     if (playlist != null)
                       _renamePlaylist(playlist, playlistName.text);
                     else
-                      _createPlaylist(downloadData, playlistName.text);
+                      _createPlaylist(playlistName.text);
                   }
                   Navigator.of(context).pop();
                 }),
@@ -105,10 +104,9 @@ class PlaylistPageState extends State<PlaylistPage> {
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    if (downloadData.musicData.playlistPageUpdate) {
+    if (MusicData.instance.playlistPageUpdate) {
       _loadPlaylist();
-      downloadData.musicData.playlistPageUpdate = false;
+      MusicData.instance.playlistPageUpdate = false;
     }
 
     return CupertinoPageScaffold(
@@ -121,7 +119,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                   SFSymbols.plus,
                   size: 25,
                 ),
-                onTap: () => _playlistDialog(downloadData))),
+                onTap: () => _playlistDialog())),
         child: Material(
             color: Colors.transparent,
             child: SafeArea(
@@ -129,7 +127,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                     ? ListView(
                         children: List.generate(
                         _playlistList.length + 1,
-                        (index) => _buildPlaylistList(downloadData, index),
+                        (index) => _buildPlaylistList(index),
                       ))
                     : Container(
                         padding: EdgeInsets.only(top: 30),
@@ -172,12 +170,11 @@ class PlaylistPageState extends State<PlaylistPage> {
         backgroundColor: HexColor.main());
   }
 
-  void _mixPlaylistSong(
-      MusicDownloadData downloadData, Playlist playlist) async {
-    downloadData.musicData.playPlaylist(playlist, mix: true);
+  void _mixPlaylistSong(Playlist playlist) async {
+    MusicData.instance.playPlaylist(playlist, mix: true);
   }
 
-  _buildPlaylistList(MusicDownloadData downloadData, int index) {
+  _buildPlaylistList(int index) {
     if (index >= _playlistList.length) {
       return Container(height: 75);
     }
@@ -199,16 +196,13 @@ class PlaylistPageState extends State<PlaylistPage> {
               onTap: () async {
                 Navigator.of(context).push(
                     CupertinoPageRoute(
-                        builder: (context) =>
-                            ChangeNotifierProvider<MusicDownloadData>.value(
-                                value: downloadData,
-                                child: MusicListPage(playlist: playlist))));
+                        builder: (context) => MusicListPage(playlist: playlist)));
               },
               leading: Container(
                   padding: EdgeInsets.only(right: 20),
                   child: _showImage(playlist)),
               trailing: GestureDetector(
-                  onTap: () => _mixPlaylistSong(downloadData, playlist),
+                  onTap: () => _mixPlaylistSong(playlist),
                   child: Container(
                       color: Colors.transparent,
                       padding:
@@ -223,12 +217,12 @@ class PlaylistPageState extends State<PlaylistPage> {
               SlideAction(
                 color: HexColor('#3a4e93'),
                 child: Icon(SFSymbols.play, color: Colors.white),
-                onTap: () => downloadData.musicData.playPlaylist(playlist),
+                onTap: () => MusicData.instance.playPlaylist(playlist),
               ),
               SlideAction(
                 color: HexColor('#a04db5'),
                 child: Icon(SFSymbols.pencil, color: Colors.white),
-                onTap: () => _playlistDialog(downloadData, playlist: playlist),
+                onTap: () => _playlistDialog(playlist: playlist),
               ),
             ],
             secondaryActions: <Widget>[
@@ -280,7 +274,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 color: HexColor('#d62d2d'),
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () {
-                  downloadData.musicData.playlistListUpdate = true;
+                  MusicData.instance.playlistListUpdate = true;
                   setState(() {
                     _playlistList.remove(playlist);
                   });

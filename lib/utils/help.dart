@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/instances/api.dart';
@@ -11,7 +10,7 @@ import 'package:fox_music/widgets/playlist_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-abstract class Utils {
+abstract class HelpTools {
   static int durToInt(Duration time) {
     if (time != null) return time.inSeconds;
     return 0;

@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/instances/database.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/utils/constants.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:random_string/random_string.dart';
@@ -14,7 +13,9 @@ import 'package:audio_manager/audio_manager.dart';
 
 enum PlayerState { PLAYING, STOP, BUFFERING }
 
-class MusicData with ChangeNotifier {
+class MusicData {
+  MusicData._internal();
+
   PlayerState playerState;
   Song _song;
 
@@ -45,9 +46,20 @@ class MusicData with ChangeNotifier {
 
   Stream<bool> get onPlayerChangeState => _playerStateStream.stream;
 
+  Stream<bool> get notifyStream => _notifyStream.stream;
+
+  Stream<bool> get playerStream => _playerStream.stream;
+
+  Stream<bool> get filesystemStream => _filesystemStream.stream;
+
   final StreamController<bool> _playerActive =
       StreamController<bool>.broadcast();
-
+  final StreamController<bool> _filesystemStream =
+      StreamController<bool>.broadcast();
+  final StreamController<bool> _notifyStream =
+      StreamController<bool>.broadcast();
+  final StreamController<bool> _playerStream =
+      StreamController<bool>.broadcast();
   final StreamController<bool> _playerStateStream =
       StreamController<bool>.broadcast();
 
@@ -57,6 +69,10 @@ class MusicData with ChangeNotifier {
   }
 
   get currentSong => _song;
+
+  static final MusicData _instance = MusicData._internal();
+
+  static MusicData get instance => _instance;
 
   init() async {
     playerState = PlayerState.STOP;
@@ -72,7 +88,6 @@ class MusicData with ChangeNotifier {
         case AudioManagerEvents.start:
           playerState = PlayerState.BUFFERING;
           _playerStateStream.add(null);
-          notifyListeners();
           break;
         case AudioManagerEvents.ready:
           _playerStateStream.add(true);
@@ -82,7 +97,6 @@ class MusicData with ChangeNotifier {
                 args['duration'] != null ? args['duration'] : args['_duration'];
           if (args['position']) songPosition = args['position'];
           _playerStateStream.add(true);
-          notifyListeners();
           break;
         case AudioManagerEvents.playstatus:
           if (AudioManager.instance.isPlaying) {
@@ -91,12 +105,11 @@ class MusicData with ChangeNotifier {
             playerState = PlayerState.STOP;
           }
           _playerStateStream.add(AudioManager.instance.isPlaying);
-          notifyListeners();
           break;
         case AudioManagerEvents.timeupdate:
           songDuration = args["duration"];
           songPosition = args["position"];
-          notifyListeners();
+          _playerStream.add(true);
           break;
         case AudioManagerEvents.error:
           print('audioPlayer error : $args');
@@ -104,7 +117,7 @@ class MusicData with ChangeNotifier {
           playerStop();
           songDuration = Duration(seconds: 0);
           songPosition = Duration(seconds: 0);
-          notifyListeners();
+          _notifyStream.add(true);
           break;
         case AudioManagerEvents.ended:
           if (repeat) {
@@ -140,21 +153,18 @@ class MusicData with ChangeNotifier {
       isLocal = local;
       playlist = songList;
       List<AudioInfo> _list = [];
-      int index = 0;
       songList.asMap()
         ..forEach((int index, Song song) {
           if (currentSong == song && local == isLocal) index = index;
           String url = local ? 'file://${song.path}' : song.download;
           String image = song.image != null && song.image.isNotEmpty
               ? song.image
-              : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
+              : PLAYER_DEFAULT;
           _list.add(AudioInfo(url,
               title: song.title, desc: song.artist, coverUrl: image));
         });
       AudioManager.instance.stop();
       AudioManager.instance.audioList = _list;
-
-      notifyListeners();
     }
   }
 
@@ -171,7 +181,7 @@ class MusicData with ChangeNotifier {
     await oldSong.delete();
 
     song.path = path;
-    notifyListeners();
+    _filesystemStream.add(true);
 
     loadSavedMusic();
   }
@@ -201,32 +211,32 @@ class MusicData with ChangeNotifier {
         localSongs.add(song);
       }
     });
-    notifyListeners();
+    _filesystemStream.add(true);
   }
 
   void seek({duration}) {
     int value = (duration != null && duration < 1
-            ? Utils.durToInt(songDuration) * duration
+            ? HelpTools.durToInt(songDuration) * duration
             : 0)
         .toInt();
     AudioManager.instance.seekTo(Duration(seconds: value));
-    notifyListeners();
+    _playerStream.add(true);
   }
 
   void updateVolume(double value) {
     AudioManager.instance.setVolume(value);
     volume = value;
-    notifyListeners();
+    _playerStream.add(true);
   }
 
   void mixClick({bool mixThis}) {
     mix = mixThis == null ? !mix : mixThis;
-    notifyListeners();
+    _playerStream.add(true);
   }
 
   void repeatClick() async {
     repeat = !repeat;
-    notifyListeners();
+    _playerStream.add(true);
     SharedPrefs.savePlayerState(repeat);
   }
 
@@ -290,7 +300,6 @@ class MusicData with ChangeNotifier {
           title: song.title, desc: song.artist, coverUrl: image));
     });
     AudioManager.instance.audioList = _list;
-    notifyListeners();
   }
 
   void deleteSong(Song song) {
@@ -310,13 +319,13 @@ class MusicData with ChangeNotifier {
       }
     } else {
       playlist.remove(song);
-      notifyListeners();
     }
+    _filesystemStream.add(true);
   }
 
   void playerPlay({int index = 0, Song song}) async {
     volume = AudioManager.instance.volume;
-//    if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
+    if (AudioManager.instance.isPlaying) AudioManager.instance.stop();
 
     if ((AudioManager.instance.audioList.length < index || index == -1) &&
         song != null) {
@@ -328,45 +337,44 @@ class MusicData with ChangeNotifier {
       songPosition = Duration(seconds: 0);
       selectedIndex = index;
       currentSong = song;
+      _notifyStream.add(true);
       _playerStateStream.add(true);
-      notifyListeners();
 
       AudioManager.instance
           .start(url, song.title, desc: song.artist, auto: true);
     } else if (AudioManager.instance.audioList.length > index) {
       selectedIndex = index;
       currentSong = playlist[index];
+      _notifyStream.add(true);
       songDuration = Duration(seconds: currentSong.duration ?? 0);
       songPosition = Duration(seconds: 0);
       _playerStateStream.add(true);
 
       AudioManager.instance.play(index: index, auto: true);
-      notifyListeners();
     }
   }
 
   void playerStop() async {
     playerState = PlayerState.STOP;
     currentSong = null;
+    _notifyStream.add(true);
     songPosition = Duration(seconds: 0);
-
     _playerStateStream.add(false);
-    notifyListeners();
 
     AudioManager.instance.stop();
   }
 
   void playerResume() {
+    _notifyStream.add(true);
     playerState = PlayerState.PLAYING;
     _playerStateStream.add(true);
-    notifyListeners();
     AudioManager.instance.toPlay();
   }
 
   void playerPause() async {
+    _notifyStream.add(true);
     playerState = PlayerState.STOP;
     _playerStateStream.add(false);
-    notifyListeners();
     AudioManager.instance.toPause();
   }
 
@@ -375,10 +383,10 @@ class MusicData with ChangeNotifier {
 
     selectedIndex = AudioManager.instance.curIndex;
     currentSong = playlist[selectedIndex];
+    _notifyStream.add(true);
     songDuration = Duration(seconds: currentSong.duration ?? 0);
     songPosition = Duration(seconds: 0);
     _playerStateStream.add(true);
-    notifyListeners();
   }
 
   void next({bool change = true}) async {
@@ -389,17 +397,17 @@ class MusicData with ChangeNotifier {
 
       selectedIndex = AudioManager.instance.curIndex;
       currentSong = playlist[selectedIndex];
+      _notifyStream.add(true);
       songDuration = Duration(seconds: currentSong.duration ?? 0);
       songPosition = Duration(seconds: 0);
       _playerStateStream.add(true);
-      notifyListeners();
     } else {
       mixPlay();
     }
   }
 
   void repeatPlay() async {
-    notifyListeners();
+    _notifyStream.add(true);
     AudioManager.instance.seekTo(Duration(seconds: 0));
     AudioManager.instance.playOrPause();
   }
@@ -409,11 +417,11 @@ class MusicData with ChangeNotifier {
     selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length);
 
     currentSong = playlist[selectedIndex];
+    _notifyStream.add(true);
     songDuration = Duration(seconds: currentSong.duration ?? 0);
     songPosition = Duration(seconds: 0);
     _playerStateStream.add(true);
     songPosition = Duration(seconds: 0);
-    notifyListeners();
 
     AudioManager.instance.play(index: selectedIndex, auto: true);
   }
@@ -422,7 +430,6 @@ class MusicData with ChangeNotifier {
     return currentSong != null && currentSong.song_id == songId;
   }
 
-  @override
   void dispose() {
     _playerCompleteSubscription?.cancel();
     _playerState?.cancel();
@@ -431,6 +438,8 @@ class MusicData with ChangeNotifier {
     _playerNotifyState?.cancel();
     _playerActive?.close();
     _playerStateStream?.close();
-    super.dispose();
+    _notifyStream?.close();
+    _playerStream?.close();
+    _filesystemStream?.close();
   }
 }

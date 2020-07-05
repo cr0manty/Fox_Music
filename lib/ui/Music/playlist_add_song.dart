@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/instances/database.dart';
-import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/widgets/tile_list.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/models/playlist.dart';
@@ -23,34 +21,33 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
   TextEditingController controller = TextEditingController();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
-  bool init = true;
 
-  void _updateMusicList(MusicData musicData) async {
-    _loadMusicList(musicData, null);
-    musicData.localUpdate = false;
+  void _updateMusicList() async {
+    _loadMusicList(null);
+    MusicData.instance.localUpdate = false;
   }
 
-  void _onSave(MusicData musicData) {
+  void _onSave() {
     String songList = '';
     _musicList.forEach((Song song) {
       if (song.inPlaylist) songList += '${song.song_id},';
     });
     widget.playlist.songList = songList;
-    musicData.playlistUpdate = true;
-    musicData.localUpdate = true;
+    MusicData.instance.playlistUpdate = true;
+    MusicData.instance.localUpdate = true;
 
     DBProvider.db.updatePlaylist(widget.playlist);
     Navigator.of(context).pop();
   }
 
   @override
-  Widget build(BuildContext context) {
-    MusicData musicData = Provider.of<MusicData>(context);
-    if (init) {
-      _updateMusicList(musicData);
-      init = false;
-    }
+  void initState() {
+    super.initState();
+    _updateMusicList();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Material(
         child: CupertinoPageScaffold(
             navigationBar: CupertinoNavigationBar(
@@ -60,34 +57,34 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
                 trailing: GestureDetector(
                     child:
                         Text('Save', style: TextStyle(color: HexColor.main())),
-                    onTap: () => _onSave(musicData))),
-            child: _buildBody(musicData)));
+                    onTap: () => _onSave())),
+            child: _buildBody()));
   }
 
-  _buildBody(MusicData musicData) {
+  _buildBody() {
     return SafeArea(
         child: CustomScrollView(slivers: <Widget>[
       CupertinoSliverRefreshControl(
-        onRefresh: () => _loadMusicList(musicData, null, update: true),
+        onRefresh: () => _loadMusicList(null, update: true),
       ),
       SliverList(
           delegate: SliverChildListDelegate(List.generate(
               _musicListSorted.length + 1,
-              (index) => _buildSongListTile(index, musicData))))
+              (index) => _buildSongListTile(index))))
     ]));
   }
 
-  _loadMusicList(MusicData musicData, Song song, {bool update = false}) async {
+  _loadMusicList(Song song, {bool update = false}) async {
     Playlist newPlaylist = await DBProvider.db.getPlaylist(widget.playlist.id);
     List<String> songIdList = newPlaylist.splitSongList();
-    List<Song> songList = await musicData.loadPlaylistAddTrack(songIdList);
+    List<Song> songList = await MusicData.instance.loadPlaylistAddTrack(songIdList);
     setState(() {
       _musicList = songList;
       _musicListSorted = _musicList;
       _filterSongs(controller.text);
     });
     if (song != null) {
-      musicData.setPlaylistSongs(_musicList, song);
+      MusicData.instance.setPlaylistSongs(_musicList, song);
     }
   }
 
@@ -102,7 +99,7 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
     });
   }
 
-  _buildSongListTile(int index, MusicData musicData) {
+  _buildSongListTile(int index) {
     if (index == 0) {
       return AppleSearch(
         onChange: _filterSongs,

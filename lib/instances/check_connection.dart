@@ -21,8 +21,7 @@ class ConnectionsCheck {
     ConnectivityResult result = await connectivity.checkConnectivity();
     await _checkStatus(result);
     connectivity.onConnectivityChanged.listen((result) {
-      isOnline = result != ConnectivityResult.none;
-      controller.add(isOnline);
+      _checkStatus(result);
     });
   }
 
@@ -44,6 +43,7 @@ class ConnectionsCheck {
         isOnline = false;
       }
     }
+    controller.add(isOnline);
   }
 
   void dispose() => controller.close();

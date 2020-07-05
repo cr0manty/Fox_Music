@@ -2,13 +2,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/instances/download_data.dart';
-import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/ui/Music/playlist_add_song.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/instances/database.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:fox_music/widgets/tile_list.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
@@ -38,45 +36,46 @@ class MusicListPageState extends State<MusicListPage>
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   List<Playlist> _playlistList = [];
-  bool init = true;
 
-  void _updateMusicList(MusicData musicData) async {
-    if (init) {
-      musicData.playlistUpdate = true;
-    }
-    if ((widget._pageType == PageType.PLAYLIST && musicData.playlistUpdate) ||
-        (widget._pageType == PageType.SAVED && musicData.localUpdate)) {
-      _loadMusicList(musicData, null);
+  void _updateMusicList() async {
+    if ((widget._pageType == PageType.PLAYLIST &&
+            MusicData.instance.playlistUpdate) ||
+        (widget._pageType == PageType.SAVED &&
+            MusicData.instance.localUpdate)) {
+      _loadMusicList(null);
       if (widget._pageType == PageType.PLAYLIST) {
-        musicData.playlistUpdate = false;
+        MusicData.instance.playlistUpdate = false;
       } else {
-        musicData.localUpdate = false;
+        MusicData.instance.localUpdate = false;
       }
     }
-    if (widget._pageType == PageType.SAVED && musicData.playlistListUpdate) {
+    if (widget._pageType == PageType.SAVED &&
+        MusicData.instance.playlistListUpdate) {
       List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
 
       setState(() {
         _playlistList = playlistList;
-        musicData.playlistListUpdate = false;
+        MusicData.instance.playlistListUpdate = false;
       });
     }
   }
 
-  void _addToPlaylist(MusicData musicData) {
+  void _addToPlaylist() {
     FocusScope.of(context).requestFocus(FocusNode());
-    Navigator.of(context, rootNavigator: true).push(BottomRoute(
-        page: ChangeNotifierProvider<MusicData>.value(
-            value: musicData,
-            child: AddToPlaylistPage(playlist: widget.playlist))));
+    Navigator.of(context, rootNavigator: true)
+        .push(BottomRoute(page: AddToPlaylistPage(playlist: widget.playlist)));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    MusicData.instance.filesystemStream.listen((event) => setState(() {}));
+    MusicData.instance.playlistUpdate = true;
+    _updateMusicList();
   }
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-    _updateMusicList(downloadData.musicData);
-    init = false;
-
     return Material(
         child: CupertinoPageScaffold(
             navigationBar: CupertinoNavigationBar(
@@ -88,32 +87,31 @@ class MusicListPageState extends State<MusicListPage>
                 trailing: widget._pageType == PageType.PLAYLIST
                     ? GestureDetector(
                         child: Icon(SFSymbols.plus, size: 25),
-                        onTap: () => _addToPlaylist(downloadData.musicData))
+                        onTap: () => _addToPlaylist())
                     : null),
-            child: _buildBody(downloadData)));
+            child: _buildBody()));
   }
 
-  _buildBody(MusicDownloadData downloadData) {
+  _buildBody() {
     return SafeArea(
         child: CustomScrollView(slivers: <Widget>[
       CupertinoSliverRefreshControl(
-        onRefresh: () =>
-            _loadMusicList(downloadData.musicData, null, update: true),
+        onRefresh: () => _loadMusicList(null, update: true),
       ),
       SliverList(
           delegate: SliverChildListDelegate(List.generate(
               _musicListSorted.length + 2,
-              (index) => _buildSongListTile(index, downloadData))))
+              (index) => _buildSongListTile(index))))
     ]));
   }
 
-  _loadMusicList(MusicData musicData, Song song, {bool update = false}) async {
+  _loadMusicList(Song song, {bool update = false}) async {
     if (widget._pageType == PageType.SAVED) {
       List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
-      if (update) await musicData.loadSavedMusic();
+      if (update) await MusicData.instance.loadSavedMusic();
       setState(() {
         _playlistList = playlistList;
-        _musicList = musicData.localSongs;
+        _musicList = MusicData.instance.localSongs;
         _musicListSorted = _musicList;
         _filterSongs(controller.text);
       });
@@ -121,7 +119,8 @@ class MusicListPageState extends State<MusicListPage>
       Playlist newPlaylist =
           await DBProvider.db.getPlaylist(widget.playlist.id);
       List<String> songIdList = newPlaylist.splitSongList();
-      List<Song> songList = await musicData.loadPlaylistTrack(songIdList);
+      List<Song> songList =
+          await MusicData.instance.loadPlaylistTrack(songIdList);
       if (mounted) {
         setState(() {
           _musicList = songList;
@@ -131,11 +130,11 @@ class MusicListPageState extends State<MusicListPage>
       }
     }
     if (song != null) {
-      await musicData.setPlaylistSongs(_musicList, song);
+      await MusicData.instance.setPlaylistSongs(_musicList, song);
     }
   }
 
-  _deleteSong(MusicDownloadData downloadData, Song song) {
+  _deleteSong(Song song) {
     showDialog(
         context: context,
         builder: (BuildContext context) => CupertinoAlertDialog(
@@ -153,11 +152,12 @@ class MusicListPageState extends State<MusicListPage>
                       onPressed: () {
                         Navigator.of(context).pop();
                         try {
-                          downloadData.musicData.deleteSong(song);
-                          downloadData.downloadMark(song, downloaded: false);
+                          MusicData.instance.deleteSong(song);
+                          MusicDownloadData.instance
+                              .downloadMark(song, downloaded: false);
                           File(song.path).deleteSync();
                           setState(() {
-                            downloadData.musicData.localUpdate = true;
+                            MusicData.instance.localUpdate = true;
                             _musicList.remove(song);
                           });
                         } catch (e) {
@@ -167,11 +167,12 @@ class MusicListPageState extends State<MusicListPage>
                 ]));
   }
 
-  _renameSongDialog(MusicData musicData, Song song) async {
+  _renameSongDialog(Song song) async {
     final TextEditingController artistFilter = TextEditingController();
     final TextEditingController titleFilter = TextEditingController();
 
     artistFilter.text = song.artist;
+
     titleFilter.text = song.title;
 
     showDialog<bool>(
@@ -216,7 +217,7 @@ class MusicListPageState extends State<MusicListPage>
                       song.title = titleFilter.text;
                       song.artist = artistFilter.text;
                     });
-                    musicData.renameSong(song);
+                    MusicData.instance.renameSong(song);
                   }
                   Navigator.of(context).pop();
                 }),
@@ -237,12 +238,12 @@ class MusicListPageState extends State<MusicListPage>
     });
   }
 
-  void deleteSongFromPlaylist(MusicData musicData, Song song) {
+  void deleteSongFromPlaylist(Song song) {
     setState(() {
       widget.playlist.deleteSong(song.song_id);
       _musicList.remove(song);
       _musicListSorted.remove(song);
-      musicData.localUpdate = true;
+      MusicData.instance.localUpdate = true;
     });
   }
 
@@ -255,26 +256,26 @@ class MusicListPageState extends State<MusicListPage>
         bytesOfFile: bytes.readAsBytesSync());
   }
 
-  List<Widget> _actionsPane(MusicData musicData, Song song) {
+  List<Widget> _actionsPane(Song song) {
     List<Widget> actions = [];
     if (widget._pageType == PageType.SAVED) {
       actions.add(SlideAction(
         color: HexColor('#3a4e93'),
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
-        onTap: () => Utils.showPickerDialog(
-            context, musicData, _playlistList, song.song_id),
+        onTap: () => HelpTools.showPickerDialog(
+            context, MusicData.instance, _playlistList, song.song_id),
       ));
     }
     actions.add(SlideAction(
       color: HexColor('#a04db5'),
       child: Icon(SFSymbols.pencil, color: Colors.white),
-      onTap: () => _renameSongDialog(musicData, song),
+      onTap: () => _renameSongDialog(song),
     ));
     return actions;
   }
 
-  _buildSongListTile(int index, MusicDownloadData downloadData) {
+  _buildSongListTile(int index) {
     if (index == 0) {
       return AppleSearch(
         onChange: _filterSongs,
@@ -304,23 +305,22 @@ class MusicListPageState extends State<MusicListPage>
                 subtitle: Text(song.artist,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () async {
-                  bool isLocal = downloadData.musicData.isLocal;
-                  await _loadMusicList(downloadData.musicData, song);
+                  bool isLocal = MusicData.instance.isLocal;
+                  await _loadMusicList(song);
 
-                  if (downloadData.musicData.currentSong != null &&
-                      downloadData.musicData.currentSong.song_id ==
-                          song.song_id &&
+                  if (MusicData.instance.currentSong != null &&
+                      MusicData.instance.currentSong.song_id == song.song_id &&
                       isLocal == true) {
-                    await downloadData.musicData.playerResume();
+                    await MusicData.instance.playerResume();
                   } else {
-                    await downloadData.musicData
+                    await MusicData.instance
                         .playerPlay(index: _musicList.indexOf(song));
                   }
                 },
                 trailing: Text(song.formatDuration(),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
-          actions: _actionsPane(downloadData.musicData, song),
+          actions: _actionsPane(song),
           secondaryActions: <Widget>[
             SlideAction(
               color: HexColor('#5994ce'),
@@ -337,8 +337,8 @@ class MusicListPageState extends State<MusicListPage>
                 color: Colors.white,
               ),
               onTap: () => widget._pageType == PageType.SAVED
-                  ? _deleteSong(downloadData, song)
-                  : deleteSongFromPlaylist(downloadData.musicData, song),
+                  ? _deleteSong(song)
+                  : deleteSongFromPlaylist(song),
             ),
           ],
         ),
@@ -346,7 +346,7 @@ class MusicListPageState extends State<MusicListPage>
             padding: EdgeInsets.only(left: 12.0),
             child: Divider(height: 1, color: Colors.grey))
       ]),
-      downloadData.musicData.isPlaying(song.song_id)
+      MusicData.instance.isPlaying(song.song_id)
           ? Container(
               height: 60,
               width: 3,

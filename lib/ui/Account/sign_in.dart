@@ -4,9 +4,8 @@ import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_up.dart';
 import 'package:fox_music/utils/bottom_route.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/widgets/apple_text.dart';
@@ -30,8 +29,6 @@ class SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(middle: Text('Auth')),
         child: GestureDetector(
@@ -51,7 +48,7 @@ class SignInState extends State<SignIn> {
                                       image: AssetImage(
                                           'assets/images/app-logo.png'))))),
                       _buildForm(),
-                      _buildButtons(downloadData),
+                      _buildButtons(),
                     ],
                   ),
                 )),
@@ -122,7 +119,7 @@ class SignInState extends State<SignIn> {
     });
   }
 
-  Widget _buildButtons(MusicDownloadData downloadData) {
+  Widget _buildButtons() {
     return Align(
         alignment: FractionalOffset.bottomCenter,
         child: Column(children: <Widget>[
@@ -134,7 +131,7 @@ class SignInState extends State<SignIn> {
                 onPressed: () {
                   FocusScope.of(context).requestFocus(FocusNode());
                   if (_formKey.currentState.validate()) {
-                    _loginPressed(downloadData);
+                    _loginPressed();
                   }
                 },
                 child: Text('Login', style: TextStyle(color: Colors.white)),
@@ -154,15 +151,15 @@ class SignInState extends State<SignIn> {
         ]));
   }
 
-  _loginPressed(MusicDownloadData downloadData) async {
+  _loginPressed() async {
     _setButtonStatus();
     final user = await Api.loginPost(_username, _password);
     if (user != null) {
-      downloadData.loadMusic();
+      MusicDownloadData.instance.loadMusic();
       AccountData.instance.user = user;
       SharedPrefs.saveUser(user);
     } else {
-      Utils.infoDialog(context, "Unable to Login",
+      HelpTools.infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username'/'Password' combination.");
     }
     _setButtonStatus();

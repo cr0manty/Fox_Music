@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fox_music/instances/key.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -115,7 +115,7 @@ class AccountEditPageState extends State<AccountEditPage> {
               if (_formKey.currentState.validate()) {
                 if (_password.isNotEmpty) {
                   if (_password != _passwordConfirm) {
-                    Utils.infoDialog(context, 'Oops...', 'Passwords do not match');
+                    HelpTools.infoDialog(context, 'Oops...', 'Passwords do not match');
                   }
                 }
                 var data = {

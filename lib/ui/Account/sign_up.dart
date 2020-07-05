@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/key.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
@@ -217,11 +217,11 @@ class SignUpState extends State<SignUp> {
     final reg =
         await Api.registrationPost(_username, _password, _firstName, _lastName);
     if (reg != null) {
-      Utils.infoDialog(context,
+      HelpTools.infoDialog(context,
           "You have successfully registered!", "Now you need to log in.");
       Navigator.of(context).pop();
     } else {
-      Utils.infoDialog(context, "Unable to register",
+      HelpTools.infoDialog(context, "Unable to register",
           "Not all data was entered or you may have supplied an duplicate 'Username'");
     }
     _setButtonStatus();

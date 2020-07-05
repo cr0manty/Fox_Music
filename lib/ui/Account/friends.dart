@@ -2,12 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/instances/account_data.dart';
-import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/Account/people.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 
@@ -22,8 +19,6 @@ class FriendListPageState extends State<FriendListPage> {
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Friends'),
@@ -38,7 +33,7 @@ class FriendListPageState extends State<FriendListPage> {
               ? SliverList(
                   delegate: SliverChildListDelegate(List.generate(
                       friendListSorted.length + 1,
-                      (index) => _buildUserCard(downloadData, index))))
+                      (index) => _buildUserCard(index))))
               : SliverToBoxAdapter(
                   child: Padding(
                       padding: EdgeInsets.only(top: 30),
@@ -61,7 +56,7 @@ class FriendListPageState extends State<FriendListPage> {
     });
   }
 
-  _buildUserCard(MusicDownloadData downloadData, int index) {
+  _buildUserCard(int index) {
     if (index == 0) {
       return AppleSearch(
           controller: controller,
@@ -88,12 +83,8 @@ class FriendListPageState extends State<FriendListPage> {
                         : relationship.user.first_name,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () {
-                  Navigator.of(context).push(
-                      CupertinoPageRoute(
-                          builder: (context) =>
-                              ChangeNotifierProvider<MusicDownloadData>.value(
-                                  value: downloadData,
-                                  child: PeoplePage(relationship))));
+                  Navigator.of(context).push(CupertinoPageRoute(
+                      builder: (context) => PeoplePage(relationship)));
                 },
                 leading: CircleAvatar(
                     radius: 25,

@@ -1,6 +1,8 @@
 const BASE_URL  = 'https://redfoxproject.com';
 //const BASE_URL  = 'http://' + '10.0.2.2:8000';
 
+const PLAYER_DEFAULT = '$BASE_URL/static/images/player-default.png';
+
 const BASE_API_URL = '$BASE_URL/api';
 const APP_VERSION_URL = '$BASE_API_URL/app-version/fox-music/';
 const DEFAULT_PLAYER_IMAGE_URL = '$BASE_API_URL/media/player-default.jpg';

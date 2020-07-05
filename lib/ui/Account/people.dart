@@ -4,7 +4,6 @@ import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/instances/download_data.dart';
@@ -23,8 +22,6 @@ class PeoplePageState extends State<PeoplePage> {
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Search'),
@@ -38,7 +35,7 @@ class PeoplePageState extends State<PeoplePage> {
               : Container(),
         ),
         child: widget.relationship.status != RelationshipStatus.BLOCK
-            ? SafeArea(child: _buildPage(downloadData))
+            ? SafeArea(child: _buildPage())
             : Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
@@ -62,7 +59,7 @@ class PeoplePageState extends State<PeoplePage> {
                 )));
   }
 
-  _buildPage(MusicDownloadData downloadData) {
+  _buildPage() {
     return Container(
         alignment: Alignment.topCenter,
         child: Column(
@@ -74,9 +71,9 @@ class PeoplePageState extends State<PeoplePage> {
                 child: CircleAvatar(
                     radius: MediaQuery.of(context).size.height * 0.13,
                     backgroundColor: Colors.grey,
-                    backgroundImage: Image.network(
-                            widget.relationship.user.imageUrl())
-                        .image)),
+                    backgroundImage:
+                        Image.network(widget.relationship.user.imageUrl())
+                            .image)),
             Text(
                 widget.relationship.user.last_name.isEmpty &&
                         widget.relationship.user.first_name.isEmpty
@@ -106,8 +103,7 @@ class PeoplePageState extends State<PeoplePage> {
                         shrinkWrap: true,
                         physics: ClampingScrollPhysics(),
                         itemCount: _friendSongList.length,
-                        itemBuilder: (context, index) =>
-                            _buildSong(downloadData, index),
+                        itemBuilder: (context, index) => _buildSong(index),
                       )
                     : Padding(
                         padding: EdgeInsets.all(20),
@@ -120,7 +116,7 @@ class PeoplePageState extends State<PeoplePage> {
         ));
   }
 
-  _buildSong(MusicDownloadData downloadData, int index) {
+  _buildSong(int index) {
     Song song = _friendSongList[index];
     return Column(children: [
       Slidable(
@@ -134,7 +130,7 @@ class PeoplePageState extends State<PeoplePage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () {
-            downloadData.query = song;
+            MusicDownloadData.instance.query = song;
           },
           trailing: Text(song.formatDuration(),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),

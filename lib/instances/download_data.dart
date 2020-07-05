@@ -2,21 +2,21 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
-import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/utils/closable_http_requuest.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fox_music/models/song.dart';
 
 import 'api.dart';
 import 'check_connection.dart';
-import 'key.dart';
+import 'music_data.dart';
 
 enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 
-class MusicDownloadData with ChangeNotifier {
+class MusicDownloadData {
+  MusicDownloadData._internal();
+
   List<Song> _query = [];
   List<Song> dataSong = [];
   Song currentSong;
@@ -25,7 +25,6 @@ class MusicDownloadData with ChangeNotifier {
   StreamSubscription _downloadSubscription;
   StreamSubscription _queryChange;
   StreamSubscription _stateChange;
-  MusicData musicData;
   CloseableMultipartRequest httpClient;
   bool _isCanceled = false;
   Timer _timer;
@@ -34,6 +33,18 @@ class MusicDownloadData with ChangeNotifier {
       StreamController<DownloadState>.broadcast();
   final StreamController<Song> _queryController =
       StreamController<Song>.broadcast();
+  final StreamController<bool> _notifyStream =
+      StreamController<bool>.broadcast();
+  final StreamController<bool> _filesystemStream =
+      StreamController<bool>.broadcast();
+
+  Stream<bool> get filesystemStream => _filesystemStream.stream;
+
+  Stream<bool> get notifyStream => _notifyStream.stream;
+
+  Stream<DownloadState> get onResultChanged => _resultController.stream;
+
+  Stream<Song> get onQueryChanged => _queryController.stream;
 
   set _state(DownloadState state) {
     _resultController.add(state);
@@ -41,22 +52,25 @@ class MusicDownloadData with ChangeNotifier {
 
   set query(Song song) {
     _queryController.add(song);
-    notifyListeners();
+    _notifyStream.add(true);
   }
 
   set multiQuery(List<Song> songList) {
     songList.forEach((Song song) {
       _queryController.add(song);
     });
-    notifyListeners();
+    _notifyStream.add(true);
   }
+
+  static final MusicDownloadData _instance = MusicDownloadData._internal();
+
+  static MusicDownloadData get instance => _instance;
 
   MusicDownloadData() {
     _downloadState = DownloadState.COMPLETED;
   }
 
-  init(MusicData data) async {
-    musicData = data;
+  init() async {
     if (ConnectionsCheck.instance.isOnline) loadMusic();
 
     _queryChange = onQueryChanged.listen((Song song) {
@@ -86,18 +100,18 @@ class MusicDownloadData with ChangeNotifier {
 
   deleteFromQuery(Song song) {
     _query.remove(song);
-    notifyListeners();
+    _notifyStream.add(true);
   }
 
   bool checkLocal(Song song) {
-    return musicData.localSongs.indexOf(song) != -1;
+    return MusicData.instance.localSongs.indexOf(song) != -1;
   }
 
   void loadDownloaded(List songs) {
     if (songs != null) {
       dataSong.clear();
       songs.forEach((song) {
-        song.downloaded = musicData.localSongs.indexOf(song) != -1;
+        song.downloaded = MusicData.instance.localSongs.indexOf(song) != -1;
         dataSong.add(song);
       });
     }
@@ -107,14 +121,14 @@ class MusicDownloadData with ChangeNotifier {
     List songs = await Api.musicListGet(page: page);
     loadDownloaded(songs);
 
-    notifyListeners();
+    _notifyStream.add(true);
   }
 
   updateVKMusic({int page = -1}) async {
     List songs = await Api.musicListPost(page: page);
     loadDownloaded(songs);
 
-    notifyListeners();
+    _notifyStream.add(true);
   }
 
   cancelDownload() {
@@ -129,7 +143,7 @@ class MusicDownloadData with ChangeNotifier {
       httpClient?.close();
       httpClient = null;
     }
-    notifyListeners();
+    _notifyStream.add(true);
   }
 
   void downloadMark(Song song, {bool downloaded = true}) {
@@ -147,7 +161,7 @@ class MusicDownloadData with ChangeNotifier {
     httpClient = CloseableMultipartRequest('GET', Uri.parse(song.download));
     var response = httpClient.send();
     _state = DownloadState.STARTED;
-    notifyListeners();
+    _notifyStream.add(true);
 
     _downloadSubscription =
         await response.asStream().listen((http.StreamedResponse r) async {
@@ -161,7 +175,7 @@ class MusicDownloadData with ChangeNotifier {
             timer.cancel();
             _timer.cancel();
           } else {
-            notifyListeners();
+            _notifyStream.add(true);
           }
         });
       }, onDone: () async {
@@ -179,7 +193,7 @@ class MusicDownloadData with ChangeNotifier {
           currentSong = null;
           httpClient = null;
           progress = 0;
-          notifyListeners();
+          _notifyStream.add(true);
         }
         _isCanceled = false;
         _downloadSubscription?.cancel();
@@ -191,7 +205,7 @@ class MusicDownloadData with ChangeNotifier {
         _state = DownloadState.ERROR;
         _query.remove(song);
 
-        notifyListeners();
+        _notifyStream.add(true);
       });
     });
   }
@@ -199,7 +213,7 @@ class MusicDownloadData with ChangeNotifier {
   addToQuery(Song song) async {
     if (song?.download == null || song.download.isEmpty) {
       _state = DownloadState.EMPTY;
-      notifyListeners();
+      _notifyStream.add(true);
     } else if ((await _songExist(song)) != null) {
       query = song;
     }
@@ -213,10 +227,6 @@ class MusicDownloadData with ChangeNotifier {
     });
   }
 
-  Stream<DownloadState> get onResultChanged => _resultController.stream;
-
-  Stream<Song> get onQueryChanged => _queryController.stream;
-
   downloadMulti(BuildContext context, List<Song> songList) async {}
 
   saveSong(Song song, Uint8List bytes) async {
@@ -224,8 +234,8 @@ class MusicDownloadData with ChangeNotifier {
     if (file != null) {
       await file.writeAsBytes(bytes);
 
-      musicData.loadSavedMusic();
-      musicData.localUpdate = true;
+      MusicData.instance.loadSavedMusic();
+      MusicData.instance.localUpdate = true;
       return true;
     }
     return false;
@@ -233,7 +243,8 @@ class MusicDownloadData with ChangeNotifier {
 
   _songExist(Song song) async {
     String dir = (await getApplicationDocumentsDirectory()).path;
-    String filename = song.formatFileName(musicData.localSongs.length + 1);
+    String filename =
+        song.formatFileName(MusicData.instance.localSongs.length + 1);
     File file = File('$dir/songs/$filename');
 
     if (!await file.exists()) return file;
@@ -249,16 +260,17 @@ class MusicDownloadData with ChangeNotifier {
     if (context != null) {
       switch (result) {
         case DownloadState.EMPTY:
-          Utils.infoDialog(context, 'Error', 'Empty download url');
+          HelpTools.infoDialog(context, 'Error', 'Empty download url');
           break;
         case DownloadState.COMPLETED:
-          Utils.infoDialog(context, 'Success', 'Song downloaded');
+          _notifyStream.add(true);
+          _filesystemStream.add(true);
           break;
         case DownloadState.ERROR:
-          Utils.infoDialog(context, 'Error', 'Smth went wrong...');
+          HelpTools.infoDialog(context, 'Error', 'Smth went wrong...');
           break;
         case DownloadState.EXIST:
-          Utils.infoDialog(context, 'Error', 'Song alredy downloaded');
+          HelpTools.infoDialog(context, 'Error', 'Song alredy downloaded');
           break;
         default:
           break;
@@ -266,14 +278,12 @@ class MusicDownloadData with ChangeNotifier {
     }
   }
 
-  @override
   void dispose() {
     _downloadSubscription?.cancel();
     _queryChange?.cancel();
     _stateChange?.cancel();
-
+    _notifyStream?.close();
     _resultController?.close();
     _queryController?.close();
-    super.dispose();
   }
 }

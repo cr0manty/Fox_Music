@@ -4,12 +4,10 @@ import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/ui/Music/music_text.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:fox_music/utils/utils.dart';
-import 'package:provider/provider.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/instances/database.dart';
@@ -25,7 +23,6 @@ class PlayerPageState extends State<PlayerPage> {
   List<Playlist> _playlistList = [];
 
   int selectItem = 1;
-  bool init = true;
   bool initCC = true;
   bool startSlide = false;
   double newSliderValue = 0.0;
@@ -43,31 +40,32 @@ class PlayerPageState extends State<PlayerPage> {
   void initState() {
     super.initState();
     _loadPlaylist();
+    MusicData.instance.playerStream.listen((event) => setState(() {}));
   }
 
-  _play(MusicData musicData) {
-    return musicData.currentSong != null
+  _play() {
+    return MusicData.instance.currentSong != null
         ? () async {
             if (AudioManager.instance.isPlaying) {
-              await musicData.playerPause();
+              await MusicData.instance.playerPause();
             } else {
-              musicData.playerResume();
+              MusicData.instance.playerResume();
             }
           }
         : null;
   }
 
-  Future _songText(MusicData musicData) async {
+  Future _songText() async {
     var songLyrics =
-        await DBProvider.db.getSongText(musicData.currentSong.song_id);
+        await DBProvider.db.getSongText(MusicData.instance.currentSong.song_id);
     Navigator.of(context, rootNavigator: true).push(BottomRoute(
         page: MusicTextPage(
       songText: songLyrics.isEmpty ? '' : songLyrics[0]['text'].toString(),
-      songId: musicData.currentSong.song_id,
+      songId: MusicData.instance.currentSong.song_id,
     )));
   }
 
-  Widget _bottomButtons(MusicData musicData, double screenHeight) {
+  Widget _bottomButtons(double screenHeight) {
     return Expanded(
         child: Align(
             alignment: FractionalOffset.bottomCenter,
@@ -77,8 +75,8 @@ class PlayerPageState extends State<PlayerPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     GestureDetector(
-                        onTap: musicData.currentSong != null
-                            ? () => _songText(musicData)
+                        onTap: MusicData.instance.currentSong != null
+                            ? () => _songText()
                             : null,
                         child: Container(
                             color: Colors.transparent,
@@ -102,18 +100,21 @@ class PlayerPageState extends State<PlayerPage> {
                                 overlayColor: Colors.transparent,
                               ),
                               child: Slider(
-                                onChanged: musicData.updateVolume,
-                                value: musicData.volume != null &&
-                                        musicData.volume > 0.0 &&
-                                        musicData.volume <= 1.0
-                                    ? musicData.volume
+                                onChanged: MusicData.instance.updateVolume,
+                                value: MusicData.instance.volume != null &&
+                                        MusicData.instance.volume > 0.0 &&
+                                        MusicData.instance.volume <= 1.0
+                                    ? MusicData.instance.volume
                                     : 0,
                               ),
                             ))),
                     GestureDetector(
-                        onTap: musicData.currentSong != null
-                            ? () => Utils.showPickerDialog(context, musicData,
-                                _playlistList, musicData.currentSong.song_id)
+                        onTap: MusicData.instance.currentSong != null
+                            ? () => HelpTools.showPickerDialog(
+                                context,
+                                MusicData.instance,
+                                _playlistList,
+                                MusicData.instance.currentSong.song_id)
                             : null,
                         child: Container(
                             color: Colors.transparent,
@@ -127,29 +128,30 @@ class PlayerPageState extends State<PlayerPage> {
                 ))));
   }
 
-  Widget _mainMusicControls(
-      MusicData musicData, double screenHeight, double sliderValue) {
+  Widget _mainMusicControls(double screenHeight, double sliderValue) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             GestureDetector(
-                onTap: musicData.repeatClick,
+                onTap: MusicData.instance.repeatClick,
                 child: Container(
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
                   width: screenHeight * 0.07,
                   child: Icon(SFSymbols.repeat,
                       size: screenHeight * 0.03,
-                      color: musicData.repeat ? HexColor.main() : Colors.grey),
+                      color: MusicData.instance.repeat
+                          ? HexColor.main()
+                          : Colors.grey),
                 )),
             GestureDetector(
-                onTap: musicData.currentSong != null &&
-                        musicData.playerState != PlayerState.BUFFERING
+                onTap: MusicData.instance.currentSong != null &&
+                        MusicData.instance.playerState != PlayerState.BUFFERING
                     ? sliderValue < 0.3 && sliderValue > 0.02
-                        ? musicData.seek
-                        : musicData.prev
+                        ? MusicData.instance.seek
+                        : MusicData.instance.prev
                     : null,
                 child: Container(
                     color: Colors.transparent,
@@ -161,15 +163,15 @@ class PlayerPageState extends State<PlayerPage> {
                       size: screenHeight * 0.045,
                     ))),
             GestureDetector(
-              onTap: _play(musicData),
+              onTap: _play(),
               child: Container(
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
                   width: screenHeight * 0.1,
-                  child: musicData.playerState == PlayerState.BUFFERING
+                  child: MusicData.instance.playerState == PlayerState.BUFFERING
                       ? CupertinoActivityIndicator()
                       : Icon(
-                          musicData.playerState == PlayerState.PLAYING
+                          MusicData.instance.playerState == PlayerState.PLAYING
                               ? SFSymbols.pause_fill
                               : SFSymbols.play_fill,
                           color: Colors.grey,
@@ -177,9 +179,9 @@ class PlayerPageState extends State<PlayerPage> {
                         )),
             ),
             GestureDetector(
-                onTap: musicData.currentSong != null &&
-                        musicData.playerState != PlayerState.BUFFERING
-                    ? musicData.next
+                onTap: MusicData.instance.currentSong != null &&
+                        MusicData.instance.playerState != PlayerState.BUFFERING
+                    ? MusicData.instance.next
                     : null,
                 child: Container(
                     color: Colors.transparent,
@@ -191,20 +193,22 @@ class PlayerPageState extends State<PlayerPage> {
                       size: screenHeight * 0.045,
                     ))),
             GestureDetector(
-                onTap: () => musicData.mixClick(),
+                onTap: () => MusicData.instance.mixClick(),
                 child: Container(
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
                   width: screenHeight * 0.07,
                   child: Icon(SFSymbols.shuffle,
                       size: screenHeight * 0.03,
-                      color: musicData.mix ? HexColor.main() : Colors.grey),
+                      color: MusicData.instance.mix
+                          ? HexColor.main()
+                          : Colors.grey),
                 ))
           ],
         ));
   }
 
-  Widget _songDetails(MusicData musicData, double screenHeight) {
+  Widget _songDetails(double screenHeight) {
     return Container(
         height: screenHeight * 0.125,
         child: Column(
@@ -233,14 +237,14 @@ class PlayerPageState extends State<PlayerPage> {
         ));
   }
 
-  double _sliderValue(MusicData musicData, double sliderValue) {
+  double _sliderValue(double sliderValue) {
     double value = startSlide ? newSliderValue : sliderValue;
-    return musicData.songPosition != null && value > 0.0 && value < 1.0
+    return MusicData.instance.songPosition != null && value > 0.0 && value < 1.0
         ? value
         : 0;
   }
 
-  Widget _slider(MusicData musicData, double sliderValue) {
+  Widget _slider(double sliderValue) {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
         activeTrackColor: HexColor.main().withOpacity(0.6),
@@ -262,29 +266,29 @@ class PlayerPageState extends State<PlayerPage> {
         onChangeEnd: (value) => setState(() {
           startSlide = false;
           newSliderValue = value;
-          musicData.seek(duration: value);
+          MusicData.instance.seek(duration: value);
         }),
-        value: _sliderValue(musicData, sliderValue),
+        value: _sliderValue(sliderValue),
       ),
     );
   }
 
-  Widget _songTimeLine(MusicData musicData, double sliderValue) {
+  Widget _songTimeLine(double sliderValue) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-              musicData.songPosition != null &&
+              MusicData.instance.songPosition != null &&
                       sliderValue > 0.0 &&
                       sliderValue < 1.0
-                  ? Utils.timeFormat(musicData.songPosition)
+                  ? HelpTools.timeFormat(MusicData.instance.songPosition)
                   : '00:00',
               style: TextStyle(color: Colors.white.withOpacity(0.7))),
           Text(
-              musicData.songDuration != null
-                  ? Utils.timeFormat(musicData.songDuration)
+              MusicData.instance.songDuration != null
+                  ? HelpTools.timeFormat(MusicData.instance.songDuration)
                   : '00:00',
               style: TextStyle(color: Colors.white.withOpacity(0.7)))
         ],
@@ -292,8 +296,7 @@ class PlayerPageState extends State<PlayerPage> {
     );
   }
 
-  Widget _mainControls(
-      MusicData musicData, double pictureHeight, double sliderValue) {
+  Widget _mainControls(double pictureHeight, double sliderValue) {
     return Align(
         alignment: Alignment.topCenter,
         child: Container(
@@ -301,21 +304,21 @@ class PlayerPageState extends State<PlayerPage> {
             width: MediaQuery.of(context).size.width,
             child: SwipeDetector(
               onSwipeDown: Navigator.of(context).pop,
-              onSwipeLeft: musicData.currentSong != null
+              onSwipeLeft: MusicData.instance.currentSong != null
                   ? () {
-                      musicData.next();
+                      MusicData.instance.next();
                     }
                   : null,
-              onSwipeRight: musicData.currentSong != null
+              onSwipeRight: MusicData.instance.currentSong != null
                   ? () {
                       if (sliderValue < 0.3 && sliderValue > 0.05) {
-                        musicData.seek();
+                        MusicData.instance.seek();
                       } else {
-                        musicData.prev();
+                        MusicData.instance.prev();
                       }
                     }
                   : null,
-              onTap: _play(musicData),
+              onTap: _play(),
             )));
   }
 
@@ -323,10 +326,9 @@ class PlayerPageState extends State<PlayerPage> {
   Widget build(BuildContext context) {
     double pictureHeight = MediaQuery.of(context).size.height * 0.55;
     double screenHeight = MediaQuery.of(context).size.height;
-    MusicData musicData = Provider.of<MusicData>(context);
 
-    double sliderValue = Utils.durToInt(musicData.songPosition) /
-        Utils.durToInt(musicData.songDuration);
+    double sliderValue = HelpTools.durToInt(MusicData.instance.songPosition) /
+        HelpTools.durToInt(MusicData.instance.songDuration);
 
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
@@ -357,7 +359,7 @@ class PlayerPageState extends State<PlayerPage> {
                         2
                       ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
                     ),
-                    _mainControls(musicData, pictureHeight, sliderValue),
+                    _mainControls(pictureHeight, sliderValue),
                     Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
@@ -367,21 +369,20 @@ class PlayerPageState extends State<PlayerPage> {
                           child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                _slider(musicData, sliderValue),
-                                _songTimeLine(musicData, sliderValue),
-                                _songDetails(musicData, screenHeight),
-                                musicData.currentSong != null
+                                _slider(sliderValue),
+                                _songTimeLine(sliderValue),
+                                _songDetails(screenHeight),
+                                MusicData.instance.currentSong != null
                                     ? Container(
                                         child: Text(
-                                          '${musicData.selectedIndex + 1} / ${AudioManager.instance.audioList.length}',
+                                          '${MusicData.instance.selectedIndex + 1} / ${AudioManager.instance.audioList.length}',
                                           style: TextStyle(
                                               color: Colors.grey, fontSize: 12),
                                         ),
                                       )
                                     : Container(),
-                                _mainMusicControls(
-                                    musicData, screenHeight, sliderValue),
-                                _bottomButtons(musicData, screenHeight)
+                                _mainMusicControls(screenHeight, sliderValue),
+                                _bottomButtons(screenHeight)
                               ]),
                         ))
                   ],

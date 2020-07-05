@@ -10,7 +10,7 @@ import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/main_tab.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:package_info/package_info.dart';
 
 import 'instances/key.dart';
@@ -24,25 +24,13 @@ void main() async {
 
   await ConnectionsCheck.instance.initialise();
   await AccountData.instance.init();
+  await MusicData.instance.init();
+  await MusicDownloadData.instance.init();
 
-  MusicData musicData = MusicData();
-  MusicDownloadData downloadData = MusicDownloadData();
-
-  await musicData.init();
-  await downloadData.init(musicData);
-
-  runApp(FoxMusic(
-    musicData: musicData,
-    downloadData: downloadData,
-  ));
+  runApp(FoxMusic());
 }
 
 class FoxMusic extends StatefulWidget {
-  final MusicData musicData;
-  final MusicDownloadData downloadData;
-
-  FoxMusic({this.downloadData, this.musicData});
-
   @override
   FoxMusicState createState() => FoxMusicState();
 }
@@ -53,6 +41,8 @@ class FoxMusicState extends State<FoxMusic> {
     super.initState();
     ConnectionsCheck.instance.onChange.listen((event) => setState(() {}));
     AccountData.instance.onUserChangeAccount.listen((event) => setState(() {}));
+    MusicData.instance.notifyStream.listen((event) => setState(() {}));
+    MusicDownloadData.instance.notifyStream.listen((event) => setState(() {}));
   }
 
   void _checkVersion() async {
@@ -68,15 +58,14 @@ class FoxMusicState extends State<FoxMusic> {
     }
     if (currentAppVersion != null &&
         packageInfo.version != currentAppVersion['version']) {
-      await Utils.pickDialog(context, 'New version available',
+      await HelpTools.pickDialog(context, 'New version available',
           currentAppVersion['update_details'], currentAppVersion['url']);
     }
   }
 
   Widget _checkVersionAndContinue() {
 //    _checkVersion();
-    return MainPage(
-        musicData: widget.musicData, downloadData: widget.downloadData);
+    return MainPage();
   }
 
   @override
@@ -102,6 +91,8 @@ class FoxMusicState extends State<FoxMusic> {
   void dispose() {
     ConnectionsCheck.instance.dispose();
     AccountData.instance.dispose();
+    MusicData.instance.dispose();
+    MusicDownloadData.instance.dispose();
     super.dispose();
   }
 }

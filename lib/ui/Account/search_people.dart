@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/instances/api.dart';
-import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/models/user.dart';
-import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/Account/people.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 
@@ -50,8 +47,6 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           actionsForegroundColor: HexColor.main(),
@@ -65,12 +60,11 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
               shrinkWrap: true,
               physics: ClampingScrollPhysics(),
               itemCount: _userList.isEmpty ? 2 : _userList.length + 1,
-              itemBuilder: (context, index) =>
-                  _buildUserCard(downloadData, index),
+              itemBuilder: (context, index) => _buildUserCard(index),
             ))));
   }
 
-  _buildUserCard(MusicDownloadData downloadData, int index) {
+  _buildUserCard(int index) {
     int newIndex = index - 1;
 
     if (index == 0) {
@@ -113,19 +107,15 @@ class SearchPeoplePageState extends State<SearchPeoplePage> {
                           TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                   onTap: () {
                     FocusScope.of(context).requestFocus(FocusNode());
-                    Navigator.of(context).push(
-                        CupertinoPageRoute(
-                            builder: (BuildContext context) =>
-                                ChangeNotifierProvider<MusicDownloadData>.value(
-                                    value: downloadData,
-                                    child: PeoplePage(relationship))));
+                    Navigator.of(context).push(CupertinoPageRoute(
+                        builder: (BuildContext context) =>
+                            PeoplePage(relationship)));
                   },
                   leading: CircleAvatar(
                       radius: 25,
                       backgroundColor: Colors.grey,
                       backgroundImage:
-                          Image.network(relationship.user.imageUrl())
-                              .image))),
+                          Image.network(relationship.user.imageUrl()).image))),
           actions: <Widget>[
             IconSlideAction(
               caption: relationship.buttonName(),

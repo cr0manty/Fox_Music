@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fox_music/instances/check_connection.dart';
-import 'package:fox_music/instances/key.dart';
+import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/widgets/offline.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/Account/friends.dart';
@@ -20,10 +19,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class AccountPageState extends State<AccountPage> {
-  bool init = true;
-  bool visible = true;
-
-  Widget _body(MusicDownloadData downloadData) {
+  Widget _body() {
     return ListView(children: [
       Padding(
           padding: EdgeInsets.only(bottom: 15, top: 15),
@@ -37,9 +33,8 @@ class AccountPageState extends State<AccountPage> {
                         CupertinoActionSheetAction(
                             onPressed: () {
                               Navigator.of(context).pop();
-                              Navigator.of(context,
-                                      rootNavigator: true)
-                                  .push(CupertinoPageRoute(
+                              Navigator.of(context, rootNavigator: true).push(
+                                  CupertinoPageRoute(
                                       builder: (context) => AccountEditPage()));
                             },
                             child: Text(
@@ -85,12 +80,8 @@ class AccountPageState extends State<AccountPage> {
             leading: SvgPicture.asset('assets/svg/search_music.svg',
                 color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(context, rootNavigator: true)
-                  .push(CupertinoPageRoute(
-                      builder: (context) => MultiProvider(providers: [
-                            ChangeNotifierProvider<MusicDownloadData>.value(
-                                value: downloadData),
-                          ], child: SearchMusicPage())));
+              Navigator.of(context, rootNavigator: true).push(
+                  CupertinoPageRoute(builder: (context) => SearchMusicPage()));
             },
             title: Text(
               'Music Search',
@@ -104,11 +95,8 @@ class AccountPageState extends State<AccountPage> {
             leading: SvgPicture.asset('assets/svg/search_friends.svg',
                 color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(context, rootNavigator: true)
-                  .push(CupertinoPageRoute(
-                      builder: (context) =>
-                          ChangeNotifierProvider<MusicDownloadData>.value(
-                              value: downloadData, child: SearchPeoplePage())));
+              Navigator.of(context, rootNavigator: true).push(
+                  CupertinoPageRoute(builder: (context) => SearchPeoplePage()));
             },
             title: Text(
               'People Search',
@@ -121,11 +109,8 @@ class AccountPageState extends State<AccountPage> {
           child: ListTile(
             leading: Icon(SFSymbols.person_2_alt, color: Colors.white),
             onTap: () {
-              Navigator.of(context, rootNavigator: true)
-                  .push(CupertinoPageRoute(
-                      builder: (context) =>
-                          ChangeNotifierProvider<MusicDownloadData>.value(
-                              value: downloadData, child: FriendListPage())));
+              Navigator.of(context, rootNavigator: true).push(
+                  CupertinoPageRoute(builder: (context) => FriendListPage()));
             },
             title: Text(
               'Friends',
@@ -137,7 +122,7 @@ class AccountPageState extends State<AccountPage> {
           color: Colors.transparent,
           child: ListTile(
             leading: Icon(SFSymbols.arrow_down_to_line, color: Colors.white),
-            onTap: () => _downloadAll(downloadData),
+            onTap: () => _downloadAll(),
             title: Text(
               'Download all',
               style: TextStyle(color: Colors.white),
@@ -148,42 +133,39 @@ class AccountPageState extends State<AccountPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
-    if (init) {
-      visible = ConnectionsCheck.instance.isOnline;
-      init = false;
-    }
-
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           middle: Text('Profile'),
           trailing: CupertinoButton(
             onPressed: ConnectionsCheck.instance.isOnline
-                ? () => Navigator.of(context,
-                        rootNavigator: true)
-                    .push(CupertinoPageRoute(
-                        builder: (context) => AccountEditPage()))
+                ? () => Navigator.of(context, rootNavigator: true).push(
+                    CupertinoPageRoute(builder: (context) => AccountEditPage()))
                 : null,
             child: Text('Edit'),
             padding: EdgeInsets.zero,
           ),
         ),
         child: Stack(children: <Widget>[
-          _body(downloadData),
+          _body(),
           AnimatedOpacity(
-              onEnd: () => setState(() => visible = !visible),
               opacity: ConnectionsCheck.instance.isOnline ? 0 : 1,
               duration: Duration(milliseconds: 800),
-              child: !visible ? OfflinePage() : Container())
+              child: !ConnectionsCheck.instance.isOnline
+                  ? OfflinePage()
+                  : Container())
         ]));
   }
 
-  _downloadAll(MusicDownloadData downloadData) async {
+  _downloadAll() async {
     if (AccountData.instance.user.can_use_vk) {
-      await downloadData.musicData.loadSavedMusic();
-      downloadData.multiQuery = downloadData.musicData.localSongs;
+      await MusicData.instance.loadSavedMusic();
+      MusicDownloadData.instance.multiQuery = MusicData.instance.localSongs;
     } else {
       showDialog(
           context: context,

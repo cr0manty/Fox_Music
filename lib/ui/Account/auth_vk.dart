@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/key.dart';
-import 'package:fox_music/utils/utils.dart';
+import 'package:fox_music/utils/help.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -142,7 +142,7 @@ class VKAuthState extends State<VKAuthPage> {
       await AccountData.instance.getUserProfile();
       Navigator.of(context).pop();
     } else {
-      Utils.infoDialog(context, 'Smth went wrong', "Can't connect to vk servers");
+      HelpTools.infoDialog(context, 'Smth went wrong', "Can't connect to vk servers");
     }
     setState(() => _disabled = false);
   }

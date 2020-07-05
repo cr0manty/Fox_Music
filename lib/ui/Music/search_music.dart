@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:provider/provider.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/widgets/apple_search.dart';
@@ -22,8 +22,6 @@ class SearchMusicPageState extends State<SearchMusicPage> {
 
   @override
   Widget build(BuildContext context) {
-    MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
-
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           actionsForegroundColor: HexColor.main(),
@@ -38,11 +36,11 @@ class SearchMusicPageState extends State<SearchMusicPage> {
               physics: ClampingScrollPhysics(),
               itemCount: _songList.isEmpty ? 2 : _songList.length + 1,
               itemBuilder: (context, index) =>
-                  _buildSongListTile(downloadData, index),
+                  _buildSongListTile(index),
             ))));
   }
 
-  _buildSongListTile(MusicDownloadData downloadData, int index) {
+  _buildSongListTile(int index) {
     if (index == 0) {
       return AppleSearch(
         controller: controller,
@@ -79,13 +77,13 @@ class SearchMusicPageState extends State<SearchMusicPage> {
           subtitle: Text(song.artist,
               style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
           onTap: () async {
-            await downloadData.musicData
+            await MusicData.instance
                 .setPlaylistSongs(_songList, song, local: false);
-            if (downloadData.musicData.currentSong != null &&
-                downloadData.musicData.currentSong.song_id == song.song_id) {
-              await downloadData.musicData.playerResume();
+            if (MusicData.instance.currentSong != null &&
+                MusicData.instance.currentSong.song_id == song.song_id) {
+              await MusicData.instance.playerResume();
             } else {
-              await downloadData.musicData
+              await MusicData.instance
                   .playerPlay(index: _songList.indexOf(song));
             }
           },
@@ -102,7 +100,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     if (isAdded ?? false) {
                       setState(() {
                         song.in_my_list = 1;
-                        downloadData.dataSong.insert(addAmount++, song);
+                        MusicDownloadData.instance.dataSong.insert(addAmount++, song);
                       });
                     }
                   },
@@ -119,7 +117,7 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                     if (isDeleted) {
                       setState(() {
                         song.in_my_list = 0;
-                        downloadData.dataSong.remove(song);
+                        MusicDownloadData.instance.dataSong.remove(song);
                       });
                     }
                   },
