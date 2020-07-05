@@ -153,12 +153,6 @@ class AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
-    if ((AccountData.instance.user == null ||
-            AccountData.instance.needUpdate) &&
-        ConnectionsCheck.instance.isOnline) {
-      AccountData.instance.init();
-    }
-
     if (init) {
       visible = ConnectionsCheck.instance.isOnline;
       init = false;

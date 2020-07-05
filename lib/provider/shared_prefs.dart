@@ -39,7 +39,7 @@ abstract class SharedPrefs {
   }
 
   static void saveUser(User user) {
-    _prefs.setString(_currentToken, userToJson(user));
+    _prefs.setString(_currentUser, userToJson(user));
   }
 
   static void saveLastVersion(Map version) {

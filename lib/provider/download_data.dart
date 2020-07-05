@@ -13,6 +13,7 @@ import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/models/song.dart';
 
 import 'api.dart';
+import 'check_connection.dart';
 
 enum DownloadState { COMPLETED, ERROR, STARTED, STOPPED, EMPTY, EXIST }
 
@@ -55,9 +56,9 @@ class MusicDownloadData with ChangeNotifier {
     _downloadState = DownloadState.COMPLETED;
   }
 
-  init(MusicData data, bool online) async {
+  init(MusicData data) async {
     musicData = data;
-    if (online) loadMusic();
+    if (ConnectionsCheck.instance.isOnline) loadMusic();
 
     _queryChange = onQueryChanged.listen((Song song) {
       _query.add(song);
@@ -104,6 +105,13 @@ class MusicDownloadData with ChangeNotifier {
   }
 
   loadMusic({int page = -1}) async {
+    List songs = await Api.musicListGet(page: page);
+    loadDownloaded(songs);
+
+    notifyListeners();
+  }
+
+  updateVKMusic({int page = -1}) async {
     List songs = await Api.musicListPost(page: page);
     loadDownloaded(songs);
 

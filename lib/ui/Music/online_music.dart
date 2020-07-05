@@ -34,7 +34,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   Song playedSong;
   List<Song> dataSongSorted = [];
 
-  _addSongLink(MusicDownloadData downloadData) {
+  void _addSongLink(MusicDownloadData downloadData) {
     final TextEditingController artist = TextEditingController();
     final TextEditingController title = TextEditingController();
     final TextEditingController duration = TextEditingController();
@@ -131,10 +131,6 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
     }
 
     if (ConnectionsCheck.instance.isOnline) {
-      if (AccountData.instance.user == null ||
-          AccountData.instance.needUpdate) {
-        AccountData.instance.init();
-      }
       if (AccountData.instance.user != null && downloadData.dataSong.isEmpty) {
         downloadData.loadMusic();
       }
@@ -150,9 +146,9 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                       !ConnectionsCheck.instance.isOnline
                   ? null
                   : GestureDetector(
-                      onTap: () => _addSongLink(downloadData),
+                      onTap: () => downloadData.updateVKMusic(),
                       child: Icon(
-                        SFSymbols.plus,
+                        SFSymbols.arrow_clockwise,
                         size: 25,
                       ),
                     ),

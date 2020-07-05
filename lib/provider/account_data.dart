@@ -13,7 +13,6 @@ class AccountData {
   AccountData._internal();
 
   static final AccountData _instance = AccountData._internal();
-
   static AccountData get instance => _instance;
 
   List<Relationship> friendList = [];
@@ -30,19 +29,18 @@ class AccountData {
 
   init() async {
     if (ConnectionsCheck.instance.isOnline) {
-      if (await Api.authCheckGet()) {
-        user = await Api.profileGet();
-        if (user == null) {
-          await makeLogout();
-        } else {
-          needUpdate = false;
-          await loadFiendList();
-          SharedPrefs.saveUser(user);
-        }
+      User newUser = await Api.profileGet();
+      if (newUser != null) {
+        needUpdate = false;
+        user = newUser;
+         loadFiendList();
+        SharedPrefs.saveUser(user);
+      } else {
+        await makeLogout();
       }
+    } else {
+      user = SharedPrefs.getUser();
     }
-    user = SharedPrefs.getUser();
-    offlineMode = ConnectionsCheck.instance.isOnline;
   }
 
   loadFiendList() async {
@@ -63,7 +61,7 @@ class AccountData {
   getUserProfile({int userId}) async {
     User newUser = await Api.profileGet(friendId: userId);
     if (newUser != null) {
-      _user = newUser;
+      user = newUser;
     }
   }
 
@@ -83,7 +81,6 @@ class AccountData {
     newImage = image;
   }
 
-  @override
   void dispose() {
     _userChangeAccount?.close();
   }

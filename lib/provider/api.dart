@@ -162,9 +162,9 @@ abstract class Api {
     }
   }
 
-  static Future musicListGet({int page}) async {
+  static Future musicListGet({int page = -1}) async {
     try {
-      String url = page != null ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
+      String url = page != -1 ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
       final response = await http.get(url, headers: _formatToken());
 
       if (response.statusCode == 200) {
@@ -251,19 +251,16 @@ abstract class Api {
 
   static Future profileGet({int friendId}) async {
     try {
-      final String profileUrl =
-          PROFILE_URL + (friendId != null ? '?user_id=$friendId' : '');
       final response = await http
           .get(
-            profileUrl,
+            PROFILE_URL + (friendId != null ? '?user_id=$friendId' : ''),
             headers: _formatToken(),
           )
           .timeout(Duration(seconds: 30));
       if (response.statusCode == 200) {
-        final responseJson = json.decode(response.body);
-        responseJson['token'] = SharedPrefs.getToken();
+        final responseJson = await json.decode(response.body);
 
-        var user = User.fromJson(responseJson);
+        var user = await User.fromJson(responseJson);
         if (user != null) {
           return user;
         }

@@ -13,15 +13,16 @@ class ConnectionsCheck {
 
   Connectivity connectivity = Connectivity();
 
-  StreamController controller = StreamController.broadcast();
+  StreamController controller = StreamController<bool>.broadcast();
 
-  Stream get myStream => controller.stream;
+  Stream<bool> get onChange => controller.stream;
 
-  void initialise() async {
+  Future initialise() async {
     ConnectivityResult result = await connectivity.checkConnectivity();
     await _checkStatus(result);
     connectivity.onConnectivityChanged.listen((result) {
-      _checkStatus(result);
+      isOnline = result != ConnectivityResult.none;
+      controller.add(isOnline);
     });
   }
 
@@ -34,8 +35,9 @@ class ConnectionsCheck {
             .timeout(Duration(seconds: 20));
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           isOnline = true;
-        } else
+        } else {
           isOnline = false;
+        }
       } on SocketException catch (_) {
         isOnline = false;
       } on TimeoutException catch (_) {
@@ -44,5 +46,5 @@ class ConnectionsCheck {
     }
   }
 
-  void disposeStream() => controller.close();
+  void dispose() => controller.close();
 }

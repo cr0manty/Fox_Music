@@ -3,10 +3,7 @@ import 'dart:ui';
 import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/provider/api.dart';
-import 'package:fox_music/provider/check_connection.dart';
 import 'package:fox_music/provider/download_data.dart';
 import 'package:fox_music/provider/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_in.dart';
@@ -14,7 +11,6 @@ import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/provider/music_data.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
@@ -45,24 +41,6 @@ class MainPageState extends State<MainPage>
   bool keyboardActive = false;
   bool isPlaying = false;
 
-  void asyncInit() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    var currentAppVersion;
-
-    if (ConnectionsCheck.instance.isOnline) {
-      currentAppVersion = await Api.appVersionGet();
-      if (currentAppVersion != null)
-        SharedPrefs.saveLastVersion(currentAppVersion);
-    } else {
-      currentAppVersion = SharedPrefs.getLastVersion();
-    }
-    if (currentAppVersion != null &&
-        packageInfo.version != currentAppVersion['version']) {
-      await pickDialog(context, 'New version available',
-          currentAppVersion['update_details'], currentAppVersion['url']);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -83,7 +61,6 @@ class MainPageState extends State<MainPage>
     controller.addListener(() async {
       SharedPrefs.saveLastTab(controller.index);
     });
-    asyncInit();
 
     _showPlayer = widget.musicData.onPlayerActive.listen((active) {
       if (active) {
@@ -99,9 +76,6 @@ class MainPageState extends State<MainPage>
       });
     });
 
-    _loginIn = AccountData.instance.onUserChangeAccount.listen((value) {
-      setState(() {});
-    });
     animationController.forward();
     WidgetsBinding.instance.addObserver(this);
   }

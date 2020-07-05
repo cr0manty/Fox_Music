@@ -25,12 +25,10 @@ class User {
   int id;
   int user_id;
   final String username;
-  final String token;
 
   User(
       {this.id,
       this.username,
-      this.token,
       this.user_id,
       this.image,
       this.email,
@@ -54,7 +52,6 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) => User(
       username: json['username'],
-      token: json['token'],
       user_id: json['user_id'],
       id: json['id'],
       image: json['image'],
@@ -68,7 +65,6 @@ class User {
 
   Map<String, dynamic> toJson() => {
         'username': username,
-        'token': token,
         'user_id': user_id,
         'first_name': first_name,
         'last_name': last_name,
