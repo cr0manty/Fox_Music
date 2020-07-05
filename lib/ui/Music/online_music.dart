@@ -32,6 +32,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   bool visible = ConnectionsCheck.instance.isOnline;
   Song playedSong;
   List<Song> dataSongSorted = [];
+  bool updating = false;
 
   void _addSongLink() {
     final TextEditingController artist = TextEditingController();
@@ -135,11 +136,17 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                       !ConnectionsCheck.instance.isOnline
                   ? null
                   : GestureDetector(
-                      onTap: () => MusicDownloadData.instance.updateVKMusic(),
-                      child: Icon(
-                        SFSymbols.arrow_clockwise,
-                        size: 25,
-                      ),
+                      onTap: () async {
+                        setState(() => updating = true);
+                        await MusicDownloadData.instance.updateVKMusic(context);
+                        setState(() => updating = false);
+                      },
+                      child: updating
+                          ? CupertinoActivityIndicator()
+                          : Icon(
+                              SFSymbols.arrow_clockwise,
+                              size: 20,
+                            ),
                     ),
             ),
             child: Stack(children: <Widget>[

@@ -5,7 +5,6 @@ import 'package:fox_music/utils/help.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:package_info/package_info.dart';
 import 'package:fox_music/instances/api.dart';
-
 import 'check_connection.dart';
 
 class Utils {
@@ -32,8 +31,9 @@ class Utils {
     );
   }
 
-  void checkVersion() async {
+  void checkVersion(BuildContext context) async {
     if (!_versionChecked) {
+      _versionChecked = true;
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       var currentAppVersion;
 
@@ -46,13 +46,9 @@ class Utils {
       }
       if (currentAppVersion != null &&
           packageInfo.version != currentAppVersion['version']) {
-        HelpTools.pickDialog(
-            KeyHolder().key.currentContext,
-            'New version available',
-            currentAppVersion['update_details'],
-            currentAppVersion['url']);
+        HelpTools.pickDialog(context, 'New version available',
+            currentAppVersion['update_details'], currentAppVersion['url']);
       }
-      _versionChecked = true;
     }
   }
 }

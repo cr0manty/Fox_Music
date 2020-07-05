@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:fox_music/utils/help.dart';
 import 'package:http/http.dart' as http;
@@ -124,11 +123,13 @@ class MusicDownloadData {
     _notifyStream.add(true);
   }
 
-  updateVKMusic({int page = -1}) async {
-    List songs = await Api.musicListPost(page: page);
-    loadDownloaded(songs);
-
-    _notifyStream.add(true);
+  updateVKMusic(context, {int page = -1}) async {
+    bool request = await Api.musicListPost(page: page);
+    if (request) {
+      HelpTools.infoDialog(context, 'Success', 'Your songs will appear soon');
+    } else {
+      HelpTools.infoDialog(context, 'Error', 'Smth went wrong...');
+    }
   }
 
   cancelDownload() {
@@ -227,7 +228,7 @@ class MusicDownloadData {
     });
   }
 
-  downloadMulti(BuildContext context, List<Song> songList) async {}
+  downloadMulti(context, List<Song> songList) async {}
 
   saveSong(Song song, Uint8List bytes) async {
     File file = await _songExist(song);
@@ -256,7 +257,7 @@ class MusicDownloadData {
     return null;
   }
 
-  showInfo(BuildContext context, DownloadState result) {
+  showInfo(context, DownloadState result) {
     if (context != null) {
       switch (result) {
         case DownloadState.EMPTY:

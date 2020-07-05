@@ -189,21 +189,11 @@ abstract class Api {
       String url = page != null ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
       final response = await http.post(url, headers: _formatToken());
 
-      if (response.statusCode == 201) {
-        var songsData =
-            (json.decode(response.body) as Map)['results'] as List<dynamic>;
-
-        var songList = List<Song>();
-        songsData.forEach((dynamic value) async {
-          var song = Song.fromJson(value);
-          songList.add(song);
-        });
-        return songList.reversed.toList();
-      }
+      return response.statusCode == 201;
     } catch (e) {
       print(e);
     }
-    return [];
+    return false;
   }
 
   static Future musicSearchGet(String search) async {

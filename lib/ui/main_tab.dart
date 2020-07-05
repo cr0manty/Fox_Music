@@ -39,8 +39,6 @@ class MainPageState extends State<MainPage>
     super.initState();
     Utils.instance.cache();
 
-//    Utils.instance.checkVersion();
-
     controller = CupertinoTabController(
         initialIndex:
             SharedPrefs.getLastTab() < 0 ? 0 : SharedPrefs.getLastTab());
@@ -67,7 +65,6 @@ class MainPageState extends State<MainPage>
       });
     });
 
-//    animationController.forward();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -243,6 +240,8 @@ class MainPageState extends State<MainPage>
 
   @override
   Widget build(BuildContext context) {
+    Utils.instance.checkVersion(context);
+
     return WillPopScope(
         onWillPop: () async => false,
         child: CupertinoTabScaffold(
