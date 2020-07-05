@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/provider/api.dart';
+import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/instances/key.dart';
+import 'package:fox_music/utils/utils.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:fox_music/functions/utils/info_dialog.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
@@ -195,7 +196,7 @@ class SignUpState extends State<SignUp> {
         alignment: FractionalOffset.bottomCenter,
         child: Column(children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top: 30, bottom: 5),
+            padding: EdgeInsets.only(top: 30, bottom: 5),
             child: CupertinoButton(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
               color: HexColor.main(),
@@ -216,11 +217,11 @@ class SignUpState extends State<SignUp> {
     final reg =
         await Api.registrationPost(_username, _password, _firstName, _lastName);
     if (reg != null) {
-      infoDialog(context, "You have successfully registered!",
-          "Now you need to log in.");
+      Utils.infoDialog(context,
+          "You have successfully registered!", "Now you need to log in.");
       Navigator.of(context).pop();
     } else {
-      infoDialog(context, "Unable to register",
+      Utils.infoDialog(context, "Unable to register",
           "Not all data was entered or you may have supplied an duplicate 'Username'");
     }
     _setButtonStatus();

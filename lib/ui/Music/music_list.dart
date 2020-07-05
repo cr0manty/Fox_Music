@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/instances/download_data.dart';
+import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/ui/Music/playlist_add_song.dart';
 import 'package:fox_music/utils/bottom_route.dart';
-import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/instances/database.dart';
+import 'package:fox_music/utils/utils.dart';
 import 'package:fox_music/widgets/tile_list.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/widgets/apple_search.dart';
@@ -12,11 +14,9 @@ import 'package:fox_music/utils/hex_color.dart';
 import 'package:wc_flutter_share/wc_flutter_share.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/functions/format/time.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 enum ButtonState { SHARE, DELETE }
@@ -35,7 +35,6 @@ class MusicListPage extends StatefulWidget {
 class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
   TextEditingController controller = TextEditingController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   List<Playlist> _playlistList = [];
@@ -80,7 +79,6 @@ class MusicListPageState extends State<MusicListPage>
 
     return Material(
         child: CupertinoPageScaffold(
-            key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
                 actionsForegroundColor: HexColor.main(),
                 middle: Text(widget._pageType == PageType.PLAYLIST
@@ -147,15 +145,13 @@ class MusicListPageState extends State<MusicListPage>
                   CupertinoDialogAction(
                       isDefaultAction: true,
                       child: Text("Cancel"),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      }),
+                      onPressed: Navigator.of(context).pop),
                   CupertinoDialogAction(
                       isDefaultAction: true,
                       isDestructiveAction: true,
                       child: Text("Delete"),
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).pop();
                         try {
                           downloadData.musicData.deleteSong(song);
                           downloadData.downloadMark(song, downloaded: false);
@@ -209,9 +205,7 @@ class MusicListPageState extends State<MusicListPage>
             CupertinoDialogAction(
                 isDestructiveAction: true,
                 child: Text("Cancel"),
-                onPressed: () {
-                  Navigator.pop(context);
-                }),
+                onPressed: Navigator.of(context).pop),
             CupertinoDialogAction(
                 isDefaultAction: true,
                 child: Text("Rename"),
@@ -224,7 +218,7 @@ class MusicListPageState extends State<MusicListPage>
                     });
                     musicData.renameSong(song);
                   }
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 }),
           ],
         );
@@ -268,8 +262,8 @@ class MusicListPageState extends State<MusicListPage>
         color: HexColor('#3a4e93'),
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
-        onTap: () =>
-            showPickerDialog(context, musicData, _playlistList, song.song_id),
+        onTap: () => Utils.showPickerDialog(
+            context, musicData, _playlistList, song.song_id),
       ));
     }
     actions.add(SlideAction(
@@ -323,7 +317,7 @@ class MusicListPageState extends State<MusicListPage>
                         .playerPlay(index: _musicList.indexOf(song));
                   }
                 },
-                trailing: Text(formatDuration(song.duration),
+                trailing: Text(song.formatDuration(),
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
               )),
           actions: _actionsPane(downloadData.musicData, song),

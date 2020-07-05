@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/functions/utils/info_dialog.dart';
-import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/provider/api.dart';
+import 'package:fox_music/instances/account_data.dart';
+import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/instances/key.dart';
+import 'package:fox_music/utils/utils.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:provider/provider.dart';
 
 class VKAuthPage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => VKAuthState();
 }
@@ -97,7 +96,8 @@ class VKAuthState extends State<VKAuthPage> {
             CupertinoDialogAction(
               onPressed: () async {
                 Navigator.of(context).pop();
-                _loginPressed(sid: data['sid'], captcha: _captchaController.text);
+                _loginPressed(
+                    sid: data['sid'], captcha: _captchaController.text);
               },
               child: Text('Confirm'),
             )
@@ -142,7 +142,7 @@ class VKAuthState extends State<VKAuthPage> {
       await AccountData.instance.getUserProfile();
       Navigator.of(context).pop();
     } else {
-      infoDialog(context, 'Smth went wrong', "Can't connect to vk servers");
+      Utils.infoDialog(context, 'Smth went wrong', "Can't connect to vk servers");
     }
     setState(() => _disabled = false);
   }
@@ -171,7 +171,8 @@ class VKAuthState extends State<VKAuthPage> {
                                           'assets/images/app-logo.png'))))),
                       _buildForm(),
                       Container(
-                         margin: EdgeInsets.only(top: 30, bottom: 5, left: size, right: size),
+                        margin: EdgeInsets.only(
+                            top: 30, bottom: 5, left: size, right: size),
                         child: CupertinoButton(
                           padding: EdgeInsets.symmetric(
                               vertical: 12, horizontal: 30),

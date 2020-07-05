@@ -3,16 +3,16 @@ import 'dart:ui';
 import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/provider/shared_prefs.dart';
+import 'package:fox_music/instances/account_data.dart';
+import 'package:fox_music/instances/download_data.dart';
+import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_in.dart';
 import 'package:fox_music/ui/Music/player.dart';
 import 'package:fox_music/ui/Music/playlist.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/instances/music_data.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/ui/Music/music_list.dart';
 import 'package:fox_music/ui/Account/account.dart';
@@ -50,7 +50,7 @@ class MainPageState extends State<MainPage>
         initialIndex:
             SharedPrefs.getLastTab() < 0 ? 0 : SharedPrefs.getLastTab());
     animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 350));
+        AnimationController(vsync: this, duration: Duration(milliseconds: 350), value: 1);
     offset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0))
         .animate(animationController);
     KeyboardVisibilityNotification().addNewListener(
@@ -76,7 +76,7 @@ class MainPageState extends State<MainPage>
       });
     });
 
-    animationController.forward();
+//    animationController.forward();
     WidgetsBinding.instance.addObserver(this);
   }
 

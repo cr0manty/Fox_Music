@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/instances/database.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
 class MusicTextPage extends StatefulWidget {

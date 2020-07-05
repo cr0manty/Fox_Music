@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:fox_music/utils/constants.dart';
+
 String userToJson(User data) {
   final str = data.toJson();
   return json.encode(str);
@@ -62,6 +64,12 @@ class User {
       vk_auth: json['vk_auth'] ?? false,
       is_staff: json['is_staff'] ?? false,
       can_use_vk: json['can_use_vk'] ?? false);
+
+  String imageUrl() {
+    if (image == null) return '';
+    if (image.startsWith('http')) return image;
+    return BASE_URL + image;
+  }
 
   Map<String, dynamic> toJson() => {
         'username': username,

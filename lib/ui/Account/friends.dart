@@ -2,13 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
-
-import 'package:fox_music/functions/format/image.dart';
 import 'package:fox_music/models/relationship.dart';
-import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/instances/account_data.dart';
+import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/Account/people.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 
@@ -18,7 +17,6 @@ class FriendListPage extends StatefulWidget {
 }
 
 class FriendListPageState extends State<FriendListPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController controller = TextEditingController();
   List<Relationship> friendListSorted = AccountData.instance.friendList;
 
@@ -27,7 +25,6 @@ class FriendListPageState extends State<FriendListPage> {
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
     return CupertinoPageScaffold(
-        key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Friends'),
           actionsForegroundColor: HexColor.main(),
@@ -91,7 +88,7 @@ class FriendListPageState extends State<FriendListPage> {
                         : relationship.user.first_name,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () {
-                  Navigator.of(_scaffoldKey.currentContext).push(
+                  Navigator.of(context).push(
                       CupertinoPageRoute(
                           builder: (context) =>
                               ChangeNotifierProvider<MusicDownloadData>.value(
@@ -102,8 +99,7 @@ class FriendListPageState extends State<FriendListPage> {
                     radius: 25,
                     backgroundColor: Colors.grey,
                     backgroundImage:
-                        Image.network(formatImage(relationship.user.image))
-                            .image))),
+                        Image.network(relationship.user.imageUrl()).image))),
         secondaryActions: <Widget>[
           SlideAction(
             color: HexColor('#5994ce'),

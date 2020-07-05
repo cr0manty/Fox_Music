@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:fox_music/models/relationship.dart';
 import 'package:fox_music/models/user.dart';
-import 'package:fox_music/provider/shared_prefs.dart';
+import 'package:fox_music/instances/shared_prefs.dart';
 
 import 'api.dart';
 import 'check_connection.dart';

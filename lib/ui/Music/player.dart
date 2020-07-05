@@ -4,15 +4,15 @@ import 'package:audio_manager/audio_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/ui/Music/music_text.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
+import 'package:fox_music/utils/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/functions/format/time.dart';
-import 'package:fox_music/functions/utils/pick_dialog.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/provider/music_data.dart';
-import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/instances/music_data.dart';
+import 'package:fox_music/instances/database.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:fox_music/widgets/swipe_detector.dart';
 
@@ -22,7 +22,6 @@ class PlayerPage extends StatefulWidget {
 }
 
 class PlayerPageState extends State<PlayerPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
 
   int selectItem = 1;
@@ -113,7 +112,7 @@ class PlayerPageState extends State<PlayerPage> {
                             ))),
                     GestureDetector(
                         onTap: musicData.currentSong != null
-                            ? () => showPickerDialog(context, musicData,
+                            ? () => Utils.showPickerDialog(context, musicData,
                                 _playlistList, musicData.currentSong.song_id)
                             : null,
                         child: Container(
@@ -280,12 +279,12 @@ class PlayerPageState extends State<PlayerPage> {
               musicData.songPosition != null &&
                       sliderValue > 0.0 &&
                       sliderValue < 1.0
-                  ? timeFormat(musicData.songPosition)
+                  ? Utils.timeFormat(musicData.songPosition)
                   : '00:00',
               style: TextStyle(color: Colors.white.withOpacity(0.7))),
           Text(
               musicData.songDuration != null
-                  ? timeFormat(musicData.songDuration)
+                  ? Utils.timeFormat(musicData.songDuration)
                   : '00:00',
               style: TextStyle(color: Colors.white.withOpacity(0.7)))
         ],
@@ -301,9 +300,7 @@ class PlayerPageState extends State<PlayerPage> {
             height: pictureHeight,
             width: MediaQuery.of(context).size.width,
             child: SwipeDetector(
-              onSwipeDown: () {
-                Navigator.pop(context);
-              },
+              onSwipeDown: Navigator.of(context).pop,
               onSwipeLeft: musicData.currentSong != null
                   ? () {
                       musicData.next();
@@ -328,12 +325,11 @@ class PlayerPageState extends State<PlayerPage> {
     double screenHeight = MediaQuery.of(context).size.height;
     MusicData musicData = Provider.of<MusicData>(context);
 
-    double sliderValue =
-        durToInt(musicData.songPosition) / durToInt(musicData.songDuration);
+    double sliderValue = Utils.durToInt(musicData.songPosition) /
+        Utils.durToInt(musicData.songDuration);
 
     return CupertinoPageScaffold(
         resizeToAvoidBottomInset: false,
-        key: _scaffoldKey,
         child: Material(
             child: Column(
           mainAxisSize: MainAxisSize.max,

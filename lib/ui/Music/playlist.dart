@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/provider/download_data.dart';
-import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/instances/download_data.dart';
+import 'package:fox_music/instances/database.dart';
+import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/widgets/tile_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fox_music/models/playlist.dart';
@@ -18,7 +19,6 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class PlaylistPageState extends State<PlaylistPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Playlist> _playlistList = [];
 
   _createPlaylist(MusicDownloadData downloadData, String playlistName) async {
@@ -59,7 +59,7 @@ class PlaylistPageState extends State<PlaylistPage> {
     }
 
     showCupertinoDialog(
-      context: _scaffoldKey.currentContext,
+      context: context,
       builder: (context) {
         return CupertinoAlertDialog(
           title: Text(playlist == null ? 'Create playlist' : 'Rename playlist'),
@@ -82,7 +82,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 isDestructiveAction: true,
                 child: Text('Cancel'),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 }),
             CupertinoDialogAction(
                 isDefaultAction: true,
@@ -95,7 +95,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                     else
                       _createPlaylist(downloadData, playlistName.text);
                   }
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 }),
           ],
         );
@@ -112,7 +112,6 @@ class PlaylistPageState extends State<PlaylistPage> {
     }
 
     return CupertinoPageScaffold(
-        key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
             actionsForegroundColor: HexColor.main(),
             middle: Text('Playlists'),
@@ -198,7 +197,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                   style: TextStyle(
                       fontSize: 18, color: Color.fromRGBO(200, 200, 200, 1))),
               onTap: () async {
-                Navigator.of(_scaffoldKey.currentContext).push(
+                Navigator.of(context).push(
                     CupertinoPageRoute(
                         builder: (context) =>
                             ChangeNotifierProvider<MusicDownloadData>.value(
@@ -237,16 +236,16 @@ class PlaylistPageState extends State<PlaylistPage> {
                 color: HexColor('#5994ce'),
                 child: Icon(SFSymbols.photo, color: Colors.white),
                 onTap: () {
-                  FocusScope.of(_scaffoldKey.currentContext)
+                  FocusScope.of(context)
                       .requestFocus(FocusNode());
                   showCupertinoModalPopup(
-                      context: _scaffoldKey.currentContext,
+                      context: context,
                       builder: (context) {
                         return CupertinoActionSheet(
                           actions: <Widget>[
                             CupertinoActionSheetAction(
                                 onPressed: () async {
-                                  Navigator.pop(context);
+                                  Navigator.of(context).pop();
                                   File _image = await ImagePicker.pickImage(
                                       source: ImageSource.camera);
                                   _setImage(playlist, _image);
@@ -255,7 +254,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                     style: TextStyle(color: Colors.blue))),
                             CupertinoActionSheetAction(
                                 onPressed: () async {
-                                  Navigator.pop(context);
+                                  Navigator.of(context).pop();
                                   File _image = await ImagePicker.pickImage(
                                       source: ImageSource.gallery);
                                   _setImage(playlist, _image);
@@ -265,7 +264,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                             CupertinoActionSheetAction(
                                 isDestructiveAction: true,
                                 onPressed: () async {
-                                  Navigator.pop(context);
+                                  Navigator.of(context).pop();
                                   await setState(() {
                                     playlist.image = null;
                                   });

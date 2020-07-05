@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:fox_music/provider/check_connection.dart';
+import 'package:fox_music/instances/check_connection.dart';
+import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/widgets/offline.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/functions/format/image.dart';
-import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/instances/account_data.dart';
+import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/Account/friends.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
 import 'package:fox_music/ui/Account/account_edit.dart';
@@ -20,7 +20,6 @@ class AccountPage extends StatefulWidget {
 }
 
 class AccountPageState extends State<AccountPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool init = true;
   bool visible = true;
 
@@ -31,14 +30,14 @@ class AccountPageState extends State<AccountPage> {
           child: GestureDetector(
             onTap: () {
               showCupertinoModalPopup(
-                  context: _scaffoldKey.currentContext,
+                  context: context,
                   builder: (context) {
                     return CupertinoActionSheet(
                       actions: <Widget>[
                         CupertinoActionSheetAction(
                             onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.of(_scaffoldKey.currentContext,
+                              Navigator.of(context).pop();
+                              Navigator.of(context,
                                       rootNavigator: true)
                                   .push(CupertinoPageRoute(
                                       builder: (context) => AccountEditPage()));
@@ -50,7 +49,7 @@ class AccountPageState extends State<AccountPage> {
                         CupertinoActionSheetAction(
                             onPressed: () async {
                               await AccountData.instance.makeLogout();
-                              Navigator.pop(context);
+                              Navigator.of(context).pop();
                             },
                             child: Text(
                               'Logout',
@@ -64,8 +63,7 @@ class AccountPageState extends State<AccountPage> {
                     radius: 70,
                     backgroundColor: Colors.grey,
                     backgroundImage: ConnectionsCheck.instance.isOnline
-                        ? NetworkImage(
-                            formatImage(AccountData.instance.user?.image))
+                        ? NetworkImage(AccountData.instance.user.imageUrl())
                         : null)),
           )),
       Padding(
@@ -87,7 +85,7 @@ class AccountPageState extends State<AccountPage> {
             leading: SvgPicture.asset('assets/svg/search_music.svg',
                 color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
+              Navigator.of(context, rootNavigator: true)
                   .push(CupertinoPageRoute(
                       builder: (context) => MultiProvider(providers: [
                             ChangeNotifierProvider<MusicDownloadData>.value(
@@ -106,7 +104,7 @@ class AccountPageState extends State<AccountPage> {
             leading: SvgPicture.asset('assets/svg/search_friends.svg',
                 color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
+              Navigator.of(context, rootNavigator: true)
                   .push(CupertinoPageRoute(
                       builder: (context) =>
                           ChangeNotifierProvider<MusicDownloadData>.value(
@@ -123,7 +121,7 @@ class AccountPageState extends State<AccountPage> {
           child: ListTile(
             leading: Icon(SFSymbols.person_2_alt, color: Colors.white),
             onTap: () {
-              Navigator.of(_scaffoldKey.currentContext, rootNavigator: true)
+              Navigator.of(context, rootNavigator: true)
                   .push(CupertinoPageRoute(
                       builder: (context) =>
                           ChangeNotifierProvider<MusicDownloadData>.value(
@@ -159,12 +157,11 @@ class AccountPageState extends State<AccountPage> {
     }
 
     return CupertinoPageScaffold(
-        key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           middle: Text('Profile'),
           trailing: CupertinoButton(
             onPressed: ConnectionsCheck.instance.isOnline
-                ? () => Navigator.of(_scaffoldKey.currentContext,
+                ? () => Navigator.of(context,
                         rootNavigator: true)
                     .push(CupertinoPageRoute(
                         builder: (context) => AccountEditPage()))
@@ -189,7 +186,7 @@ class AccountPageState extends State<AccountPage> {
       downloadData.multiQuery = downloadData.musicData.localSongs;
     } else {
       showDialog(
-          context: _scaffoldKey.currentContext,
+          context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
                   title: Text('Error'),
                   content: Text(
@@ -198,17 +195,14 @@ class AccountPageState extends State<AccountPage> {
                     CupertinoDialogAction(
                         isDefaultAction: true,
                         child: Text("Later"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        }),
+                        onPressed: Navigator.of(context).pop),
                     CupertinoDialogAction(
                         isDefaultAction: true,
                         child: Text("Submit"),
                         onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.of(_scaffoldKey.currentContext).push(
-                              CupertinoPageRoute(
-                                  builder: (context) => VKAuthPage()));
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(CupertinoPageRoute(
+                              builder: (context) => VKAuthPage()));
                         })
                   ]));
     }

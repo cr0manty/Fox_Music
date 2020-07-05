@@ -45,6 +45,40 @@ class Song {
     return '$artist - $title';
   }
 
+  static String splitStringToFile(String str) {
+    return str.replaceAll('/', ' ').replaceAll(' ', '_');
+  }
+
+  static String splitStringFromFile(String str) {
+    return str.replaceAll('_', ' ');
+  }
+
+  static Song formatSong(String path) {
+    try {
+      String songData = path.substring(path.lastIndexOf('/') + 1);
+      final data = songData.split('-');
+      return Song(
+          artist: splitStringFromFile(data[0]),
+          title: splitStringFromFile(data[1]),
+          duration: int.parse(data[2]),
+          song_id: int.parse(data[3].split('.')[0]),
+          path: path);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  String formatDuration() {
+    Duration time = Duration(seconds: duration.round());
+    return [time.inMinutes, time.inSeconds]
+        .map((seg) => seg.remainder(60).toString().padLeft(2, '0'))
+        .join(':');
+  }
+
+  String formatFileName(int id) {
+    return '${splitStringToFile(artist)}-${splitStringToFile(title)}-$duration-$id.mp3';
+  }
+
   toFileName() {
     String formatArtist = artist.replaceAll(' ', '_');
     String formatTitle = title.replaceAll(' ', '_');

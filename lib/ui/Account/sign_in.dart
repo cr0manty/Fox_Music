@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/provider/api.dart';
-import 'package:fox_music/provider/shared_prefs.dart';
+import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_up.dart';
 import 'package:fox_music/utils/bottom_route.dart';
+import 'package:fox_music/utils/utils.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/provider/account_data.dart';
-import 'package:fox_music/functions/utils/info_dialog.dart';
-import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/instances/account_data.dart';
+import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
 
@@ -162,7 +162,7 @@ class SignInState extends State<SignIn> {
       AccountData.instance.user = user;
       SharedPrefs.saveUser(user);
     } else {
-      infoDialog(context, "Unable to Login",
+      Utils.infoDialog(context, "Unable to Login",
           "You may have supplied an invalid 'Username'/'Password' combination.");
     }
     _setButtonStatus();

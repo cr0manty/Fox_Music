@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
-import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/instances/database.dart';
+import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/widgets/tile_list.dart';
 import 'package:provider/provider.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/models/playlist.dart';
-import 'package:fox_music/provider/music_data.dart';
+import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/functions/format/time.dart';
 
 class AddToPlaylistPage extends StatefulWidget {
   final Playlist playlist;
@@ -21,7 +21,6 @@ class AddToPlaylistPage extends StatefulWidget {
 
 class AddToPlaylistPageState extends State<AddToPlaylistPage> {
   TextEditingController controller = TextEditingController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
   bool init = true;
@@ -54,13 +53,13 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
 
     return Material(
         child: CupertinoPageScaffold(
-            key: _scaffoldKey,
             navigationBar: CupertinoNavigationBar(
                 actionsForegroundColor: HexColor.main(),
                 middle: Text('Media'),
                 previousPageTitle: 'Back',
                 trailing: GestureDetector(
-                    child: Text('Save', style: TextStyle(color: HexColor.main())),
+                    child:
+                        Text('Save', style: TextStyle(color: HexColor.main())),
                     onTap: () => _onSave(musicData))),
             child: _buildBody(musicData)));
   }
@@ -131,7 +130,7 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
               },
               trailing: Row(
                 children: <Widget>[
-                  Text(formatDuration(song.duration),
+                  Text(song.formatDuration(),
                       style:
                           TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                   SizedBox(

@@ -2,12 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sfsymbols/flutter_sfsymbols.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/provider/api.dart';
+import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:provider/provider.dart';
-import 'package:fox_music/functions/format/time.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 
 class SearchMusicPage extends StatefulWidget {
@@ -16,7 +15,6 @@ class SearchMusicPage extends StatefulWidget {
 }
 
 class SearchMusicPageState extends State<SearchMusicPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController controller = TextEditingController();
 
   int addAmount = 0;
@@ -27,7 +25,6 @@ class SearchMusicPageState extends State<SearchMusicPage> {
     MusicDownloadData downloadData = Provider.of<MusicDownloadData>(context);
 
     return CupertinoPageScaffold(
-        key: _scaffoldKey,
         navigationBar: CupertinoNavigationBar(
           actionsForegroundColor: HexColor.main(),
           previousPageTitle: 'Back',
@@ -88,10 +85,11 @@ class SearchMusicPageState extends State<SearchMusicPage> {
                 downloadData.musicData.currentSong.song_id == song.song_id) {
               await downloadData.musicData.playerResume();
             } else {
-              await downloadData.musicData.playerPlay(index: _songList.indexOf(song));
+              await downloadData.musicData
+                  .playerPlay(index: _songList.indexOf(song));
             }
           },
-          trailing: Text(formatDuration(song.duration),
+          trailing: Text(song.formatDuration(),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
         actions: song.in_my_list == 0
