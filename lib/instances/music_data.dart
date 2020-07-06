@@ -23,10 +23,18 @@ class MusicData {
   bool mix = false;
 
   bool isLocal = true;
-  bool localUpdate = true;
+  bool _localUpdate = true;
   bool playlistUpdate = true;
   bool playlistPageUpdate = true;
   bool playlistListUpdate = true;
+
+  set localUpdate(bool update) {
+    _localUpdate = update;
+    _playerStream.add(update);
+    _notifyStream.add(update);
+  }
+
+  bool get localUpdate => _localUpdate;
 
   List<Song> localSongs = [];
   List<Song> playlist = [];
@@ -390,19 +398,22 @@ class MusicData {
   }
 
   void next({bool change = true}) async {
-    if (playerState == PlayerState.BUFFERING) return;
-
-    if (!mix) {
-      if (change) AudioManager.instance.next();
-
-      selectedIndex = AudioManager.instance.curIndex;
-      currentSong = playlist[selectedIndex];
-      _notifyStream.add(true);
-      songDuration = Duration(seconds: currentSong.duration ?? 0);
-      songPosition = Duration(seconds: 0);
-      _playerStateStream.add(true);
+    if (playerState == PlayerState.BUFFERING) {
+      Future.delayed(Duration(seconds: 1), () {
+        next(change: change);
+      });
     } else {
-      mixPlay();
+      if (!mix) {
+        selectedIndex = AudioManager.instance.curIndex + 1;
+        currentSong = playlist[selectedIndex];
+        _notifyStream.add(true);
+        _playerStateStream.add(true);
+        songDuration = Duration(seconds: currentSong.duration ?? 0);
+        songPosition = Duration(seconds: 0);
+        if (change) AudioManager.instance.next();
+      } else {
+        mixPlay();
+      }
     }
   }
 
