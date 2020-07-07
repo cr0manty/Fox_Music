@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/instances/check_connection.dart';
-import 'package:fox_music/utils/help_tools.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/music_data.dart';
@@ -13,6 +12,7 @@ import 'package:fox_music/ui/main_tab.dart';
 import 'instances/key.dart';
 import 'instances/utils.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +26,9 @@ void main() async {
   MusicData.instance.init();
   MusicDownloadData.instance.init();
   Utils.instance.init();
+
+  Crashlytics.instance.enableInDevMode = true;
+  FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
   runApp(FoxMusic());
 }
