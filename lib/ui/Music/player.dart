@@ -7,7 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fox_music/ui/Music/music_text.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/instances/database.dart';

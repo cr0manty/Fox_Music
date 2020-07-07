@@ -5,7 +5,7 @@ import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/instances/database.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/utils/constants.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/models/song.dart';
 import 'package:random_string/random_string.dart';
@@ -60,11 +60,15 @@ class MusicData {
 
   Stream<bool> get filesystemStream => _filesystemStream.stream;
 
+  Stream<bool> get songUpdates => _songUpdates.stream;
+
   final StreamController<bool> _playerActive =
       StreamController<bool>.broadcast();
   final StreamController<bool> _filesystemStream =
       StreamController<bool>.broadcast();
   final StreamController<bool> _notifyStream =
+      StreamController<bool>.broadcast();
+  final StreamController<bool> _songUpdates =
       StreamController<bool>.broadcast();
   final StreamController<bool> _playerStream =
       StreamController<bool>.broadcast();
@@ -325,8 +329,6 @@ class MusicData {
       } else {
         currentSong = null;
       }
-    } else {
-      playlist.remove(song);
     }
     _filesystemStream.add(true);
   }
@@ -441,16 +443,48 @@ class MusicData {
     return currentSong != null && currentSong.song_id == songId;
   }
 
+  void saveSharedSong(String songPath) async {
+    File file = File(songPath);
+
+    if (!await file.exists()) {
+      return;
+    }
+
+    Song song = Song(
+      title: randomAlpha(15),
+      path: songPath,
+      duration: 200,
+      artist: randomAlpha(15),
+      song_id: Random().nextInt(100000),
+    );
+
+    String newFileName = song.formatFileName(song.song_id);
+    String dir = (await getApplicationDocumentsDirectory()).path;
+    String path = '$dir/songs/$newFileName';
+
+    File newSong = File(path);
+
+    var bytes = await file.readAsBytes();
+    await newSong.writeAsBytes(bytes);
+    await file.delete();
+
+    song.path = path;
+    localSongs.add(song);
+    _songUpdates.add(true);
+  }
+
   void dispose() {
     _playerCompleteSubscription?.cancel();
     _playerState?.cancel();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     _playerNotifyState?.cancel();
+
     _playerActive?.close();
     _playerStateStream?.close();
     _notifyStream?.close();
     _playerStream?.close();
     _filesystemStream?.close();
+    _songUpdates?.close();
   }
 }

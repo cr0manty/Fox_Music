@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/instances/check_connection.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:fox_music/utils/hex_color.dart';
 import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/music_data.dart';
@@ -22,7 +23,7 @@ void main() async {
 
   await ConnectionsCheck.instance.initialise();
   await AccountData.instance.init();
-  await MusicData.instance.init();
+  MusicData.instance.init();
   MusicDownloadData.instance.init();
   Utils.instance.init();
 
@@ -40,7 +41,6 @@ class FoxMusicState extends State<FoxMusic> {
   StreamSubscription _musicData;
   StreamSubscription _musicDownloadData;
   StreamSubscription _intentDataStreamSubscription;
-  List<SharedMediaFile> _sharedFiles;
 
   @override
   void initState() {
@@ -51,37 +51,37 @@ class FoxMusicState extends State<FoxMusic> {
     _accountData = AccountData.instance.onUserChangeAccount
         .listen((event) => setState(() {}));
 
-    _musicData =
-        MusicData.instance.notifyStream.listen((event) =>
-            setState(() {
-              Utils.instance.playerUsing =
-                  MusicData.instance.currentSong != null;
-            }));
+    _musicData = MusicData.instance.notifyStream.listen((event) => setState(() {
+          Utils.instance.playerUsing = MusicData.instance.currentSong != null;
+        }));
 
     _musicDownloadData = MusicDownloadData.instance.notifyStream
         .listen((event) => setState(() {}));
 
-    _intentDataStreamSubscription =
-        ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
-          setState(() {
-            print("Shared:" + (_sharedFiles?.map((f)=> f.path)?.join(",") ?? ""));
-            _sharedFiles = value;
-          });
-        }, onError: (err) {
-          print("getIntentDataStream error: $err");
-        });
+    _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
+        .listen((List<SharedMediaFile> value) async {
+      if (value == null) return;
+      print('Get file(inMemory)');
 
-    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-      setState(() {
-        _sharedFiles = value;
-      });
+      await Future.wait(value.map((SharedMediaFile element) async {
+        if (element.path.endsWith('.mp3')) {
+          MusicData.instance.saveSharedSong(element.path);
+        }
+      }));
+      print(MusicData.instance.localSongs.length);
     });
-  }
 
-
-  Widget _checkVersionAndContinue(BuildContext context) {
-//    _checkVersion();
-    return MainPage();
+    ReceiveSharingIntent.getInitialMedia()
+        .then((List<SharedMediaFile> value) async {
+      if (value == null) return;
+      print('Get file(closed)');
+      await Future.wait(value.map((SharedMediaFile element) async {
+        if (element.path.endsWith('.mp3')) {
+          MusicData.instance.saveSharedSong(element.path);
+        }
+      }));
+      print(MusicData.instance.localSongs.length);
+    });
   }
 
   @override
@@ -100,21 +100,21 @@ class FoxMusicState extends State<FoxMusic> {
             primaryColor: Color.fromRGBO(193, 39, 45, 1),
             brightness: Brightness.dark,
             scaffoldBackgroundColor: HexColor.background()),
-        home: _checkVersionAndContinue(context));
+        home: MainPage());
   }
 
   @override
   void dispose() {
-    ConnectionsCheck.instance.dispose();
-    AccountData.instance.dispose();
-    MusicData.instance.dispose();
-    MusicDownloadData.instance.dispose();
+    ConnectionsCheck.instance?.dispose();
+    AccountData.instance?.dispose();
+    MusicData.instance?.dispose();
+    MusicDownloadData.instance?.dispose();
 
     _connectionsCheck?.cancel();
     _accountData?.cancel();
     _musicData?.cancel();
     _musicDownloadData?.cancel();
-    _intentDataStreamSubscription.cancel();
+    _intentDataStreamSubscription?.cancel();
     super.dispose();
   }
 }

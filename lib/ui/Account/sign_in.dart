@@ -4,7 +4,7 @@ import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_up.dart';
 import 'package:fox_music/utils/bottom_route.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:fox_music/instances/account_data.dart';
 import 'package:fox_music/instances/download_data.dart';

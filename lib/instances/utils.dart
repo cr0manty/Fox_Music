@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:package_info/package_info.dart';
 import 'package:fox_music/instances/api.dart';

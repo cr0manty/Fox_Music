@@ -7,7 +7,7 @@ import 'package:fox_music/instances/utils.dart';
 import 'package:fox_music/ui/Music/playlist_add_song.dart';
 import 'package:fox_music/utils/bottom_route.dart';
 import 'package:fox_music/instances/database.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:fox_music/widgets/tile_list.dart';
 import 'package:fox_music/widgets/apple_search.dart';
 import 'package:fox_music/utils/hex_color.dart';
@@ -34,7 +34,8 @@ class MusicListPage extends StatefulWidget {
 
 class MusicListPageState extends State<MusicListPage>
     with SingleTickerProviderStateMixin {
-    StreamSubscription _filesystemStream;
+  StreamSubscription _filesystemStream;
+  StreamSubscription _songStream;
   TextEditingController controller = TextEditingController();
   List<Song> _musicList = [];
   List<Song> _musicListSorted = [];
@@ -74,6 +75,12 @@ class MusicListPageState extends State<MusicListPage>
     super.initState();
     _filesystemStream = MusicData.instance.filesystemStream.listen((event) {
       _updateMusicList();
+    });
+    _songStream = MusicData.instance.songUpdates.listen((event) {
+      setState(() {
+        _musicList = MusicData.instance.localSongs;
+        _filterSongs(controller.text);
+      });
     });
     MusicData.instance.playlistUpdate = true;
     _updateMusicList();
@@ -365,5 +372,6 @@ class MusicListPageState extends State<MusicListPage>
   void dispose() {
     super.dispose();
     _filesystemStream?.cancel();
+    _songStream?.cancel();
   }
 }

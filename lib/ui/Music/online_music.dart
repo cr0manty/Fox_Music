@@ -7,7 +7,7 @@ import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/instances/utils.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:fox_music/widgets/border_button.dart';
 import 'package:fox_music/instances/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';

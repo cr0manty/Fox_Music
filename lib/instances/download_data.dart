@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:fox_music/utils/closable_http_requuest.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/models/song.dart';
@@ -26,7 +26,6 @@ class MusicDownloadData {
   StreamSubscription _stateChange;
   CloseableMultipartRequest httpClient;
   bool _isCanceled = false;
-  Timer _timer;
 
   final StreamController<DownloadState> _resultController =
       StreamController<DownloadState>.broadcast();
@@ -137,7 +136,6 @@ class MusicDownloadData {
       currentSong = null;
       progress = 0;
       _isCanceled = true;
-      _timer.cancel();
 
       _state = DownloadState.COMPLETED;
       _downloadSubscription?.cancel();
@@ -148,7 +146,10 @@ class MusicDownloadData {
   }
 
   void downloadMark(Song song, {bool downloaded = true}) {
-    dataSong[dataSong.indexOf(song)].downloaded = downloaded;
+    int index = dataSong.indexOf(song);
+    if (index != -1) {
+      dataSong[index].downloaded = downloaded;
+    }
   }
 
   downloadSong(Song song) async {
@@ -170,15 +171,6 @@ class MusicDownloadData {
         progress = downloaded / r.contentLength;
         chunks.add(chunk);
         downloaded += chunk.length;
-        _timer = Timer.periodic(
-            Duration(milliseconds: (r.contentLength / 50000).round()), (timer) {
-          if (httpClient == null || progress == 0) {
-            timer.cancel();
-            _timer.cancel();
-          } else {
-            _notifyStream.add(true);
-          }
-        });
       }, onDone: () async {
         final Uint8List bytes = Uint8List(r.contentLength);
         int offset = 0;
@@ -189,7 +181,6 @@ class MusicDownloadData {
         if (!_isCanceled) {
           await saveSong(song, bytes);
           _state = DownloadState.COMPLETED;
-          _timer.cancel();
           downloadMark(currentSong);
           currentSong = null;
           httpClient = null;

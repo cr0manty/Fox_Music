@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/models/playlist.dart';
@@ -8,6 +9,7 @@ import 'package:fox_music/instances/database.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/widgets/playlist_dialog.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:random_string/random_string.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 abstract class HelpTools {
@@ -51,7 +53,8 @@ abstract class HelpTools {
   static Future infoDialog(BuildContext context, String title, String message) {
     return showDialog(
         context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
+        builder: (BuildContext context) =>
+            CupertinoAlertDialog(
                 title: Text(title),
                 content: Text(message),
                 actions: [
@@ -64,10 +67,12 @@ abstract class HelpTools {
                 ]));
   }
 
-  static Future pickDialog(BuildContext context, String title, String message, String url) {
+  static Future pickDialog(BuildContext context, String title, String message,
+      String url) {
     return showDialog(
         context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
+        builder: (BuildContext context) =>
+            CupertinoAlertDialog(
                 title: Text(title),
                 content: Text(message),
                 actions: [
@@ -93,7 +98,7 @@ abstract class HelpTools {
   static void showPickerDialog(BuildContext context, MusicData musicData,
       List<Playlist> playlist, int songId) async {
     final List<PlaylistCheckbox> listData =
-        await Future.wait(playlist.map((playlist) async {
+    await Future.wait(playlist.map((playlist) async {
       return PlaylistCheckbox(playlist, checked: playlist.inList(songId));
     }));
     showDialog<String>(
@@ -147,4 +152,6 @@ abstract class HelpTools {
     String dir = (await getApplicationDocumentsDirectory()).path;
     return Directory("$dir/songs/").listSync();
   }
+
+
 }

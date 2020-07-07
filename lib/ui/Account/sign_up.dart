@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/instances/api.dart';
 import 'package:fox_music/instances/key.dart';
-import 'package:fox_music/utils/help.dart';
+import 'package:fox_music/utils/help_tools.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:fox_music/widgets/apple_text.dart';
 import 'package:fox_music/utils/hex_color.dart';
