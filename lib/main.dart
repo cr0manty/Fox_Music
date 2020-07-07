@@ -11,6 +11,7 @@ import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/main_tab.dart';
 import 'instances/key.dart';
 import 'instances/utils.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,22 +39,43 @@ class FoxMusicState extends State<FoxMusic> {
   StreamSubscription _accountData;
   StreamSubscription _musicData;
   StreamSubscription _musicDownloadData;
+  StreamSubscription _intentDataStreamSubscription;
+  List<SharedMediaFile> _sharedFiles;
 
   @override
   void initState() {
     super.initState();
     _connectionsCheck =
         ConnectionsCheck.instance.onChange.listen((event) => setState(() {}));
+
     _accountData = AccountData.instance.onUserChangeAccount
         .listen((event) => setState(() {}));
+
     _musicData =
         MusicData.instance.notifyStream.listen((event) =>
             setState(() {
               Utils.instance.playerUsing =
                   MusicData.instance.currentSong != null;
             }));
+
     _musicDownloadData = MusicDownloadData.instance.notifyStream
         .listen((event) => setState(() {}));
+
+    _intentDataStreamSubscription =
+        ReceiveSharingIntent.getMediaStream().listen((List<SharedMediaFile> value) {
+          setState(() {
+            print("Shared:" + (_sharedFiles?.map((f)=> f.path)?.join(",") ?? ""));
+            _sharedFiles = value;
+          });
+        }, onError: (err) {
+          print("getIntentDataStream error: $err");
+        });
+
+    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+      setState(() {
+        _sharedFiles = value;
+      });
+    });
   }
 
 
@@ -92,6 +114,7 @@ class FoxMusicState extends State<FoxMusic> {
     _accountData?.cancel();
     _musicData?.cancel();
     _musicDownloadData?.cancel();
+    _intentDataStreamSubscription.cancel();
     super.dispose();
   }
 }

@@ -39,6 +39,7 @@ dependencies:
   app_settings: ^4.0.1+1
   audio_manager: ^0.5.5+3
   url_launcher: ^5.4.11
+  receive_sharing_intent: ^1.4.0+2
 
 
 dev_dependencies:

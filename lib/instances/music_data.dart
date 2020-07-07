@@ -84,7 +84,7 @@ class MusicData {
 
   init() async {
     playerState = PlayerState.STOP;
-    AudioManager.instance.nextMode(playMode: PlayMode.sequence);
+//    AudioManager.instance.nextMode(playMode: PlayMode.);
     _initPlayer();
     loadSavedMusic();
     _getState();
@@ -265,7 +265,7 @@ class MusicData {
       songList.forEach((Song song) {
         String image = song.image != null && song.image.isNotEmpty
             ? song.image
-            : 'https://pbs.twimg.com/profile_images/930254447090991110/K1MfcFXX.jpg';
+            : PLAYER_DEFAULT;
         _list.add(AudioInfo('file://${song.path}',
             title: song.title, desc: song.artist, coverUrl: image));
       });
