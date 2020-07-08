@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -194,9 +195,8 @@ class PlaylistPageState extends State<PlaylistPage> {
                   style: TextStyle(
                       fontSize: 18, color: Color.fromRGBO(200, 200, 200, 1))),
               onTap: () async {
-                Navigator.of(context).push(
-                    CupertinoPageRoute(
-                        builder: (context) => MusicListPage(playlist: playlist)));
+                Navigator.of(context).push(CupertinoPageRoute(
+                    builder: (context) => MusicListPage(playlist: playlist)));
               },
               leading: Container(
                   padding: EdgeInsets.only(right: 20),
@@ -230,8 +230,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                 color: HexColor('#5994ce'),
                 child: Icon(SFSymbols.photo, color: Colors.white),
                 onTap: () {
-                  FocusScope.of(context)
-                      .requestFocus(FocusNode());
+                  FocusScope.of(context).requestFocus(FocusNode());
                   showCupertinoModalPopup(
                       context: context,
                       builder: (context) {

@@ -27,7 +27,6 @@ void main() async {
   MusicDownloadData.instance.init();
   Utils.instance.init();
 
-  Crashlytics.instance.enableInDevMode = true;
   FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
   runApp(FoxMusic());
