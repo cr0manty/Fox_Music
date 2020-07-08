@@ -119,7 +119,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                   SFSymbols.plus,
                   size: 25,
                 ),
-                onDoubleTap: Crashlytics.instance.crash,
                 onTap: () => _playlistDialog())),
         child: Material(
             color: Colors.transparent,
@@ -194,10 +193,8 @@ class PlaylistPageState extends State<PlaylistPage> {
               title: Text(playlist.title,
                   style: TextStyle(
                       fontSize: 18, color: Color.fromRGBO(200, 200, 200, 1))),
-              onTap: () async {
-                Navigator.of(context).push(CupertinoPageRoute(
-                    builder: (context) => MusicListPage(playlist: playlist)));
-              },
+              onTap: () => Navigator.of(context).push(CupertinoPageRoute(
+                  builder: (context) => MusicListPage(playlist: playlist))),
               leading: Container(
                   padding: EdgeInsets.only(right: 20),
                   child: _showImage(playlist)),
@@ -258,7 +255,7 @@ class PlaylistPageState extends State<PlaylistPage> {
                                 isDestructiveAction: true,
                                 onPressed: () async {
                                   Navigator.of(context).pop();
-                                  await setState(() {
+                                  setState(() {
                                     playlist.image = null;
                                   });
                                   await DBProvider.db.updatePlaylist(playlist);

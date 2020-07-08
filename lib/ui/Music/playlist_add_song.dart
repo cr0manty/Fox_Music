@@ -55,8 +55,10 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
                 middle: Text('Media'),
                 previousPageTitle: 'Back',
                 trailing: GestureDetector(
-                    child:
-                        Text('Save', style: TextStyle(color: HexColor.main())),
+                    child: Text(
+                      'Save',
+                      style: TextStyle(color: HexColor.main()),
+                    ),
                     onTap: () => _onSave())),
             child: _buildBody()));
   }
@@ -77,7 +79,8 @@ class AddToPlaylistPageState extends State<AddToPlaylistPage> {
   _loadMusicList(Song song, {bool update = false}) async {
     Playlist newPlaylist = await DBProvider.db.getPlaylist(widget.playlist.id);
     List<String> songIdList = newPlaylist.splitSongList();
-    List<Song> songList = await MusicData.instance.loadPlaylistAddTrack(songIdList);
+    List<Song> songList =
+        await MusicData.instance.loadPlaylistAddTrack(songIdList);
     setState(() {
       _musicList = songList;
       _musicListSorted = _musicList;
