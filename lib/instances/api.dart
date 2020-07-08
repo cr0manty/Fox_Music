@@ -6,10 +6,36 @@ import 'package:fox_music/models/user.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/utils/closable_http_requuest.dart';
 import 'package:fox_music/utils/constants.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'dart:convert';
+import 'package:http_interceptor/http_interceptor.dart';
+
+class LogginInterceptor implements InterceptorContract {
+  void printWrapped(String text) {
+    final pattern = new RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  }
+
+  @override
+  Future<RequestData> interceptRequest({RequestData data}) async {
+    printWrapped(
+        "Request Method: ${data.method} , Url: ${data.url}, Body: ${data.body} Headers: ${data.headers}");
+    return data;
+  }
+
+  @override
+  Future<ResponseData> interceptResponse({ResponseData data}) async {
+    printWrapped(
+        "Response Method: ${data.method} , Url: ${data.url}, Body: ${data.body}, Status Code: ${data.statusCode}");
+    return data;
+  }
+}
 
 abstract class Api {
+  static Client client = HttpClientWithInterceptor.build(
+      interceptors: [LogginInterceptor()],
+      requestTimeout: Duration(seconds: 30));
+
   static Map<String, String> _formatToken() {
     return {
       'Authorization': "Token ${SharedPrefs.getToken()}",
@@ -19,7 +45,7 @@ abstract class Api {
   static Future addNewSong(Map body) async {
     try {
       final token = SharedPrefs.getToken();
-      final response = await http.post(
+      final response = await client.post(
         ADD_NEW_SONG_URL,
         body: json.encode(body),
         headers: {
@@ -42,7 +68,7 @@ abstract class Api {
   static Future appVersionGet() async {
     try {
       final response =
-          await http.get(APP_VERSION_URL).timeout(Duration(seconds: 20));
+          await client.get(APP_VERSION_URL).timeout(Duration(seconds: 20));
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
@@ -54,7 +80,7 @@ abstract class Api {
 
   static Future authCheckGet() async {
     try {
-      final response = await http
+      final response = await client
           .get(AUTH_CHECK, headers: _formatToken())
           .timeout(Duration(seconds: 30));
 
@@ -73,7 +99,7 @@ abstract class Api {
   static Future friendListGet() async {
     try {
       String url = FRIEND_URL + '?status_code=2';
-      final response = await http.get(url, headers: _formatToken());
+      final response = await client.get(url, headers: _formatToken());
 
       if (response.statusCode == 200) {
         var friendData =
@@ -97,7 +123,7 @@ abstract class Api {
 
     try {
       String url = FRIEND_URL + '?status_code=all';
-      final response = await http.get(url, headers: _formatToken());
+      final response = await client.get(url, headers: _formatToken());
 
       if (response.statusCode == 200) {
         var friendData =
@@ -120,11 +146,8 @@ abstract class Api {
       'password': password,
     };
     try {
-      final response = await http
-          .post(
-            AUTH_URL,
-            body: body,
-          )
+      final response = await client
+          .post(AUTH_URL, body: body)
           .timeout(Duration(seconds: 30));
       if (response.statusCode == 200) {
         final responseJson = json.decode(response.body);
@@ -148,11 +171,8 @@ abstract class Api {
       'last_name': lastName
     };
     try {
-      final response = await http
-          .post(
-            REGISTRATION_URL,
-            body: body,
-          )
+      final response = await client
+          .post(REGISTRATION_URL, body: body)
           .timeout(Duration(seconds: 60));
       if (response.statusCode == 201) {
         return true;
@@ -165,7 +185,7 @@ abstract class Api {
   static Future musicListGet({int page = -1}) async {
     try {
       String url = page != -1 ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
-      final response = await http.get(url, headers: _formatToken());
+      final response = await client.get(url, headers: _formatToken());
 
       if (response.statusCode == 200) {
         var songsData =
@@ -187,7 +207,7 @@ abstract class Api {
   static Future musicListPost({page: int}) async {
     try {
       String url = page != null ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
-      final response = await http.post(url, headers: _formatToken());
+      final response = await client.post(url, headers: _formatToken());
 
       return response.statusCode == 201;
     } catch (e) {
@@ -200,7 +220,7 @@ abstract class Api {
     var songList = List<Song>();
     try {
       final searchUrl = SONG_SEARCH_URL + '?search=$search';
-      final response = await http.get(searchUrl, headers: _formatToken());
+      final response = await client.get(searchUrl, headers: _formatToken());
 
       if (response.statusCode == 200) {
         var songsData = json.decode(response.body) as List<dynamic>;
@@ -219,7 +239,7 @@ abstract class Api {
   static Future hideMusic(int id) async {
     try {
       final response =
-          await http.post(SONG_DELETE_URL + '$id/', headers: _formatToken());
+          await client.post(SONG_DELETE_URL + '$id/', headers: _formatToken());
       return response.statusCode == 201;
     } catch (e) {
       print(e);
@@ -230,7 +250,7 @@ abstract class Api {
   static Future addMusic(int id) async {
     try {
       final response =
-          await http.post(SONG_ADD_URL + '$id/', headers: _formatToken());
+          await client.post(SONG_ADD_URL + '$id/', headers: _formatToken());
       if (response.statusCode == 409) return null;
       return response.statusCode == 201;
     } catch (e) {
@@ -241,10 +261,10 @@ abstract class Api {
 
   static Future profileGet({int friendId}) async {
     try {
-      final response = await http
+      final response = await client
           .get(
             PROFILE_URL + (friendId != null ? '?user_id=$friendId' : ''),
-            headers: _formatToken(),
+            headers: _formatToken()
           )
           .timeout(Duration(seconds: 30));
       if (response.statusCode == 200) {
@@ -267,8 +287,8 @@ abstract class Api {
           CloseableMultipartRequest('POST', uri);
 
       if (body['image'] != null) {
-        http.MultipartFile multipartFile =
-            await http.MultipartFile.fromPath('image', body['image'].path);
+        MultipartFile multipartFile =
+            await MultipartFile.fromPath('image', body['image'].path);
         request.files.add(multipartFile);
       }
       await body.remove('image');
@@ -279,7 +299,7 @@ abstract class Api {
 
       request.headers.addAll(_formatToken());
 
-      http.StreamedResponse response = await request.send();
+      StreamedResponse response = await request.send();
       return response.statusCode == 201;
     } on TimeoutException catch (_) {
       return false;
@@ -294,7 +314,7 @@ abstract class Api {
 
     try {
       final searchUrl = SEARCH_USER_URL + '?search=$search';
-      final response = await http.get(searchUrl, headers: _formatToken());
+      final response = await client.get(searchUrl, headers: _formatToken());
 
       if (response.statusCode == 200) {
         var userData = json.decode(response.body) as List<dynamic>;
@@ -322,7 +342,7 @@ abstract class Api {
     }
     Map<String, dynamic> status = {'code': 0};
     try {
-      final response = await http
+      final response = await client
           .post(VK_AUTH_URL, body: body, headers: _formatToken())
           .timeout(Duration(seconds: 30));
       status['code'] = response.statusCode;

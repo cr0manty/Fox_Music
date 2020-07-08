@@ -53,13 +53,11 @@ class MusicListPageState extends State<MusicListPage>
         MusicData.instance.localUpdate = false;
       }
     }
-    if (widget._pageType == PageType.SAVED &&
-        MusicData.instance.playlistListUpdate) {
+    if (widget._pageType == PageType.SAVED) {
       List<Playlist> playlistList = await DBProvider.db.getAllPlaylist();
 
       setState(() {
         _playlistList = playlistList;
-        MusicData.instance.playlistListUpdate = false;
       });
     }
   }

@@ -133,15 +133,10 @@ class AccountPageState extends State<AccountPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Profile'),
+          middle: Text('Account'),
           trailing: CupertinoButton(
             onPressed: ConnectionsCheck.instance.isOnline
                 ? () => Navigator.of(context, rootNavigator: true).push(

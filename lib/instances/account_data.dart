@@ -19,9 +19,7 @@ class AccountData {
   List<Relationship> friendList = [];
   User _user;
   File newImage;
-  bool offlineMode = false;
   AccountType accountType = AccountType.SELF_SHOW;
-  bool needUpdate = true;
 
   Stream<bool> get onUserChangeAccount => _userChangeAccount.stream;
 
@@ -32,7 +30,6 @@ class AccountData {
     if (ConnectionsCheck.instance.isOnline) {
       User newUser = await Api.profileGet();
       if (newUser != null) {
-        needUpdate = false;
         user = newUser;
         loadFiendList();
         SharedPrefs.saveUser(user);

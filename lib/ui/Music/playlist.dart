@@ -21,7 +21,6 @@ class PlaylistPageState extends State<PlaylistPage> {
   List<Playlist> _playlistList = [];
 
   _createPlaylist(String playlistName) async {
-    MusicData.instance.playlistListUpdate = true;
     Playlist playlist = Playlist(title: playlistName);
     await DBProvider.db.newPlaylist(playlist);
     setState(() {
@@ -270,7 +269,6 @@ class PlaylistPageState extends State<PlaylistPage> {
                 color: HexColor('#d62d2d'),
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () {
-                  MusicData.instance.playlistListUpdate = true;
                   setState(() {
                     _playlistList.remove(playlist);
                   });

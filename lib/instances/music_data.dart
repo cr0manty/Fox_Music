@@ -26,7 +26,6 @@ class MusicData {
   bool _localUpdate = true;
   bool playlistUpdate = true;
   bool playlistPageUpdate = true;
-  bool playlistListUpdate = true;
 
   set localUpdate(bool update) {
     _localUpdate = update;
