@@ -12,7 +12,7 @@ import Photos
 
 class ShareViewController: SLComposeServiceViewController {
     // TODO: IMPORTANT: This should be your host app bundle identifier
-    let hostAppBundleIdentifier = "com.cr0manty.foxmusic"
+    let hostAppBundleIdentifier = "com.redfoxproject.fox-music"
     let sharedKey = "ShareKey"
     var sharedMedia: [SharedMediaFile] = []
     var sharedText: [String] = []
@@ -31,16 +31,8 @@ class ShareViewController: SLComposeServiceViewController {
         if let content = extensionContext!.inputItems[0] as? NSExtensionItem {
             if let contents = content.attachments {
                 for (index, attachment) in (contents).enumerated() {
-                    if attachment.hasItemConformingToTypeIdentifier(imageContentType) {
-                        handleImages(content: content, attachment: attachment, index: index)
-                    } else if attachment.hasItemConformingToTypeIdentifier(textContentType) {
-                        handleText(content: content, attachment: attachment, index: index)
-                    } else if attachment.hasItemConformingToTypeIdentifier(fileURLType) {
+                     if attachment.hasItemConformingToTypeIdentifier(fileURLType) {
                         handleFiles(content: content, attachment: attachment, index: index)
-                    } else if attachment.hasItemConformingToTypeIdentifier(urlContentType) {
-                        handleUrl(content: content, attachment: attachment, index: index)
-                    } else if attachment.hasItemConformingToTypeIdentifier(videoContentType) {
-                        handleVideos(content: content, attachment: attachment, index: index)
                     }
                 }
             }
@@ -54,111 +46,6 @@ class ShareViewController: SLComposeServiceViewController {
     override func configurationItems() -> [Any]! {
         // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
         return []
-    }
-
-    private func handleText (content: NSExtensionItem, attachment: NSItemProvider, index: Int) {
-        attachment.loadItem(forTypeIdentifier: textContentType, options: nil) { [weak self] data, error in
-
-            if error == nil, let item = data as? String, let this = self {
-
-                this.sharedText.append(item)
-
-                // If this is the last item, save imagesData in userDefaults and redirect to host app
-                if index == (content.attachments?.count)! - 1 {
-                    let userDefaults = UserDefaults(suiteName: "group.\(this.hostAppBundleIdentifier)")
-                    userDefaults?.set(this.sharedText, forKey: this.sharedKey)
-                    userDefaults?.synchronize()
-                    this.redirectToHostApp(type: .text)
-                }
-
-            } else {
-                self?.dismissWithError()
-            }
-        }
-    }
-
-    private func handleUrl (content: NSExtensionItem, attachment: NSItemProvider, index: Int) {
-        attachment.loadItem(forTypeIdentifier: urlContentType, options: nil) { [weak self] data, error in
-
-            if error == nil, let item = data as? URL, let this = self {
-
-                this.sharedText.append(item.absoluteString)
-
-                // If this is the last item, save imagesData in userDefaults and redirect to host app
-                if index == (content.attachments?.count)! - 1 {
-                    let userDefaults = UserDefaults(suiteName: "group.\(this.hostAppBundleIdentifier)")
-                    userDefaults?.set(this.sharedText, forKey: this.sharedKey)
-                    userDefaults?.synchronize()
-                    this.redirectToHostApp(type: .text)
-                }
-
-            } else {
-                self?.dismissWithError()
-            }
-        }
-    }
-
-    private func handleImages (content: NSExtensionItem, attachment: NSItemProvider, index: Int) {
-        attachment.loadItem(forTypeIdentifier: imageContentType, options: nil) { [weak self] data, error in
-
-            if error == nil, let url = data as? URL, let this = self {
-
-                // Always copy
-                let fileExtension = this.getExtension(from: url, type: .image)
-                let newName = UUID().uuidString
-                let newPath = FileManager.default
-                    .containerURL(forSecurityApplicationGroupIdentifier: "group.\(this.hostAppBundleIdentifier)")!
-                    .appendingPathComponent("\(newName).\(fileExtension)")
-                let copied = this.copyFile(at: url, to: newPath)
-                if(copied) {
-                    this.sharedMedia.append(SharedMediaFile(path: newPath.absoluteString, thumbnail: nil, duration: nil, type: .image))
-                }
-
-                // If this is the last item, save imagesData in userDefaults and redirect to host app
-                if index == (content.attachments?.count)! - 1 {
-                    let userDefaults = UserDefaults(suiteName: "group.\(this.hostAppBundleIdentifier)")
-                    userDefaults?.set(this.toData(data: this.sharedMedia), forKey: this.sharedKey)
-                    userDefaults?.synchronize()
-                    this.redirectToHostApp(type: .media)
-                }
-
-            } else {
-                 self?.dismissWithError()
-            }
-        }
-    }
-
-    private func handleVideos (content: NSExtensionItem, attachment: NSItemProvider, index: Int) {
-        attachment.loadItem(forTypeIdentifier: videoContentType, options: nil) { [weak self] data, error in
-
-            if error == nil, let url = data as? URL, let this = self {
-
-                // Always copy
-                let fileExtension = this.getExtension(from: url, type: .video)
-                let newName = UUID().uuidString
-                let newPath = FileManager.default
-                    .containerURL(forSecurityApplicationGroupIdentifier: "group.\(this.hostAppBundleIdentifier)")!
-                    .appendingPathComponent("\(newName).\(fileExtension)")
-                let copied = this.copyFile(at: url, to: newPath)
-                if(copied) {
-                    guard let sharedFile = this.getSharedMediaFile(forVideo: newPath) else {
-                        return
-                    }
-                    this.sharedMedia.append(sharedFile)
-                }
-
-                // If this is the last item, save imagesData in userDefaults and redirect to host app
-                if index == (content.attachments?.count)! - 1 {
-                    let userDefaults = UserDefaults(suiteName: "group.\(this.hostAppBundleIdentifier)")
-                    userDefaults?.set(this.toData(data: this.sharedMedia), forKey: this.sharedKey)
-                    userDefaults?.synchronize()
-                    this.redirectToHostApp(type: .media)
-                }
-
-            } else {
-                 self?.dismissWithError()
-            }
-        }
     }
 
     private func handleFiles (content: NSExtensionItem, attachment: NSItemProvider, index: Int) {
@@ -315,7 +202,7 @@ class ShareViewController: SLComposeServiceViewController {
 
         // Debug method to print out SharedMediaFile details in the console
         func toString() {
-            print("[SharedMediaFile] \n\tpath: \(self.path)\n\tthumbnail: \(String(describing: self.thumbnail))\n\tduration: \(self.duration)\n\ttype: \(self.type)")
+            print("[SharedMediaFile] \n\tpath: \(self.path)\n\tthumbnail: \(self.thumbnail)\n\tduration: \(self.duration)\n\ttype: \(self.type)")
         }
     }
 
