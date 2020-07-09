@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/utils/api.dart';
 import 'package:fox_music/instances/key.dart';
 import 'package:fox_music/utils/help_tools.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';

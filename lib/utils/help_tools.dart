@@ -1,15 +1,13 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_music/models/playlist.dart';
 import 'package:fox_music/models/song.dart';
-import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/utils/api.dart';
 import 'package:fox_music/instances/database.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/widgets/playlist_dialog.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:random_string/random_string.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 abstract class HelpTools {

@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:fox_music/models/song.dart';
 
-import 'api.dart';
+import '../utils/api.dart';
 import 'check_connection.dart';
 import 'music_data.dart';
 
@@ -127,7 +127,7 @@ class MusicDownloadData {
     if (request) {
       HelpTools.infoDialog(context, 'Success', 'Your songs will appear soon');
     } else {
-      HelpTools.infoDialog(context, 'Error', 'Smth went wrong...');
+      HelpTools.infoDialog(context, 'Error', 'Please check your internet connection or try to use a VPN.');
     }
   }
 

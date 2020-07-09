@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/utils/api.dart';
 import 'package:fox_music/instances/music_data.dart';
 import 'package:fox_music/instances/utils.dart';
 import 'package:fox_music/ui/Account/auth_vk.dart';

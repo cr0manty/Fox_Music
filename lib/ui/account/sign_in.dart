@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/utils/api.dart';
 import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/ui/Account/sign_up.dart';
 import 'package:fox_music/utils/bottom_route.dart';

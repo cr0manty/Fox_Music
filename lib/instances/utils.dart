@@ -4,7 +4,7 @@ import 'package:fox_music/instances/shared_prefs.dart';
 import 'package:fox_music/utils/help_tools.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:package_info/package_info.dart';
-import 'package:fox_music/instances/api.dart';
+import 'package:fox_music/utils/api.dart';
 import 'check_connection.dart';
 
 class Utils {
