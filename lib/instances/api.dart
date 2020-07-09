@@ -10,30 +10,35 @@ import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:http_interceptor/http_interceptor.dart';
 
-class LogginInterceptor implements InterceptorContract {
+class LogInterceptor implements InterceptorContract {
   void printWrapped(String text) {
     final pattern = new RegExp('.{1,800}'); // 800 is the size of each chunk
     pattern.allMatches(text).forEach((match) => print(match.group(0)));
   }
 
+  String prettyJson(String jsonString) {
+    return JsonEncoder.withIndent('  ').convert(json.decode(jsonString));
+  }
+
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
-    printWrapped(
-        "Request Method: ${data.method} , Url: ${data.url}, Body: ${data.body} Headers: ${data.headers}");
+    print(
+        "Request Method: ${data.method} , Url: ${data.url} Headers: ${data.headers}");
     return data;
   }
 
   @override
   Future<ResponseData> interceptResponse({ResponseData data}) async {
     printWrapped(
-        "Response Method: ${data.method} , Url: ${data.url}, Body: ${data.body}, Status Code: ${data.statusCode}");
+        "Response Method: ${data.method} , Url: ${data.url}, Status Code: ${data.statusCode}");
+    printWrapped('Body: ${prettyJson(data.body)}');
     return data;
   }
 }
 
 abstract class Api {
   static Client client = HttpClientWithInterceptor.build(
-      interceptors: [LogginInterceptor()],
+      interceptors: [LogInterceptor()],
       requestTimeout: Duration(seconds: 30));
 
   static Map<String, String> _formatToken() {
@@ -206,7 +211,7 @@ abstract class Api {
 
   static Future musicListPost({page: int}) async {
     try {
-      String url = page != null ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
+      String url = page != -1 ? SONG_LIST_URL + '?page=$page' : SONG_LIST_URL;
       final response = await client.post(url, headers: _formatToken());
 
       return response.statusCode == 201;
