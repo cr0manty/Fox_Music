@@ -48,29 +48,27 @@ abstract class HelpTools {
     }
   }
 
-  static Future infoDialog(BuildContext context, String title, String message) {
+  static Future infoDialog(BuildContext context, String title, String message,
+      {Function onClick}) {
     return showDialog(
         context: context,
-        builder: (BuildContext context) =>
-            CupertinoAlertDialog(
+        builder: (BuildContext context) => CupertinoAlertDialog(
                 title: Text(title),
                 content: Text(message),
                 actions: [
                   CupertinoDialogAction(
                       isDefaultAction: true,
                       child: Text("OK"),
-                      onPressed: () {
-                        Navigator.of(context).pop(context);
-                      })
+                      onPressed:
+                          onClick ?? () => Navigator.of(context).pop(context))
                 ]));
   }
 
-  static Future pickDialog(BuildContext context, String title, String message,
-      String url) {
+  static Future pickDialog(
+      BuildContext context, String title, String message, String url) {
     return showDialog(
         context: context,
-        builder: (BuildContext context) =>
-            CupertinoAlertDialog(
+        builder: (BuildContext context) => CupertinoAlertDialog(
                 title: Text(title),
                 content: Text(message),
                 actions: [
@@ -96,7 +94,7 @@ abstract class HelpTools {
   static void showPickerDialog(BuildContext context, MusicData musicData,
       List<Playlist> playlist, int songId) async {
     final List<PlaylistCheckbox> listData =
-    await Future.wait(playlist.map((playlist) async {
+        await Future.wait(playlist.map((playlist) async {
       return PlaylistCheckbox(playlist, checked: playlist.inList(songId));
     }));
     showDialog<String>(
@@ -150,6 +148,4 @@ abstract class HelpTools {
     String dir = (await getApplicationDocumentsDirectory()).path;
     return Directory("$dir/songs/").listSync();
   }
-
-
 }

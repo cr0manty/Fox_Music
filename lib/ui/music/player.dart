@@ -55,11 +55,11 @@ class PlayerPageState extends State<PlayerPage> {
 
   Future _songText() async {
     var songLyrics =
-        await DBProvider.db.getSongText(MusicData.instance.currentSong.song_id);
+        await DBProvider.db.getSongText(MusicData.instance.currentSong.songId);
     Navigator.of(context, rootNavigator: true).push(BottomRoute(
         page: MusicTextPage(
       songText: songLyrics.isEmpty ? '' : songLyrics[0]['text'].toString(),
-      songId: MusicData.instance.currentSong.song_id,
+      songId: MusicData.instance.currentSong.songId,
     )));
   }
 
@@ -112,7 +112,7 @@ class PlayerPageState extends State<PlayerPage> {
                                 context,
                                 MusicData.instance,
                                 _playlistList,
-                                MusicData.instance.currentSong.song_id)
+                                MusicData.instance.currentSong.songId)
                             : null,
                         child: Container(
                             color: Colors.transparent,

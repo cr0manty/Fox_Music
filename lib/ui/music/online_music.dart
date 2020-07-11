@@ -199,8 +199,8 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
 
   _buildBody() {
     return AccountData.instance.user != null &&
-            (AccountData.instance.user.can_use_vk ||
-                AccountData.instance.user.is_staff)
+            (AccountData.instance.user.canUseVk ||
+                AccountData.instance.user.isStaff)
         ? SafeArea(
             child: CustomScrollView(slivers: <Widget>[
             CupertinoSliverRefreshControl(onRefresh: () async {
@@ -330,7 +330,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                   await MusicData.instance
                       .setPlaylistSongs(dataSongSorted, song, local: false);
                   if (MusicData.instance.currentSong != null &&
-                      MusicData.instance.currentSong.song_id == song.song_id &&
+                      MusicData.instance.currentSong.songId == song.songId &&
                       !isLocal) {
                     await MusicData.instance.playerResume();
                   } else {
@@ -346,7 +346,7 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
                 color: HexColor('#d62d2d'),
                 child: Icon(SFSymbols.trash, color: Colors.white),
                 onTap: () async {
-                  Api.hideMusic(song.song_id);
+                  Api.hideMusic(song.songId);
                   setState(() {
                     MusicDownloadData.instance.dataSong.remove(song);
                     dataSongSorted = MusicDownloadData.instance.dataSong;

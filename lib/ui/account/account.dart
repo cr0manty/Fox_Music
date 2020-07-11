@@ -33,9 +33,8 @@ class AccountPageState extends State<AccountPage> {
                         CupertinoActionSheetAction(
                             onPressed: () {
                               Navigator.of(context).pop();
-                              Navigator.of(context, rootNavigator: true).push(
-                                  CupertinoPageRoute(
-                                      builder: (context) => AccountEditPage()));
+                              Navigator.of(context).push(CupertinoPageRoute(
+                                  builder: (context) => AccountEditPage()));
                             },
                             child: Text(
                               'Edit',
@@ -65,10 +64,10 @@ class AccountPageState extends State<AccountPage> {
           padding: EdgeInsets.only(bottom: 25),
           child: Center(
               child: Text(
-                  AccountData.instance.user?.last_name?.isEmpty == null &&
-                          AccountData.instance.user?.first_name?.isEmpty == null
+                  AccountData.instance.user?.lastName?.isEmpty == null &&
+                          AccountData.instance.user?.firstName?.isEmpty == null
                       ? ''
-                      : '${AccountData.instance.user.first_name} ${AccountData.instance.user.last_name}',
+                      : '${AccountData.instance.user.firstName} ${AccountData.instance.user.lastName}',
                   style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -80,7 +79,7 @@ class AccountPageState extends State<AccountPage> {
             leading: SvgPicture.asset('assets/svg/search_music.svg',
                 color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(context, rootNavigator: true).push(
+              Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) => SearchMusicPage()));
             },
             title: Text(
@@ -95,7 +94,7 @@ class AccountPageState extends State<AccountPage> {
             leading: SvgPicture.asset('assets/svg/search_friends.svg',
                 color: Colors.white, height: 22, width: 22),
             onTap: () {
-              Navigator.of(context, rootNavigator: true).push(
+              Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) => SearchPeoplePage()));
             },
             title: Text(
@@ -109,7 +108,7 @@ class AccountPageState extends State<AccountPage> {
           child: ListTile(
             leading: Icon(SFSymbols.person_2_alt, color: Colors.white),
             onTap: () {
-              Navigator.of(context, rootNavigator: true).push(
+              Navigator.of(context).push(
                   CupertinoPageRoute(builder: (context) => FriendListPage()));
             },
             title: Text(
@@ -139,7 +138,7 @@ class AccountPageState extends State<AccountPage> {
           middle: Text('Account'),
           trailing: CupertinoButton(
             onPressed: ConnectionsCheck.instance.isOnline
-                ? () => Navigator.of(context, rootNavigator: true).push(
+                ? () => Navigator.of(context).push(
                     CupertinoPageRoute(builder: (context) => AccountEditPage()))
                 : null,
             child: Text('Edit'),
@@ -158,7 +157,7 @@ class AccountPageState extends State<AccountPage> {
   }
 
   _downloadAll() async {
-    if (AccountData.instance.user.can_use_vk) {
+    if (AccountData.instance.user.canUseVk) {
       await MusicData.instance.loadSavedMusic();
       MusicDownloadData.instance.multiQuery = MusicData.instance.localSongs;
     } else {

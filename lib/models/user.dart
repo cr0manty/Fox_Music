@@ -12,35 +12,36 @@ User userFromJson(String str) {
     final data = json.decode(str);
     return User.fromJson(data);
   }
+  return null;
 }
 
 class User {
-  String first_name;
-  String last_name;
+  String firstName;
+  String lastName;
   String image;
   String email;
-  String date_joined;
-  String last_login;
-  bool vk_auth;
-  bool is_staff;
-  bool can_use_vk;
+  String joined;
+  String lastLogin;
+  bool vkAuth;
+  bool isStaff;
+  bool canUseVk;
   int id;
-  int user_id;
+  int userId;
   final String username;
 
   User(
       {this.id,
       this.username,
-      this.user_id,
+      this.userId,
       this.image,
       this.email,
-      this.first_name,
-      this.date_joined,
-      this.last_name,
-      this.vk_auth,
-      this.is_staff,
-      this.last_login,
-      this.can_use_vk});
+      this.firstName,
+      this.joined,
+      this.lastName,
+      this.vkAuth,
+      this.isStaff,
+      this.lastLogin,
+      this.canUseVk});
 
   @override
   int get hashCode => id.hashCode;
@@ -54,16 +55,16 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) => User(
       username: json['username'],
-      user_id: json['user_id'],
+      userId: json['user_id'],
       id: json['id'],
       image: json['image'],
       email: json['email'],
-      first_name: json['first_name'],
-      last_name: json['last_name'],
-      date_joined: json['date_joined'],
-      vk_auth: json['vk_auth'] ?? false,
-      is_staff: json['is_staff'] ?? false,
-      can_use_vk: json['can_use_vk'] ?? false);
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      joined: json['date_joined'],
+      vkAuth: json['vk_auth'] ?? false,
+      isStaff: json['is_staff'] ?? false,
+      canUseVk: json['can_use_vk'] ?? false);
 
   String imageUrl() {
     if (image == null) return '';
@@ -73,15 +74,15 @@ class User {
 
   Map<String, dynamic> toJson() => {
         'username': username,
-        'user_id': user_id,
-        'first_name': first_name,
-        'last_name': last_name,
+        'user_id': userId,
+        'first_name': firstName,
+        'last_name': lastName,
         'email': email,
-        'date_joined': date_joined,
+        'date_joined': joined,
         'image': image,
-        'vk_auth': vk_auth,
-        'is_staff': is_staff,
+        'vk_auth': vkAuth,
+        'is_staff': isStaff,
         'id': id,
-        'can_use_vk': can_use_vk
+        'can_use_vk': canUseVk
       };
 }

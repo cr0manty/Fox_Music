@@ -32,12 +32,12 @@ class SearchMusicPageState extends State<SearchMusicPage> {
             color: Colors.transparent,
             child: SafeArea(
                 child: ListView.builder(
-              shrinkWrap: true,
-              physics: ClampingScrollPhysics(),
-              itemCount: _songList.isEmpty ? 2 : _songList.length + 1,
-              itemBuilder: (context, index) =>
-                  _buildSongListTile(index),
-            ))));
+                  shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
+                  itemCount: _songList.isEmpty ? 2 : _songList.length + 1,
+                  itemBuilder: (context, index) =>
+                      _buildSongListTile(index),
+                ))));
   }
 
   _buildSongListTile(int index) {
@@ -71,58 +71,58 @@ class SearchMusicPageState extends State<SearchMusicPage> {
         actionExtentRatio: 0.25,
         child: Container(
             child: ListTile(
-          contentPadding: EdgeInsets.only(left: 30, right: 20),
-          title: Text(song.title,
-              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-          subtitle: Text(song.artist,
-              style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
-          onTap: () async {
-            await MusicData.instance
-                .setPlaylistSongs(_songList, song, local: false);
-            if (MusicData.instance.currentSong != null &&
-                MusicData.instance.currentSong.song_id == song.song_id) {
-              await MusicData.instance.playerResume();
-            } else {
-              await MusicData.instance
-                  .playerPlay(index: _songList.indexOf(song));
-            }
-          },
-          trailing: Text(song.formatDuration(),
-              style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
-        )),
-        actions: song.in_my_list == 0
+              contentPadding: EdgeInsets.only(left: 30, right: 20),
+              title: Text(song.title,
+                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+              subtitle: Text(song.artist,
+                  style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
+              onTap: () async {
+                await MusicData.instance
+                    .setPlaylistSongs(_songList, song, local: false);
+                if (MusicData.instance.currentSong != null &&
+                    MusicData.instance.currentSong.songId == song.songId) {
+                  await MusicData.instance.playerResume();
+                } else {
+                  await MusicData.instance
+                      .playerPlay(index: _songList.indexOf(song));
+                }
+              },
+              trailing: Text(song.formatDuration(),
+                  style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
+            )),
+        actions: song.inMyList == 0
             ? <Widget>[
-                SlideAction(
-                  color: HexColor('#3a4e93'),
-                  child: Icon(SFSymbols.plus, color: Colors.white),
-                  onTap: () async {
-                    bool isAdded = await Api.addMusic(song.song_id);
-                    if (isAdded ?? false) {
-                      setState(() {
-                        song.in_my_list = 1;
-                        MusicDownloadData.instance.dataSong.insert(addAmount++, song);
-                      });
-                    }
-                  },
-                ),
-              ]
+          SlideAction(
+            color: HexColor('#3a4e93'),
+            child: Icon(SFSymbols.plus, color: Colors.white),
+            onTap: () async {
+              bool isAdded = await Api.addMusic(song.songId);
+              if (isAdded ?? false) {
+                setState(() {
+                  song.inMyList = 1;
+                  MusicDownloadData.instance.dataSong.insert(addAmount++, song);
+                });
+              }
+            },
+          ),
+        ]
             : [],
-        secondaryActions: song.in_my_list == 1
+        secondaryActions: song.inMyList == 1
             ? <Widget>[
-                SlideAction(
-                  color: HexColor('#d62d2d'),
-                  child: Icon(SFSymbols.trash, color: Colors.white),
-                  onTap: () async {
-                    bool isDeleted = await Api.hideMusic(song.song_id);
-                    if (isDeleted) {
-                      setState(() {
-                        song.in_my_list = 0;
-                        MusicDownloadData.instance.dataSong.remove(song);
-                      });
-                    }
-                  },
-                ),
-              ]
+          SlideAction(
+            color: HexColor('#d62d2d'),
+            child: Icon(SFSymbols.trash, color: Colors.white),
+            onTap: () async {
+              bool isDeleted = await Api.hideMusic(song.songId);
+              if (isDeleted) {
+                setState(() {
+                  song.inMyList = 0;
+                  MusicDownloadData.instance.dataSong.remove(song);
+                });
+              }
+            },
+          ),
+        ]
             : [],
       ),
       Padding(

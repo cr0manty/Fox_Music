@@ -250,7 +250,7 @@ class MusicListPageState extends State<MusicListPage>
 
   void deleteSongFromPlaylist(Song song) {
     setState(() {
-      widget.playlist.deleteSong(song.song_id);
+      widget.playlist.deleteSong(song.songId);
       _musicList.remove(song);
       _musicListSorted.remove(song);
       MusicData.instance.localUpdate = true;
@@ -274,7 +274,7 @@ class MusicListPageState extends State<MusicListPage>
         child: SvgPicture.asset('assets/svg/add_to_playlist.svg',
             color: Colors.white, height: 18, width: 18),
         onTap: () => HelpTools.showPickerDialog(
-            context, MusicData.instance, _playlistList, song.song_id),
+            context, MusicData.instance, _playlistList, song.songId),
       ));
     }
     actions.add(SlideAction(
@@ -319,7 +319,7 @@ class MusicListPageState extends State<MusicListPage>
                   await _loadMusicList(song);
 
                   if (MusicData.instance.currentSong != null &&
-                      MusicData.instance.currentSong.song_id == song.song_id &&
+                      MusicData.instance.currentSong.songId == song.songId &&
                       isLocal == true) {
                     await MusicData.instance.playerResume();
                   } else {
@@ -356,7 +356,7 @@ class MusicListPageState extends State<MusicListPage>
             padding: EdgeInsets.only(left: 12.0),
             child: Divider(height: 1, color: Colors.grey))
       ]),
-      MusicData.instance.isPlaying(song.song_id)
+      MusicData.instance.isPlaying(song.songId)
           ? Container(
               height: 60,
               width: 3,

@@ -91,8 +91,8 @@ class AccountEditPageState extends State<AccountEditPage> {
   _setFilter() {
     _usernameFilter.text = AccountData.instance.user.username;
     _emailFilter.text = AccountData.instance.user.email;
-    _firstNameFilter.text = AccountData.instance.user.first_name;
-    _lastNameFilter.text = AccountData.instance.user.last_name;
+    _firstNameFilter.text = AccountData.instance.user.firstName;
+    _lastNameFilter.text = AccountData.instance.user.lastName;
   }
 
   @override

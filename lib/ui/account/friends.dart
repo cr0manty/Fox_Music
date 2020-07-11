@@ -50,8 +50,8 @@ class FriendListPageState extends State<FriendListPage> {
     setState(() {
       friendListSorted = AccountData.instance.friendList
           .where((Relationship relationship) =>
-              relationship.user.first_name.toLowerCase().contains(newValue) ||
-              relationship.user.last_name.toLowerCase().contains(newValue))
+              relationship.user.firstName.toLowerCase().contains(newValue) ||
+              relationship.user.lastName.toLowerCase().contains(newValue))
           .toList();
     });
   }
@@ -75,14 +75,14 @@ class FriendListPageState extends State<FriendListPage> {
         child: Container(
             child: ListTile(
                 title: Text(
-                    relationship.user.last_name.isEmpty
+                    relationship.user.lastName.isEmpty
                         ? 'Unknown'
-                        : relationship.user.last_name,
+                        : relationship.user.lastName,
                     style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
                 subtitle: Text(
-                    relationship.user.first_name.isEmpty
+                    relationship.user.firstName.isEmpty
                         ? 'Unknown'
-                        : relationship.user.first_name,
+                        : relationship.user.firstName,
                     style: TextStyle(color: Color.fromRGBO(150, 150, 150, 1))),
                 onTap: () {
                   Navigator.of(context).push(CupertinoPageRoute(

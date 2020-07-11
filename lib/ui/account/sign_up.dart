@@ -217,9 +217,11 @@ class SignUpState extends State<SignUp> {
     final reg =
         await Api.registrationPost(_username, _password, _firstName, _lastName);
     if (reg != null) {
-      HelpTools.infoDialog(context,
-          "You have successfully registered!", "Now you need to log in.");
-      Navigator.of(context).pop();
+      HelpTools.infoDialog(context, "You have successfully registered!",
+          "Now you need to log in.", onClick: () {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      });
     } else {
       HelpTools.infoDialog(context, "Unable to register",
           "Not all data was entered or you may have supplied an duplicate 'Username'");

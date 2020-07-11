@@ -75,10 +75,10 @@ class PeoplePageState extends State<PeoplePage> {
                         Image.network(widget.relationship.user.imageUrl())
                             .image)),
             Text(
-                widget.relationship.user.last_name.isEmpty &&
-                        widget.relationship.user.first_name.isEmpty
+                widget.relationship.user.lastName.isEmpty &&
+                        widget.relationship.user.firstName.isEmpty
                     ? 'Unknown'
-                    : '${widget.relationship.user.first_name} ${widget.relationship.user.last_name}',
+                    : '${widget.relationship.user.firstName} ${widget.relationship.user.lastName}',
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height * 0.035,
                     fontWeight: FontWeight.bold,
@@ -135,7 +135,7 @@ class PeoplePageState extends State<PeoplePage> {
           trailing: Text(song.formatDuration(),
               style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1))),
         )),
-        actions: song.in_my_list == 0
+        actions: song.inMyList == 0
             ? <Widget>[
                 SlideAction(
                     color: Colors.blue,
@@ -144,16 +144,16 @@ class PeoplePageState extends State<PeoplePage> {
                       color: Colors.white,
                     ),
                     onTap: () async {
-                      bool isAdded = await Api.addMusic(song.song_id);
+                      bool isAdded = await Api.addMusic(song.songId);
                       if (isAdded) {
                         setState(() {
-                          song.in_my_list = 1;
+                          song.inMyList = 1;
                         });
                       }
                     }),
               ]
             : [],
-        secondaryActions: song.in_my_list == 1
+        secondaryActions: song.inMyList == 1
             ? <Widget>[
                 SlideAction(
                   color: HexColor('#d62d2d'),
@@ -162,10 +162,10 @@ class PeoplePageState extends State<PeoplePage> {
                     color: Colors.white,
                   ),
                   onTap: () async {
-                    bool isDeleted = await Api.hideMusic(song.song_id);
+                    bool isDeleted = await Api.hideMusic(song.songId);
                     if (isDeleted) {
                       setState(() {
-                        song.in_my_list = 0;
+                        song.inMyList = 0;
                       });
                     }
                   },

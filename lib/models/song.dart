@@ -19,24 +19,24 @@ class Song {
   String image;
   String path;
   int duration;
-  int song_id;
-  int in_my_list;
+  int songId;
+  int inMyList;
   bool downloaded;
   bool inPlaylist;
 
   Song(
-      {this.song_id,
+      {this.songId,
       this.artist,
       this.title,
       this.duration,
       this.download,
       this.path,
-      this.in_my_list})
+      this.inMyList})
       : downloaded = false,
         inPlaylist = false;
 
   @override
-  int get hashCode => song_id.hashCode;
+  int get hashCode => songId.hashCode;
 
   bool operator ==(o) => title == o.title && artist == o.artist;
 
@@ -61,7 +61,7 @@ class Song {
           artist: splitStringFromFile(data[0]),
           title: splitStringFromFile(data[1]),
           duration: int.parse(data[2]),
-          song_id: int.parse(data[3].split('.')[0]),
+          songId: int.parse(data[3].split('.')[0]),
           path: path);
     } catch (e) {
       return null;
@@ -90,17 +90,17 @@ class Song {
       artist: json['artist'],
       duration: json['duration'],
       download: json['download'],
-      song_id: json['song_id'],
+      songId: json['song_id'],
       path: json['path'],
-      in_my_list: json['in_my_list']);
+      inMyList: json['in_my_list']);
 
   Map<String, dynamic> toJson() => {
         'title': title,
         'artist': artist,
         'duration': duration,
         'download': download,
-        'song_id': song_id,
+        'song_id': songId,
         'path': path ?? "",
-        'in_my_list': in_my_list == null ? 0 : in_my_list
+        'in_my_list': inMyList == null ? 0 : inMyList
       };
 }

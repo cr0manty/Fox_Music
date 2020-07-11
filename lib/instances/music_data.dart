@@ -101,7 +101,6 @@ class MusicData {
           _playerStateStream.add(null);
           break;
         case AudioManagerEvents.ready:
-          _playerStateStream.add(true);
           playerState = PlayerState.PLAYING;
           if (args['duration'] != null || args['_duration'] != null)
             songDuration =
@@ -215,7 +214,7 @@ class MusicData {
             path: songPath.path,
             duration: 200,
             artist: randomAlpha(15),
-            song_id: rng.nextInt(100000));
+            songId: rng.nextInt(100000));
         localSongs.add(song);
         renameSong(song);
       } else if (song != null && localSongs.indexOf(song) == -1) {
@@ -283,7 +282,7 @@ class MusicData {
     List<Song> songList = [];
 
     await Future.wait(localSongs.map((Song song) async {
-      if (songsListId.contains(song.song_id.toString())) songList.add(song);
+      if (songsListId.contains(song.songId.toString())) songList.add(song);
     }));
     return songList;
   }
@@ -292,7 +291,7 @@ class MusicData {
     List<Song> songList = [];
 
     localSongs.forEach((Song song) {
-      song.inPlaylist = songsListId.contains(song.song_id.toString());
+      song.inPlaylist = songsListId.contains(song.songId.toString());
       songList.add(song);
     });
     return songList;
@@ -373,6 +372,10 @@ class MusicData {
     AudioManager.instance.stop();
   }
 
+  void updateFileSystem() {
+    _filesystemStream.add(true);
+  }
+
   void playerResume() {
     _notifyStream.add(true);
     playerState = PlayerState.PLAYING;
@@ -439,7 +442,7 @@ class MusicData {
   }
 
   bool isPlaying(int songId) {
-    return currentSong != null && currentSong.song_id == songId;
+    return currentSong != null && currentSong.songId == songId;
   }
 
   void saveSharedSong(String songPath) async {
@@ -454,10 +457,10 @@ class MusicData {
       path: songPath,
       duration: 200,
       artist: randomAlpha(15),
-      song_id: Random().nextInt(100000),
+      songId: Random().nextInt(100000),
     );
 
-    String newFileName = song.formatFileName(song.song_id);
+    String newFileName = song.formatFileName(song.songId);
     String dir = (await getApplicationDocumentsDirectory()).path;
     String path = '$dir/songs/$newFileName';
 
