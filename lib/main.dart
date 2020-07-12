@@ -64,26 +64,24 @@ class FoxMusicState extends State<FoxMusic> {
     _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
         .listen((List<SharedMediaFile> value) async {
       if (value == null) return;
-      print('Get file(inMemory)');
 
       await Future.wait(value.map((SharedMediaFile element) async {
         if (element.path.endsWith('.mp3')) {
           MusicData.instance.saveSharedSong(element.path);
         }
       }));
-      print(MusicData.instance.localSongs.length);
+      print('Get file(inMemory) ${MusicData.instance.localSongs.length}');
     });
 
     ReceiveSharingIntent.getInitialMedia()
         .then((List<SharedMediaFile> value) async {
       if (value == null) return;
-      print('Get file(closed)');
       await Future.wait(value.map((SharedMediaFile element) async {
         if (element.path.endsWith('.mp3')) {
           MusicData.instance.saveSharedSong(element.path);
         }
       }));
-      print(MusicData.instance.localSongs.length);
+      print('Get file(closed) ${MusicData.instance.localSongs.length}');
     });
   }
 

@@ -76,7 +76,8 @@ class Song {
   }
 
   String formatFileName(int id) {
-    return '${splitStringToFile(artist)}-${splitStringToFile(title)}-$duration-$id.mp3';
+    int idSong = songId ?? id;
+    return '${splitStringToFile(artist)}-${splitStringToFile(title)}-$duration-$idSong.mp3';
   }
 
   toFileName() {
