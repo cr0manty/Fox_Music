@@ -377,47 +377,43 @@ class MusicData {
   }
 
   void playerResume() {
-    _notifyStream.add(true);
     playerState = PlayerState.PLAYING;
+    _notifyStream.add(true);
     _playerStateStream.add(true);
     AudioManager.instance.toPlay();
   }
 
-  void playerPause() async {
-    _notifyStream.add(true);
+  void playerPause() {
     playerState = PlayerState.STOP;
+    _notifyStream.add(false);
     _playerStateStream.add(false);
     AudioManager.instance.toPause();
   }
 
-  void prev({bool change = true}) async {
-    if (change) AudioManager.instance.previous();
-
-    selectedIndex = AudioManager.instance.curIndex;
+  void prev({bool change = true}) {
+    Future.delayed(Duration(milliseconds: 10), () {
+      if (change) AudioManager.instance.previous();
+    });
+    selectedIndex--;
     currentSong = playlist[selectedIndex];
-    _notifyStream.add(true);
     songDuration = Duration(seconds: currentSong.duration ?? 0);
     songPosition = Duration(seconds: 0);
     _playerStateStream.add(true);
+    _notifyStream.add(true);
   }
 
-  void next({bool change = true}) async {
-    if (playerState == PlayerState.BUFFERING) {
-      Future.delayed(Duration(seconds: 1), () {
-        next(change: change);
-      });
+  void next({bool change = true}) {
+    if (!mix) {
+      selectedIndex =
+          selectedIndex + 1 > playlist.length ? 0 : selectedIndex + 1;
+      currentSong = playlist[selectedIndex];
+      songDuration = Duration(seconds: currentSong.duration ?? 0);
+      songPosition = Duration(seconds: 0);
+      _playerStateStream.add(true);
+      _notifyStream.add(true);
+      if (change) AudioManager.instance.next();
     } else {
-      if (!mix) {
-        selectedIndex = AudioManager.instance.curIndex + 1;
-        currentSong = playlist[selectedIndex];
-        _notifyStream.add(true);
-        _playerStateStream.add(true);
-        songDuration = Duration(seconds: currentSong.duration ?? 0);
-        songPosition = Duration(seconds: 0);
-        if (change) AudioManager.instance.next();
-      } else {
-        mixPlay();
-      }
+      mixPlay();
     }
   }
 
@@ -432,11 +428,10 @@ class MusicData {
     selectedIndex = rnd.nextInt(AudioManager.instance.audioList.length);
 
     currentSong = playlist[selectedIndex];
-    _notifyStream.add(true);
     songDuration = Duration(seconds: currentSong.duration ?? 0);
     songPosition = Duration(seconds: 0);
     _playerStateStream.add(true);
-    songPosition = Duration(seconds: 0);
+    _notifyStream.add(true);
 
     AudioManager.instance.play(index: selectedIndex, auto: true);
   }
@@ -446,6 +441,10 @@ class MusicData {
   }
 
   void saveSharedSong(String songPath) async {
+    if (Platform.isIOS) {
+      songPath = Uri.decodeComponent(songPath.replaceFirst('file://', ''));
+    }
+
     File file = File(songPath);
 
     if (!await file.exists()) {

@@ -122,7 +122,6 @@ class OnlineMusicListPageState extends State<OnlineMusicListPage> {
   void initState() {
     super.initState();
     _filterSongs();
-    MusicDownloadData.instance.loadMusic();
   }
 
   @override

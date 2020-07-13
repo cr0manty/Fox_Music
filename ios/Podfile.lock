@@ -86,8 +86,6 @@ PODS:
     - GoogleUtilities/Logger
   - image_picker (0.0.1):
     - Flutter
-  - ios_app_group (1.0.0):
-    - Flutter
   - keyboard_visibility (0.5.0):
     - Flutter
     - Reachability
@@ -138,7 +136,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_plugin_android_lifecycle (from `.symlinks/plugins/flutter_plugin_android_lifecycle/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
-  - ios_app_group (from `.symlinks/plugins/ios_app_group/ios`)
   - keyboard_visibility (from `.symlinks/plugins/keyboard_visibility/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
@@ -193,8 +190,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_plugin_android_lifecycle/ios"
   image_picker:
     :path: ".symlinks/plugins/image_picker/ios"
-  ios_app_group:
-    :path: ".symlinks/plugins/ios_app_group/ios"
   keyboard_visibility:
     :path: ".symlinks/plugins/keyboard_visibility/ios"
   package_info:
@@ -249,7 +244,6 @@ SPEC CHECKSUMS:
   GoogleDataTransportCCTSupport: d70a561f7d236af529fee598835caad5e25f6d3d
   GoogleUtilities: 39530bc0ad980530298e9c4af8549e991fd033b1
   image_picker: 9c3312491f862b28d21ecd8fdf0ee14e601b3f09
-  ios_app_group: 87321d24fcc60c7efc177aeffff1e63ba7d953d1
   keyboard_visibility: 96a24de806fe6823c3ad956c01ba2ec6d056616f
   nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62

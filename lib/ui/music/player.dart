@@ -23,8 +23,6 @@ class PlayerPageState extends State<PlayerPage> {
   StreamSubscription _playerStream;
   List<Playlist> _playlistList = [];
 
-  int selectItem = 1;
-  bool initCC = true;
   bool startSlide = false;
   double newSliderValue = 0.0;
 
@@ -191,7 +189,7 @@ class PlayerPageState extends State<PlayerPage> {
                       size: screenHeight * 0.045,
                     ))),
             GestureDetector(
-                onTap: () => MusicData.instance.mixClick(),
+                onTap: MusicData.instance.mixClick,
                 child: Container(
                   color: Colors.transparent,
                   height: screenHeight * 0.07,
