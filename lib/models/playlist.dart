@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:fox_music/provider/database.dart';
+import 'package:fox_music/instances/database.dart';
 
 Playlist playlistFromJson(String str) {
   if (str != null) {
@@ -24,7 +24,7 @@ class Playlist {
     songList ??= '';
   }
 
-  factory Playlist.fromJson(Map<String, dynamic> json) => new Playlist(
+  factory Playlist.fromJson(Map<String, dynamic> json) => Playlist(
       title: json['title'],
       id: json['id'],
       image: json['image'],

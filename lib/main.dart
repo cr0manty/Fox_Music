@@ -1,109 +1,121 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fox_music/provider/api.dart';
-import 'package:fox_music/provider/shared_prefs.dart';
-import 'package:fox_music/utils/check_connection.dart';
+import 'package:fox_music/instances/shared_prefs.dart';
+import 'package:fox_music/instances/check_connection.dart';
 import 'package:fox_music/utils/hex_color.dart';
-import 'package:package_info/package_info.dart';
-import 'package:fox_music/functions/utils/info_dialog.dart';
-import 'package:fox_music/provider/account_data.dart';
-
-import 'package:fox_music/provider/music_data.dart';
-import 'package:fox_music/provider/download_data.dart';
+import 'package:fox_music/instances/account_data.dart';
+import 'package:fox_music/instances/music_data.dart';
+import 'package:fox_music/instances/download_data.dart';
 import 'package:fox_music/ui/main_tab.dart';
-import 'functions/utils/info_dialog.dart';
+import 'instances/key.dart';
+import 'instances/utils.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  ConnectionsCheck connection = ConnectionsCheck.instance;
-  await connection.initialise();
+  Crashlytics.instance.enableInDevMode = true;
 
   if (SharedPrefs.getInstance() == null) {
     await SharedPrefs.init();
   }
 
-  MusicData musicData = new MusicData();
-  AccountData accountData = new AccountData();
-  MusicDownloadData downloadData = new MusicDownloadData();
+  await ConnectionsCheck.instance.initialise();
+  await AccountData.instance.init();
+  MusicData.instance.init();
+  MusicDownloadData.instance.init();
+  Utils.instance.init();
 
-  await musicData.init();
-  await accountData.init(connection.isOnline);
-  await downloadData.init(musicData, connection.isOnline);
+  FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
-  runApp(FoxMusic(
-    musicData: musicData,
-    downloadData: downloadData,
-    accountData: accountData,
-    connection: connection,
-  ));
+  runApp(FoxMusic());
 }
 
 class FoxMusic extends StatefulWidget {
-  final MusicData musicData;
-  final MusicDownloadData downloadData;
-  final AccountData accountData;
-  final ConnectionsCheck connection;
-
-  FoxMusic(
-      {this.downloadData,
-      this.musicData,
-      this.accountData,
-      this.connection});
-
   @override
   FoxMusicState createState() => FoxMusicState();
 }
 
 class FoxMusicState extends State<FoxMusic> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-  void asyncInit() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    var currentAppVersion;
-
-    if (widget.connection.isOnline) {
-      currentAppVersion = await Api.appVersionGet();
-      if (currentAppVersion != null)  SharedPrefs.saveLastVersion(currentAppVersion);
-    } else {
-      currentAppVersion = await  SharedPrefs.getLastVersion();
-    }
-    if (currentAppVersion != null &&
-        packageInfo.version != currentAppVersion['version']) {
-      await pickDialog(context, 'New version available',
-          currentAppVersion['update_details'], currentAppVersion['url']);
-    }
-  }
+  StreamSubscription _connectionsCheck;
+  StreamSubscription _accountData;
+  StreamSubscription _musicData;
+  StreamSubscription _musicDownloadData;
+  StreamSubscription _intentDataStreamSubscription;
 
   @override
   void initState() {
     super.initState();
+    _connectionsCheck =
+        ConnectionsCheck.instance.onChange.listen((event) => setState(() {}));
+
+    _accountData = AccountData.instance.onUserChangeAccount
+        .listen((event) => setState(() {}));
+
+    _musicData = MusicData.instance.notifyStream.listen((event) => setState(() {
+          Utils.instance.playerUsing = MusicData.instance.currentSong != null;
+        }));
+
+    _musicDownloadData = MusicDownloadData.instance.notifyStream
+        .listen((event) => setState(() {}));
+
+    _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream()
+        .listen((List<SharedMediaFile> value) async {
+      if (value == null) return;
+
+      await Future.wait(value.map((SharedMediaFile element) async {
+        if (element.path.endsWith('.mp3')) {
+          MusicData.instance.saveSharedSong(element.path);
+        }
+      }));
+      print('Get file(inMemory) ${MusicData.instance.localSongs.length}');
+    });
+
+    ReceiveSharingIntent.getInitialMedia()
+        .then((List<SharedMediaFile> value) async {
+      if (value == null) return;
+      await Future.wait(value.map((SharedMediaFile element) async {
+        if (element.path.endsWith('.mp3')) {
+          MusicData.instance.saveSharedSong(element.path);
+        }
+      }));
+      print('Get file(closed) ${MusicData.instance.localSongs.length}');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    Image.asset('assets/images/audio-cover.png');
 
     return CupertinoApp(
-      key: _scaffoldKey,
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-        DefaultMaterialLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-      ],
-      theme: CupertinoThemeData(
-          primaryColor: Color.fromRGBO(193, 39, 45, 1),
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: HexColor('#222222')),
-      home: MainPage(
-        musicData: widget.musicData,
-        downloadData: widget.downloadData,
-        accountData: widget.accountData,
-        connection: widget.connection,
-      ),
-    );
+        navigatorKey: KeyHolder().key,
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          DefaultMaterialLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+        ],
+        theme: CupertinoThemeData(
+            primaryColor: Color.fromRGBO(193, 39, 45, 1),
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: HexColor.background()),
+        home: MainPage());
+  }
+
+  @override
+  void dispose() {
+    ConnectionsCheck.instance?.dispose();
+    AccountData.instance?.dispose();
+    MusicData.instance?.dispose();
+    MusicDownloadData.instance?.dispose();
+
+    _connectionsCheck?.cancel();
+    _accountData?.cancel();
+    _musicData?.cancel();
+    _musicDownloadData?.cancel();
+    _intentDataStreamSubscription?.cancel();
+    super.dispose();
   }
 }
